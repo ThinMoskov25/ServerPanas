@@ -1,0 +1,295 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "10_otro_lado"
+	group: "1000000000000001"
+	icon: "deeperdarker:reinforced_echo_shard"
+	id: "2000000000000010"
+	order_index: 9
+	quest_links: [ ]
+	quests: [
+		{
+			description: [
+				"&7&oHay algo mal en las Ciudades Antiguas. No son ruinas: son puertas. Y alguien las selló desde el otro lado.&r"
+				""
+				"Baja a la Oscuridad Profunda, encuentra una Ciudad Antigua y saquea sus cofres."
+				""
+				"&cCuidado:&r ahí abajo vive el Warden. Muévete agachado, evita los sensores de sculk y no rompas nada que chille."
+				""
+				"&eObjetivo:&r consigue &e3 fragmentos de eco&r."
+			]
+			id: "3000000000000100"
+			rewards: [
+				{
+					count: 2
+					id: "5000000000000100"
+					item: "minecraft:echo_shard"
+					type: "item"
+				}
+				{
+					id: "5000000000000101"
+					type: "xp"
+					xp: 120
+				}
+			]
+			shape: "circle"
+			size: 1.5d
+			subtitle: "Las Ciudades Antiguas no son ruinas"
+			tasks: [
+				{
+					count: 3L
+					id: "4000000000000100"
+					item: "minecraft:echo_shard"
+					type: "item"
+				}
+			]
+			title: "&6La ciudad silenciosa"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["3000000000000100"]
+			description: [
+				"&7&oUn fragmento de eco normal no abre nada. Hay que reforzarlo, y para eso necesitas lo que el Warden lleva dentro.&r"
+				""
+				"&cSí: hay que matar al Warden.&r"
+				""
+				"&7Consejo: no lo pelees de frente. Atácalo desde lejos o desde una posición elevada, lleva manzanas doradas y hazlo con tus panas. Tiene 500 de vida y golpea durísimo incluso contra armadura de netherita.&r"
+				""
+				"&eObjetivo:&r consigue el &eCorazón de las profundidades&r."
+			]
+			id: "3000000000000101"
+			rewards: [
+				{
+					id: "5000000000000102"
+					type: "xp_levels"
+					xp_levels: 15
+				}
+			]
+			shape: "hexagon"
+			size: 1.25d
+			subtitle: "Matar lo que no debería morir"
+			tasks: [
+				{
+					id: "4000000000000101"
+					item: "deeperdarker:heart_of_the_deep"
+					type: "item"
+				}
+			]
+			title: "&cEl corazón de las profundidades"
+			x: 2.38d
+			y: 0.0d
+		}
+		{
+			dependencies: ["3000000000000101"]
+			description: [
+				"&7&oCon el corazón puedes reforzar el fragmento.&r"
+				""
+				"El &eFragmento de eco reforzado&r es la llave: úsalo en el portal sellado del centro de la Ciudad Antigua."
+				""
+				"&7También sirve para convertir equipo de netherita en equipo de Guardián en la mesa de herrería.&r"
+				""
+				"&eObjetivo:&r fabrica un &eFragmento de eco reforzado&r."
+			]
+			id: "3000000000000102"
+			rewards: [
+				{
+					id: "5000000000000103"
+					type: "xp"
+					xp: 150
+				}
+			]
+			shape: "rsquare"
+			subtitle: "La llave del portal"
+			tasks: [
+				{
+					id: "4000000000000102"
+					item: "deeperdarker:reinforced_echo_shard"
+					type: "item"
+				}
+			]
+			title: "La llave"
+			x: 4.5d
+			y: 0.0d
+		}
+		{
+			dependencies: ["3000000000000102"]
+			description: [
+				"&7&oEl portal se abre.&r"
+				""
+				"Bienvenido al &5Otro Lado&r: una caverna infinita donde el sculk ganó hace mucho tiempo. Cuatro biomas te esperan:"
+				"&7• &3Tierras profundas&r: el nivel base, hostil."
+				"&7• &3Bosque del eco&r: árboles de eco gigantes."
+				"&7• &3Cavernas florecientes&r: lo más parecido a la vida que hay aquí."
+				"&7• &3Columnas nubladas&r: pilares entre la niebla."
+				""
+				"&cLos sonidos aquí no son decorativos. Si oyes algo acercarse, es porque viene.&r"
+				""
+				"&eObjetivo:&r entra en el &5Otro Lado&r."
+			]
+			id: "3000000000000103"
+			rewards: [
+				{
+					id: "5000000000000104"
+					type: "xp_levels"
+					xp_levels: 12
+				}
+			]
+			shape: "octagon"
+			size: 1.25d
+			subtitle: "Lo que hay bajo la piedra base"
+			tasks: [
+				{
+					dimension: "deeperdarker:otherside"
+					id: "4000000000000103"
+					type: "dimension"
+				}
+			]
+			title: "&eEl Otro Lado"
+			x: 6.62d
+			y: 0.0d
+		}
+		{
+			dependencies: ["3000000000000103"]
+			description: [
+				"&7&oEl mineral propio de esta dimensión.&r"
+				""
+				"El &bResonarium&r sale de la piedra de sculk y la pizarra lúgubre. Con él se fabrican herramientas más rápidas que las de diamante."
+				""
+				"&7Las menas normales (hierro, oro, diamante) también abundan aquí.&r"
+				""
+				"&eObjetivo:&r reúne &e8 de Resonarium&r."
+			]
+			id: "3000000000000104"
+			rewards: [
+				{
+					count: 4
+					id: "5000000000000105"
+					item: "deeperdarker:resonarium"
+					type: "item"
+				}
+			]
+			shape: "rsquare"
+			subtitle: "El mineral de las profundidades"
+			tasks: [
+				{
+					count: 8L
+					id: "4000000000000104"
+					item: "deeperdarker:resonarium"
+					type: "item"
+				}
+			]
+			title: "Resonarium"
+			x: 8.88d
+			y: -1.0d
+		}
+		{
+			dependencies: ["3000000000000103"]
+			description: [
+				"&7&oEsta dimensión tiene su propio cazador.&r"
+				""
+				"El &cAcechador&r vive en los templos antiguos del Otro Lado. Es rápido, a ratos invisible, y te encuentra por el sonido."
+				""
+				"&7No corras: tus pasos lo guían. Camina agachado y golpea cuando aparezca.&r"
+				""
+				"&eObjetivo:&r consigue el &eCaparazón de Guardián&r que suelta el Acechador."
+			]
+			id: "3000000000000105"
+			rewards: [
+				{
+					id: "5000000000000106"
+					type: "xp_levels"
+					xp_levels: 18
+				}
+			]
+			shape: "hexagon"
+			size: 1.25d
+			subtitle: "Algo te está cazando"
+			tasks: [
+				{
+					id: "4000000000000105"
+					item: "deeperdarker:warden_carapace"
+					type: "item"
+				}
+			]
+			title: "&cEl Acechador"
+			x: 8.88d
+			y: 1.0d
+		}
+		{
+			dependencies: ["3000000000000105"]
+			description: [
+				"&7&oLa mejor armadura de esta dimensión.&r"
+				""
+				"La &eArmadura de Guardián&r amortigua tus vibraciones, así que los mobs de sculk dejan de detectarte."
+				""
+				"&eObjetivo:&r forja un &ePeto de Guardián&r."
+			]
+			id: "3000000000000106"
+			rewards: [
+				{
+					id: "5000000000000107"
+					type: "xp_levels"
+					xp_levels: 20
+				}
+			]
+			shape: "rsquare"
+			subtitle: "Volverse invisible al sculk"
+			tasks: [
+				{
+					id: "4000000000000106"
+					item: {
+						Count: 1
+						id: "deeperdarker:warden_chestplate"
+						tag: {
+							Damage: 0
+						}
+					}
+					type: "item"
+				}
+			]
+			title: "Armadura de Guardián"
+			x: 11.0d
+			y: 1.0d
+		}
+		{
+			dependencies: ["3000000000000104"]
+			description: [
+				"&7&oDos premios más de esta dimensión.&r"
+				""
+				"Los &5Élitros de almas&r funcionan como los normales, pero con impulso propio sin cohetes. El &3Transmisor de sculk&r, por su parte, da acceso remoto a tus cofres."
+				""
+				"&eObjetivo:&r consigue unos &5Élitros de almas&r."
+			]
+			id: "3000000000000107"
+			optional: true
+			rewards: [
+				{
+					id: "5000000000000108"
+					type: "xp_levels"
+					xp_levels: 15
+				}
+			]
+			shape: "rsquare"
+			subtitle: "Volar sin cohetes"
+			tasks: [
+				{
+					id: "4000000000000107"
+					item: {
+						Count: 1
+						id: "deeperdarker:soul_elytra"
+						tag: {
+							Damage: 0
+						}
+					}
+					type: "item"
+				}
+			]
+			title: "Élitros de almas"
+			x: 11.0d
+			y: -1.0d
+		}
+	]
+	subtitle: ["La dimensión que se esconde tras las Ciudades Antiguas."]
+	title: "&3X. El Otro Lado"
+}

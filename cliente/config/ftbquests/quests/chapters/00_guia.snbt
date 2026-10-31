@@ -1,0 +1,349 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "00_guia"
+	group: "1000000000000001"
+	icon: "minecraft:knowledge_book"
+	id: "2000000000000012"
+	order_index: -1
+	quests: [
+		{
+			description: [
+				"Bienvenido a la &6Guia de Server Panas&r."
+				""
+				"Aqui tienes un resumen rapido de los mods mas"
+				"importantes del pack: para que sirven y como"
+				"empezar a usarlos."
+				""
+				"&7Marca cada ficha cuando la hayas leido. No dan"
+				"premio: son solo para aprender.&r"
+			]
+			icon: "minecraft:knowledge_book"
+			id: "3000000000000300"
+			size: 1.5d
+			subtitle: "Todo lo que necesitas saber"
+			tasks: [{ id: "4000000000000300", title: "Leer la guia", type: "checkmark" }]
+			title: "&6&lGUIA DEL SERVIDOR"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["3000000000000300"]
+			description: [
+				"&eQue hace:&r guarda tu inventario en una tumba al"
+				"morir, y solo &etu&r puedes abrirla."
+				""
+				"&ePaso a paso:&r"
+				"1. Al morir se crea una tumba donde caiste."
+				"2. Fabrica una &eBrujula de la Muerte&r: te apunta"
+				"   a tu ultima tumba."
+				"3. Vuelve y haz clic derecho en la tumba para"
+				"   recuperar TODO de golpe."
+				""
+				"&7Las almas de las tumbas dan niveles de Conocimiento"
+				"de la Muerte, que desbloquean ventajas.&r"
+			]
+			icon: "tombstone:grave_key"
+			id: "3000000000000301"
+			subtitle: "Nunca pierdas tu equipo"
+			tasks: [{ id: "4000000000000301", title: "Entendido", type: "checkmark" }]
+			title: "&7Tombstone"
+			x: 2.0d
+			y: -2.0d
+		}
+		{
+			dependencies: ["3000000000000300"]
+			description: [
+				"&eQue hace:&r viaje rapido entre puntos."
+				""
+				"&ePaso a paso:&r"
+				"1. Fabrica una &eWaystone&r y colocala."
+				"2. Haz clic derecho para activarla y ponle nombre."
+				"3. Desde cualquier otra waystone, abre el menu y"
+				"   teletransportate a las que hayas activado."
+				""
+				"&7Tambien puedes usar el &ePergamino de Enlace&r para"
+				"guardar waystones en un item de bolsillo.&r"
+			]
+			icon: "waystones:waystone"
+			id: "3000000000000302"
+			subtitle: "Viaje rapido"
+			tasks: [{ id: "4000000000000302", title: "Entendido", type: "checkmark" }]
+			title: "&bWaystones"
+			x: 2.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["3000000000000300"]
+			description: [
+				"&eQue hace:&r una mochila enorme que llevas puesta,"
+				"con agua, comida y mucho espacio."
+				""
+				"&ePaso a paso:&r"
+				"1. Fabrica la &6Mochila del Viajero&r."
+				"2. Equipala en la ranura de pechera (o colocala"
+				"   en el suelo como cofre)."
+				"3. Abrela con la tecla asignada para ver su"
+				"   inventario, tanques de agua y zona de comida."
+			]
+			icon: "travelersbackpack:standard"
+			id: "3000000000000303"
+			subtitle: "Carga todo contigo"
+			tasks: [{ id: "4000000000000303", title: "Entendido", type: "checkmark" }]
+			title: "&6Travelers Backpack"
+			x: 2.0d
+			y: 2.0d
+		}
+		{
+			dependencies: ["3000000000000300"]
+			description: [
+				"&eQue hace:&r guarda tus herramientas y las cambias"
+				"al instante con la rueda del raton."
+				""
+				"&ePaso a paso:&r"
+				"1. Fabrica el &6Cinturon de Herramientas&r."
+				"2. Equipalo (ranura de curios o manteniendolo)."
+				"3. Manten la tecla asignada y usa la rueda del"
+				"   raton para cambiar de pico/hacha/pala al vuelo."
+			]
+			icon: "toolbelt:belt"
+			id: "3000000000000304"
+			subtitle: "Herramientas a mano"
+			tasks: [{ id: "4000000000000304", title: "Entendido", type: "checkmark" }]
+			title: "&6Tool Belt"
+			x: 4.0d
+			y: -2.0d
+		}
+		{
+			dependencies: ["3000000000000300"]
+			description: [
+				"&eQue hace:&r sistema de magia con hechizos de fuego,"
+				"hielo, rayo, sangre y mas."
+				""
+				"&ePaso a paso:&r"
+				"1. Consigue un &dLibro de Hechizos&r (lo venden o"
+				"   se fabrica)."
+				"2. Aprende hechizos con pergaminos."
+				"3. Equipa el libro y usa mana para lanzarlos."
+				""
+				"&7Necesitas una fuente de mana (anillos/amuletos)"
+				"para lanzar seguido.&r"
+			]
+			icon: "irons_spellbooks:diamond_spell_book"
+			id: "3000000000000305"
+			subtitle: "Conviertete en mago"
+			tasks: [{ id: "4000000000000305", title: "Entendido", type: "checkmark" }]
+			title: "&dIron's Spellbooks"
+			x: 4.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["3000000000000300"]
+			description: [
+				"&eQue hace:&r anade dragones de fuego, hielo y rayo,"
+				"ademas de hipogrifos y otras bestias."
+				""
+				"&ePaso a paso:&r"
+				"1. Busca nidos de dragon (montanas de oro/plata)."
+				"2. Roba un &6Huevo de Dragon&r e incubalo en fuego"
+				"   o hielo segun el tipo."
+				"3. Crialo, domalo y ponle silla para volar."
+				""
+				"&c&lCUIDADO: los dragones adultos son letales.&r"
+			]
+			icon: "iceandfire:dragon_skull_fire"
+			id: "3000000000000306"
+			subtitle: "Doma tu propio dragon"
+			tasks: [{ id: "4000000000000306", title: "Entendido", type: "checkmark" }]
+			title: "&cIce and Fire"
+			x: 4.0d
+			y: 2.0d
+		}
+		{
+			dependencies: ["3000000000000300"]
+			description: [
+				"&eQue hace:&r una dimension magica de arboles"
+				"gigantes y jefes unicos."
+				""
+				"&ePaso a paso para el portal:&r"
+				"1. Cava un hoyo 2x2 y llenalo de agua."
+				"2. Rodealo de flores y setas."
+				"3. Tira un &ediamante&r al agua: caera un rayo y"
+				"   se abrira el portal al Crepusculo."
+			]
+			icon: "twilightforest:twilight_portal_miniature_structure"
+			id: "3000000000000307"
+			subtitle: "El Bosque Crepuscular"
+			tasks: [{ id: "4000000000000307", title: "Entendido", type: "checkmark" }]
+			title: "&5Twilight Forest"
+			x: 6.0d
+			y: -2.0d
+		}
+		{
+			dependencies: ["3000000000000300"]
+			description: [
+				"&eQue hace:&r expande el Deep Dark y anade &3El Otro"
+				"Lado&r, una dimension oscura espejo del mundo."
+				""
+				"&ePaso a paso:&r"
+				"1. Encuentra una Ciudad Antigua en el Deep Dark."
+				"2. Consigue &eFragmentos de Eco&r y materiales del"
+				"   Warden para abrir el paso."
+				"3. Cruza al Otro Lado con cuidado: es peligroso."
+			]
+			icon: "deeperdarker:reinforced_echo_shard"
+			id: "3000000000000308"
+			subtitle: "El reflejo oscuro"
+			tasks: [{ id: "4000000000000308", title: "Entendido", type: "checkmark" }]
+			title: "&3Deeper Darker"
+			x: 6.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["3000000000000300"]
+			description: [
+				"&eQue hace:&r siembra el mundo de mazmorras con"
+				"jefes dificiles y equipo de alto nivel."
+				""
+				"&ePaso a paso:&r"
+				"1. Explora para hallar arenas y templos."
+				"2. Reune los materiales para invocar a cada jefe"
+				"   (ej. Ignis, Guardian del End)."
+				"3. Vencelos para conseguir armaduras y armas top."
+				""
+				"&c&lLos jefes de este server tienen vida aumentada.&r"
+			]
+			icon: "cataclysm:monstrous_helm"
+			id: "3000000000000309"
+			subtitle: "Jefes de verdad"
+			tasks: [{ id: "4000000000000309", title: "Entendido", type: "checkmark" }]
+			title: "&cL_Ender's Cataclysm"
+			x: 6.0d
+			y: 2.0d
+		}
+		{
+			dependencies: ["3000000000000300"]
+			description: [
+				"&eQue hace:&r cocina platos que curan y dan mejores"
+				"beneficios que un filete seco."
+				""
+				"&ePaso a paso:&r"
+				"1. Fabrica una &6Olla de Cocina&r (Farmer's Delight)."
+				"2. Ponla sobre una fuente de calor."
+				"3. Mete ingredientes (muchos de &aCroptopia&r) y"
+				"   recoge el plato con un cuenco."
+			]
+			icon: "farmersdelight:cooking_pot"
+			id: "300000000000030A"
+			subtitle: "Comer bien importa"
+			tasks: [{ id: "400000000000030A", title: "Entendido", type: "checkmark" }]
+			title: "&aFarmer's Delight y Croptopia"
+			x: 8.0d
+			y: -2.0d
+		}
+		{
+			dependencies: ["3000000000000300"]
+			description: [
+				"&eQue hace:&r mejora los encantamientos y anade"
+				"&bgemas&r que se engarzan en el equipo."
+				""
+				"&ePaso a paso:&r"
+				"1. Mejora tu mesa de encantar con estanterias"
+				"   especiales para subir el nivel maximo."
+				"2. Consigue gemas en mazmorras y jefes."
+				"3. Usa una &6Mesa de Herreria&r para engarzar la"
+				"   gema en armadura o arma con ranura."
+			]
+			icon: "apotheosis:gem"
+			id: "300000000000030B"
+			subtitle: "Encantamientos y gemas"
+			tasks: [{ id: "400000000000030B", title: "Entendido", type: "checkmark" }]
+			title: "&5Apotheosis"
+			x: 8.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["3000000000000300"]
+			description: [
+				"&eQue hace:&r monta tu propia tienda para vender a"
+				"tus amigos aunque no estes conectado."
+				""
+				"&ePaso a paso:&r"
+				"1. Coloca una &6tienda&r (Simple Shops) o usa el"
+				"   &6Puesto de Comercio&r."
+				"2. Define el objeto que vendes y su precio."
+				"3. Tus panas compran solos cuando quieran."
+			]
+			icon: "minecraft:emerald"
+			id: "300000000000030C"
+			subtitle: "Economia entre panas"
+			tasks: [{ id: "400000000000030C", title: "Entendido", type: "checkmark" }]
+			title: "&2Simple Shops y Trading Post"
+			x: 8.0d
+			y: 2.0d
+		}
+		{
+			dependencies: ["3000000000000300"]
+			description: [
+				"&eQue hace:&r anade &eArtefactos&r y &6Reliquias&r:"
+				"objetos con poderes pasivos muy fuertes."
+				""
+				"&ePaso a paso:&r"
+				"1. Busca cofres de mazmorra y botines de jefe."
+				"2. Equipa los artefactos en ranuras de &6Curios&r"
+				"   (abre tu inventario, pestana lateral)."
+				"3. Algunas reliquias se mejoran o tienen usos"
+				"   activos con tecla."
+			]
+			icon: "artifacts:cross_necklace"
+			id: "300000000000030D"
+			subtitle: "Objetos legendarios"
+			tasks: [{ id: "400000000000030D", title: "Entendido", type: "checkmark" }]
+			title: "&eArtifacts y Relics"
+			x: 10.0d
+			y: -1.0d
+		}
+		{
+			dependencies: ["3000000000000300"]
+			description: [
+				"&eQue hace:&r anade &eChocobos&r, aves montables que"
+				"corren, saltan y algunas vuelan o nadan."
+				""
+				"&ePaso a paso:&r"
+				"1. Consigue &aGysahl&r (su comida) y plantala."
+				"2. Atrae y doma un chocobo dandole Gysahl."
+				"3. Ponle silla y alforjas para montarlo y cargar"
+				"   cosas. Mira el &eChocopedia&r para detalles."
+			]
+			icon: "chococraft:chocobo_saddle"
+			id: "300000000000030E"
+			subtitle: "Monturas chocobo"
+			tasks: [{ id: "400000000000030E", title: "Entendido", type: "checkmark" }]
+			title: "&eChocoCraft"
+			x: 10.0d
+			y: 1.0d
+		}
+		{
+			dependencies: ["3000000000000300"]
+			description: [
+				"&eQue hacen:&r mejoran la vida diaria con decoracion,"
+				"atajos y utilidades."
+				""
+				"&7- &aQuark&r: cofres que se pueden abrir sin espacio"
+				"  encima, ordenar inventario, muchos bloques deco."
+				"&7- &aSupplementaries&r: faroles, letreros, velas,"
+				"  cuerdas, tuberias y adornos."
+				"&7- &aInventory Sorter&r: clic en la rueda del raton"
+				"  sobre un cofre para ordenarlo al instante."
+			]
+			icon: "supplementaries:flag_red"
+			id: "300000000000030F"
+			subtitle: "Calidad de vida"
+			tasks: [{ id: "400000000000030F", title: "Entendido", type: "checkmark" }]
+			title: "&aQuark y Supplementaries"
+			x: 10.0d
+			y: 3.0d
+		}
+	]
+	title: "&60. Guia"
+}

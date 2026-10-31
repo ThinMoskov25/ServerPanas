@@ -1,0 +1,76 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "g30_supplementaries"
+	group: "1000000000000002"
+	icon: "supplementaries:flag_red"
+	id: "700000000000001E"
+	order_index: 29
+	quests: [
+		{
+			description: [
+				"Anade muchisima decoracion y utilidades para tus builds."
+			]
+			icon: "supplementaries:flag_red"
+			id: "91E0000000000000"
+			size: 1.5d
+			subtitle: "Decoracion y utilidades"
+			tasks: [{ id: "A1E0000000000000", title: "Empezar", type: "checkmark" }]
+			title: "&a&lSUPPLEMENTARIES"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["91E0000000000000"]
+			description: [
+				"&6PASO 1."
+				"Faroles colgantes, velas, letreros, banderas, cuerdas,"
+				"tuberias, buzones y globos."
+				""
+				"&aDesbloquea:&r almacenaje decorativo."
+			]
+			icon: "supplementaries:flag_red"
+			id: "91E0000000000001"
+			subtitle: "Faroles y banderas"
+			tasks: [{ id: "A1E0000000000001", title: "Entendido", type: "checkmark" }]
+			title: "&a1. Deco"
+			x: 2.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["91E0000000000001"]
+			description: [
+				"&6PASO 2."
+				"La &eUrna/Jarron&r y el &ePergamino&r sirven para guardar"
+				"cosas con estilo."
+				""
+				"&aDesbloquea:&r el resto de utilidades."
+			]
+			icon: "supplementaries:urn"
+			id: "91E0000000000002"
+			subtitle: "Guarda cosas"
+			tasks: [{ id: "A1E0000000000002", title: "Entendido", type: "checkmark" }]
+			title: "&a2. Urna y Pergamino"
+			x: 4.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["91E0000000000002"]
+			description: [
+				"&6PASO 3 (FINAL)."
+				"Busca cada bloque en &eJEI&r (tecla R) para ver su receta."
+				"Combina con Quark para los builds mas completos del pack."
+				""
+				"&6Ya dominas Supplementaries.&r"
+			]
+			icon: "supplementaries:sign_post_oak"
+			id: "91E0000000000003"
+			subtitle: "Fabrica en JEI"
+			tasks: [{ id: "A1E0000000000003", title: "Entendido", type: "checkmark" }]
+			title: "&a3. Construye con estilo"
+			x: 6.0d
+			y: 0.0d
+		}
+	]
+	title: "&a30. Supplementaries"
+}

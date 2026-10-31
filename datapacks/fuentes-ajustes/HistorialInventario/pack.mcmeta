@@ -1,0 +1,6 @@
+{
+  "pack": {
+    "pack_format": 15,
+    "description": "Server Panas - Historial de inventarios en el servidor (cada 2 min, 20 copias)"
+  }
+}

@@ -1,0 +1,60 @@
+# CAPITULO 2000000000000005
+titulo: &aV. Monturas y jinetes
+subtitulo: Chocobos e hipogrifos: el camino rápido al horizonte.
+
+## 3000000000000040
+rol: inicio
+titulo: Semillas de Gysahl
+subtitulo: El camino fácil al cielo
+desc:
+&7&oNo todas las monturas escupen fuego.&r
+
+Los &eChocobos&r son aves enormes, rápidas y mucho más fáciles de criar que un dragón. Todo empieza con el &eGysahl verde&r: su comida favorita y lo que usarás para domarlos.
+
+&eObjetivo:&r consigue &e3 semillas de Gysahl verde&r.
+
+## 3000000000000041
+rol: normal
+titulo: Chocopedia
+subtitulo: El manual del jinete
+desc:
+&7&oTodo buen jinete conoce a su montura.&r
+
+La &eChocopedia&r explica todo sobre los chocobos: colores, habilidades y cómo criarlos.
+
+&7Dato: los chocobos dorados pueden volar.&r
+
+&eObjetivo:&r consigue la &eChocopedia&r.
+
+## 3000000000000042
+rol: hito
+titulo: Silla de chocobo
+subtitulo: Tu primera montura
+desc:
+&7&oA partir de aquí, caminar es opcional.&r
+
+Doma un chocobo dándole Gysahl verde y ponle una silla para montarlo.
+
+&eObjetivo:&r fabrica una &eSilla de chocobo&r.
+
+## 3000000000000043
+rol: normal
+titulo: Equipo de jinete
+subtitulo: Montura y mula a la vez
+desc:
+&7&oUn buen chocobo carga contigo y con tu botín.&r
+
+Las &eAlforjas&r convierten a tu chocobo en un almacén con patas, y el &eSilbato&r lo llama desde lejos para que nunca lo pierdas.
+
+&eObjetivo:&r fabrica las &eAlforjas&r y el &eSilbato de chocobo&r.
+
+## 3000000000000044
+rol: normal
+titulo: Huevo de hipogrifo
+subtitulo: Mitad águila, mitad caballo
+desc:
+&7&oHay otra montura voladora en este mundo, y es mucho más agresiva.&r
+
+Los &eHipogrifos&r viven en las montañas. Si consigues un huevo y lo incubas, tendrás una montura voladora que crece mucho más rápido que un dragón.
+
+&eObjetivo:&r consigue un &eHuevo de hipogrifo&r.

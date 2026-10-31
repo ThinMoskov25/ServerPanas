@@ -1,0 +1,4 @@
+{
+	"lootr.advancements.50loot.title": "Half-Century",
+	"lootr.commands.usage": "/lootr cart | cart <loot-table> | %s | custom-chest | custom-area <x> <y> <z> <x> <y> <z> | refresh | decay | open_as <player> | open_as_uuid <uuid> | id | openers | clear <player> | cclear <entity matcher>"
+}

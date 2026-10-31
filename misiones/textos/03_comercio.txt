@@ -1,0 +1,79 @@
+# CAPITULO 2000000000000003
+titulo: &2III. Rutas de comercio
+subtitulo: Aldeanos, puestos comerciales y tu propia tienda.
+
+## 3000000000000020
+rol: inicio
+titulo: Primeros tratos
+subtitulo: El dinero mueve el mundo
+desc:
+&7&oNo todo se consigue con un pico.&r
+
+Los aldeanos de este mundo son más variados que nunca: &aMore Villagers&r ha traído oficios nuevos con tratos propios.
+
+&eObjetivo:&r encuentra una aldea y consigue &e3 esmeraldas&r comerciando.
+
+## 3000000000000021
+rol: normal
+titulo: Puesto comercial
+subtitulo: Todos los tratos en un sitio
+desc:
+&7&oIr de aldeano en aldeano es lento.&r
+
+El &ePuesto comercial&r te deja ver y usar los tratos de todos los aldeanos cercanos desde un solo bloque.
+
+&7Consejo: ponlo en tu base, cerca de tus aldeanos.&r
+
+&eObjetivo:&r fabrica un &ePuesto comercial&r.
+
+## 3000000000000022
+rol: normal
+titulo: Biblioteca viviente
+subtitulo: El bibliotecario lo cambia todo
+desc:
+&7&oUn bibliotecario es la mina de oro del comercio.&r
+
+Pon un atril junto a un aldeano desempleado y tendrás tu propia fuente de encantamientos.
+
+&7Truco: rompe y vuelve a poner el atril para cambiar el libro que ofrece, hasta que salga el que buscas.&r
+
+&eObjetivo:&r consigue un &elibro encantado&r comerciando.
+
+## 3000000000000023
+rol: normal
+titulo: Sala de tratos
+subtitulo: Construida a mano, como debe ser
+tarea 4000000000000023: Tengo 5 aldeanos con oficio en mi base
+desc:
+&7&oUn aldeano es útil. Una sala de tratos es una economía.&r
+
+Construye tu propia &eSala de tratos&r: al menos cinco aldeanos con oficio, cada uno con su puesto de trabajo, cama y puertas para que no se escapen.
+
+&7Hazlo a la antigua: llévalos en barca o vagoneta y protégelos de los zombis.&r
+
+&eObjetivo:&r marca la casilla cuando tengas los cinco trabajando.
+
+## 3000000000000024
+rol: hito
+titulo: Tu propia tienda
+subtitulo: Monta tu negocio en el servidor
+desc:
+&7&oAquí viene lo bueno de jugar en un servidor.&r
+
+Con &aSimple Shops&r puedes montar tu propia tienda y vender a tus amigos aunque no estés conectado. Coloca la tienda, pon el objeto y el precio, y tus panas compran solos.
+
+&6El primer mercado del servidor empieza contigo.&r
+
+&eObjetivo:&r fabrica una &etienda&r de Simple Shops.
+
+## 3000000000000025
+rol: normal
+titulo: Tratos con goblins
+subtitulo: Comercio poco recomendable
+tarea 4000000000000025: He comerciado con un goblin
+desc:
+&7&oHay mercaderes que no viven en aldeas.&r
+
+Los &aGoblin Traders&r aparecen bajo tierra y en la superficie. Venden cosas raras a precios aún más raros.
+
+&eObjetivo:&r encuentra un goblin, haz un trato y marca la casilla.

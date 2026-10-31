@@ -1,0 +1,97 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "g03_travelersbackpack"
+	group: "1000000000000002"
+	icon: "travelersbackpack:standard"
+	id: "7000000000000003"
+	order_index: 2
+	quests: [
+		{
+			description: [
+				"Una mochila enorme que llevas puesta, con inventario,"
+				"tanques de agua y zona de comida."
+			]
+			icon: "travelersbackpack:standard"
+			id: "9030000000000000"
+			size: 1.5d
+			subtitle: "Carga todo contigo"
+			tasks: [{ id: "A030000000000000", title: "Empezar", type: "checkmark" }]
+			title: "&6&lTRAVELER'S BACKPACK"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9030000000000000"]
+			description: [
+				"&6PASO 1.&r"
+				"Fabrica la &6Mochila del Viajero&r (cuero + la lana del"
+				"color o tema que quieras)."
+				""
+				"&aDesbloquea:&r equiparla."
+			]
+			icon: "travelersbackpack:standard"
+			id: "9030000000000001"
+			subtitle: "Tu primera mochila"
+			tasks: [{ id: "A030000000000001", title: "Conseguir mochila", type: "checkmark" }]
+			title: "&61. Fabrica la mochila"
+			x: 2.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9030000000000001"]
+			description: [
+				"&6PASO 2.&r"
+				"Equipala en la &eranura de pechera&r (o en la ranura"
+				"'back' de Curios), o colocala en el suelo como cofre."
+				""
+				"&aDesbloquea:&r usar su contenido."
+			]
+			icon: "travelersbackpack:standard"
+			id: "9030000000000002"
+			subtitle: "Ponla en la espalda"
+			tasks: [{ id: "A030000000000002", title: "Entendido", type: "checkmark" }]
+			title: "&62. Equipala"
+			x: 4.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9030000000000002"]
+			description: [
+				"&6PASO 3.&r"
+				"Abrela con la &etecla B&r (configurable) para ver:"
+				"- inventario grande,"
+				"- 2 tanques de agua (rellena botellas o caldero),"
+				"- ranura de comida que te alimenta sola."
+				""
+				"&aDesbloquea:&r mochilas tematicas."
+			]
+			icon: "minecraft:water_bucket"
+			id: "9030000000000003"
+			subtitle: "Inventario y tanques"
+			tasks: [{ id: "A030000000000003", title: "Entendido", type: "checkmark" }]
+			title: "&63. Abre con tecla B"
+			x: 6.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9030000000000003"]
+			description: [
+				"&6PASO 4 (FINAL).&r"
+				"Hay temas con habilidades (abeja, creeper, etc.). Sube de"
+				"nivel usando la mochila. Al morir se queda con tu cuerpo;"
+				"con Tombstone vuelve en la tumba."
+				""
+				"&6Ya dominas la mochila.&r"
+			]
+			icon: "travelersbackpack:bee"
+			id: "9030000000000004"
+			subtitle: "Sube de nivel"
+			tasks: [{ id: "A030000000000004", title: "Entendido", type: "checkmark" }]
+			title: "&64. Mochilas tematicas"
+			x: 8.0d
+			y: 0.0d
+		}
+	]
+	title: "&63. Traveler's Backpack"
+}

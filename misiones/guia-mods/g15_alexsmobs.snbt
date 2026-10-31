@@ -1,0 +1,79 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "g15_alexsmobs"
+	group: "1000000000000002"
+	icon: "alexsmobs:animal_dictionary"
+	id: "700000000000000F"
+	order_index: 14
+	quests: [
+		{
+			description: [
+				"Decenas de criaturas con IA avanzada, cada una con su"
+				"habitat, domesticacion y botin unico."
+			]
+			icon: "alexsmobs:animal_dictionary"
+			id: "90F0000000000000"
+			size: 1.5d
+			subtitle: "Criaturas por todo el mundo"
+			tasks: [{ id: "A0F0000000000000", title: "Empezar", type: "checkmark" }]
+			title: "&2&lALEX'S MOBS"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["90F0000000000000"]
+			description: [
+				"&6PASO 1."
+				"&aorca/esturion&r en oceano, &aelefante/avestruz&r en"
+				"sabana, &agusano de la muerte&r en desierto de noche,"
+				"&acocodrilo&r en pantano, &amono capuchino&r en jungla."
+				""
+				"&c&lCuidado: el Gusano de la Muerte embosca de noche.&r"
+			]
+			icon: "minecraft:map"
+			id: "90F0000000000001"
+			subtitle: "Cada bicho su sitio"
+			tasks: [{ id: "A0F0000000000001", title: "Entendido", type: "checkmark" }]
+			title: "&21. Explora biomas"
+			x: 2.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["90F0000000000001"]
+			description: [
+				"&6PASO 2."
+				"Doma/monta con su comida: moscas a la rana gigante,"
+				"granos al avestruz, carne al lobo de las nieves."
+				""
+				"&aDesbloquea:&r fabricar con su botin."
+			]
+			icon: "minecraft:saddle"
+			id: "90F0000000000002"
+			subtitle: "Con su comida"
+			tasks: [{ id: "A0F0000000000002", title: "Entendido", type: "checkmark" }]
+			title: "&22. Doma y monta"
+			x: 4.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["90F0000000000002"]
+			description: [
+				"&6PASO 3 (FINAL)."
+				"Recoge botin para fabricar: &etarro con moscas&r (atrae"
+				"ranas), &ealas de murcielago&r, monturas. Usa el"
+				"&eAnimal Dictionary&r para ver datos de cada criatura."
+				""
+				"&6Ya dominas Alex's Mobs.&r"
+			]
+			icon: "alexsmobs:animal_dictionary"
+			id: "90F0000000000003"
+			subtitle: "Fabrica cosas"
+			tasks: [{ id: "A0F0000000000003", title: "Entendido", type: "checkmark" }]
+			title: "&23. Botin y Dictionary"
+			x: 6.0d
+			y: 0.0d
+		}
+	]
+	title: "&215. Alex's Mobs"
+}

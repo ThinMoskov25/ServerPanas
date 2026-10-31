@@ -1,0 +1,21 @@
+{
+	"entity.goblintraders.goblin_trader": "Comerciante Goblin",
+	"entity.goblintraders.vein_goblin_trader": "Comerciante Goblin de Vetas",
+	"subtitle.goblintraders.goblin_trader.annoyed_grunt": "Gruñido molesto",
+	"subtitle.goblintraders.goblin_trader.idle_grunt": "Gruñido",
+	"item.goblintraders.goblin_trader_spawn_egg": "Huevo generador de Comerciante Goblin",
+	"item.goblintraders.vein_goblin_trader_spawn_egg": "Huevo generador de Goblin de Vetas",
+	"stat.goblintraders.trade_with_goblin": "Tratos con Goblins",
+	"mob_spawner.type.zombie": "Zombi",
+	"mob_spawner.type.skeleton": "Esqueleto",
+	"mob_spawner.type.creeper": "Creeper",
+	"item.minecraft.potion.effect.haste": "Pocion de Prisa",
+	"item.minecraft.potion.effect.absorption": "Pocion de Absorcion",
+	"item.minecraft.potion.effect.dolphins_grace": "Pocion de Gracia del Delfin",
+	"item.minecraft.splash_potion.effect.haste": "Pocion Arrojadiza de Prisa",
+	"item.minecraft.splash_potion.effect.absorption": "Pocion Arrojadiza de Absorcion",
+	"item.minecraft.splash_potion.effect.dolphins_grace": "Pocion Arrojadiza de Gracia del Delfin",
+	"item.minecraft.lingering_potion.effect.haste": "Pocion Persistente de Prisa",
+	"item.minecraft.lingering_potion.effect.absorption": "Pocion Persistente de Absorcion",
+	"item.minecraft.lingering_potion.effect.dolphins_grace": "Pocion Persistente de Gracia del Delfin"
+}

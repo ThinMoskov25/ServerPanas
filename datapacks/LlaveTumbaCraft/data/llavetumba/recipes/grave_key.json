@@ -1,0 +1,24 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"category": "misc",
+	"pattern": [
+		" E ",
+		" G ",
+		"GIG"
+	],
+	"key": {
+		"E": {
+			"item": "minecraft:ender_pearl"
+		},
+		"G": {
+			"item": "minecraft:gold_ingot"
+		},
+		"I": {
+			"item": "minecraft:iron_ingot"
+		}
+	},
+	"result": {
+		"item": "tombstone:grave_key",
+		"count": 1
+	}
+}

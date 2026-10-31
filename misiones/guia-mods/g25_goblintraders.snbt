@@ -1,0 +1,78 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "g25_goblintraders"
+	group: "1000000000000002"
+	icon: "goblintraders:goblin_trader_spawn_egg"
+	id: "7000000000000019"
+	order_index: 24
+	quests: [
+		{
+			description: [
+				"Mercaderes &2Goblin&r especiales que aparecen bajo tierra"
+				"y de noche con tratos raros."
+			]
+			icon: "goblintraders:goblin_trader_spawn_egg"
+			id: "9190000000000000"
+			size: 1.5d
+			subtitle: "Comercio subterraneo"
+			tasks: [{ id: "A190000000000000", title: "Empezar", type: "checkmark" }]
+			title: "&2&lGOBLIN TRADERS"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9190000000000000"]
+			description: [
+				"&6PASO 1."
+				"Minando en cuevas veras al &2Goblin Trader&r; de noche en"
+				"superficie aparece el &aGoblin Grande&r."
+				""
+				"&aDesbloquea:&r comerciar."
+			]
+			icon: "minecraft:torch"
+			id: "9190000000000001"
+			subtitle: "Cuevas y noche"
+			tasks: [{ id: "A190000000000001", title: "Entendido", type: "checkmark" }]
+			title: "&21. Encuentralos"
+			x: 2.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9190000000000001"]
+			description: [
+				"&6PASO 2."
+				"Haz clic derecho para ver sus tratos (cambia objetos"
+				"raros por esmeraldas y viceversa). Desaparecen tras un"
+				"rato con un efecto de humo."
+				""
+				"&aDesbloquea:&r vender tus rarezas."
+			]
+			icon: "minecraft:emerald"
+			id: "9190000000000002"
+			subtitle: "Tratos raros"
+			tasks: [{ id: "A190000000000002", title: "Entendido", type: "checkmark" }]
+			title: "&22. Comercia rapido"
+			x: 4.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9190000000000002"]
+			description: [
+				"&6PASO 3 (FINAL)."
+				"Suelen comprar cosas que los aldeanos no; guarda rarezas"
+				"de mazmorra para venderselas."
+				""
+				"&6Ya dominas Goblin Traders.&r"
+			]
+			icon: "minecraft:emerald_block"
+			id: "9190000000000003"
+			subtitle: "Lo que nadie compra"
+			tasks: [{ id: "A190000000000003", title: "Entendido", type: "checkmark" }]
+			title: "&23. Vende rarezas"
+			x: 6.0d
+			y: 0.0d
+		}
+	]
+	title: "&225. Goblin Traders"
+}

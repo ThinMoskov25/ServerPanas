@@ -1,0 +1,112 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "g06_iceandfire"
+	group: "1000000000000002"
+	icon: "iceandfire:dragon_skull_fire"
+	id: "7000000000000006"
+	order_index: 5
+	quests: [
+		{
+			description: [
+				"Anade dragones de fuego, hielo y rayo, hipogrifos,"
+				"gorgonas, cockatrices, sirenas y mas."
+			]
+			icon: "iceandfire:dragon_skull_fire"
+			id: "9060000000000000"
+			size: 1.5d
+			subtitle: "Doma tu propio dragon"
+			tasks: [{ id: "A060000000000000", title: "Empezar", type: "checkmark" }]
+			title: "&c&lICE AND FIRE"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9060000000000000"]
+			description: [
+				"&6PASO 1.&r"
+				"Busca &6nidos de dragon&r (montanas con oro/plata"
+				"desperdigado). Hay dragon de fuego (rojo), hielo (azul)"
+				"y rayo (morado)."
+				""
+				"&aDesbloquea:&r conseguir un huevo."
+			]
+			icon: "iceandfire:dragon_skull_fire"
+			id: "9060000000000001"
+			subtitle: "Caza de dragones"
+			tasks: [{ id: "A060000000000001", title: "Entendido", type: "checkmark" }]
+			title: "&c1. Encuentra un nido"
+			x: 2.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9060000000000001"]
+			description: [
+				"&6PASO 2.&r"
+				"Mata al dragon guardian o roba un &6Huevo&r del nido con"
+				"cuidado (un adulto arrasa tu base de un aliento)."
+				""
+				"&aDesbloquea:&r incubar."
+			]
+			icon: "iceandfire:dragon_egg_red"
+			id: "9060000000000002"
+			subtitle: "Con cuidado"
+			tasks: [{ id: "A060000000000002", title: "Entendido", type: "checkmark" }]
+			title: "&c2. Consigue un huevo"
+			x: 4.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9060000000000002"]
+			description: [
+				"&6PASO 3.&r"
+				"Incuba el huevo: &cfuego/lava&r para el de fuego,"
+				"&bhielo/nieve&r para el de hielo."
+				""
+				"&aDesbloquea:&r criar al dragon."
+			]
+			icon: "minecraft:fire_charge"
+			id: "9060000000000003"
+			subtitle: "Fuego o hielo"
+			tasks: [{ id: "A060000000000003", title: "Entendido", type: "checkmark" }]
+			title: "&c3. Incuba"
+			x: 6.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9060000000000003"]
+			description: [
+				"&6PASO 4.&r"
+				"Alimenta la cria con carne hasta que crezca por etapas."
+				""
+				"&aDesbloquea:&r montarlo."
+			]
+			icon: "minecraft:cooked_beef"
+			id: "9060000000000004"
+			subtitle: "De cria a adulto"
+			tasks: [{ id: "A060000000000004", title: "Entendido", type: "checkmark" }]
+			title: "&c4. Alimenta y crece"
+			x: 8.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9060000000000004"]
+			description: [
+				"&6PASO 5 (FINAL).&r"
+				"Con &eStage 2+&r ponle &esilla de dragon&r y collar para"
+				"montarlo; de adulto podra volar. Entrena de dia y con"
+				"armadura. Otros: hipogrifo, gorgona (petrifica), troll."
+				""
+				"&6Ya tienes tu dragon.&r"
+			]
+			icon: "iceandfire:dragon_meal"
+			id: "9060000000000005"
+			subtitle: "A volar"
+			tasks: [{ id: "A060000000000005", title: "Entendido", type: "checkmark" }]
+			title: "&c5. Silla y vuelo"
+			x: 10.0d
+			y: 0.0d
+		}
+	]
+	title: "&c6. Ice and Fire"
+}

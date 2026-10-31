@@ -1,0 +1,324 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "09_jefes"
+	group: "1000000000000001"
+	icon: {
+		Count: 1
+		id: "cataclysm:monstrous_helm"
+		tag: {
+			Damage: 0
+		}
+	}
+	id: "2000000000000009"
+	order_index: 8
+	quest_links: [ ]
+	quests: [
+		{
+			description: [
+				"&7&oHay mazmorras en este mundo que no son ruinas: son prisiones.&r"
+				""
+				"&aL_Ender's Cataclysm&r ha sembrado el mundo de templos donde duerme algo mucho peor que un esqueleto. El &eMetal antiguo&r aparece en esas estructuras: es la señal de que estás en el sitio correcto."
+				""
+				"&eObjetivo:&r consigue &e3 lingotes de metal antiguo&r."
+			]
+			id: "3000000000000090"
+			rewards: [
+				{
+					id: "5000000000000090"
+					type: "xp"
+					xp: 80
+				}
+			]
+			shape: "circle"
+			size: 1.5d
+			subtitle: "Algo duerme bajo las arenas"
+			tasks: [
+				{
+					count: 3L
+					id: "4000000000000090"
+					item: "cataclysm:ancient_metal_ingot"
+					type: "item"
+				}
+			]
+			title: "&6Metal antiguo"
+			x: 0.0d
+			y: 1.0d
+		}
+		{
+			dependencies: ["3000000000000090"]
+			description: [
+				"&7&oEn el desierto se alza una pirámide maldita.&r"
+				""
+				"Dentro espera &cMaledictus&r, un faraón no muerto que invoca tormentas de arena y esbirros. Es el primer jefe recomendado: lleva arco y deja espacio para esquivar."
+				""
+				"&eObjetivo:&r consigue su botín, la &eIra del desierto&r."
+			]
+			id: "3000000000000091"
+			rewards: [
+				{
+					id: "5000000000000091"
+					type: "xp_levels"
+					xp_levels: 10
+				}
+			]
+			shape: "hexagon"
+			size: 1.25d
+			subtitle: "El faraón que no descansa"
+			tasks: [
+				{
+					id: "4000000000000091"
+					item: "cataclysm:wrath_of_the_desert"
+					type: "item"
+				}
+			]
+			title: "&cMaledictus"
+			x: 2.38d
+			y: 0.0d
+		}
+		{
+			dependencies: ["3000000000000090"]
+			description: [
+				"&7&oEn el Nether camina una mole de netherita viva.&r"
+				""
+				"La &cMonstruosidad de netherita&r golpea tan fuerte que puede matarte en uno o dos golpes, tiene muchísima vida y hace temblar el suelo. Al caer suelta su &eCuerno&r, con el que se forja el Yelmo monstruoso."
+				""
+				"&eObjetivo:&r consigue el &eCuerno monstruoso&r."
+			]
+			id: "3000000000000092"
+			rewards: [
+				{
+					id: "5000000000000092"
+					type: "xp_levels"
+					xp_levels: 12
+				}
+			]
+			shape: "hexagon"
+			size: 1.25d
+			subtitle: "Una montaña que camina"
+			tasks: [
+				{
+					id: "4000000000000092"
+					item: "cataclysm:monstrous_horn"
+					type: "item"
+				}
+			]
+			title: "&cMonstruosidad de netherita"
+			x: 2.38d
+			y: 2.0d
+		}
+		{
+			dependencies: ["3000000000000092"]
+			description: [
+				"&7&oEn la Arena Ardiente del Nether arde un gigante.&r"
+				""
+				"&cIgnis&r lucha con escudo y martillo, y cambia de arma y de patrón según le bajas la vida. Suelta &eIgnitium&r, el material de una armadura inmune al fuego."
+				""
+				"&eObjetivo:&r consigue &e2 lingotes de ignitium&r."
+			]
+			id: "3000000000000093"
+			rewards: [
+				{
+					id: "5000000000000093"
+					type: "xp_levels"
+					xp_levels: 15
+				}
+			]
+			shape: "hexagon"
+			size: 1.25d
+			subtitle: "El gigante de la arena"
+			tasks: [
+				{
+					count: 2L
+					id: "4000000000000093"
+					item: "cataclysm:ignitium_ingot"
+					type: "item"
+				}
+			]
+			title: "&cIgnis"
+			x: 4.62d
+			y: 2.0d
+		}
+		{
+			dependencies: ["3000000000000093"]
+			description: [
+				"&7&oDe lo mejor del pack.&r"
+				""
+				"La armadura de &eIgnitium&r da inmunidad al fuego, y su pechera funciona como unos élitros."
+				""
+				"&eObjetivo:&r forja una &ePechera de ignitium&r."
+			]
+			id: "3000000000000094"
+			rewards: [
+				{
+					id: "5000000000000094"
+					type: "xp"
+					xp: 200
+				}
+			]
+			shape: "rsquare"
+			subtitle: "Armadura que vuela y no arde"
+			tasks: [
+				{
+					id: "4000000000000094"
+					item: {
+						Count: 1
+						id: "cataclysm:ignitium_chestplate"
+						tag: {
+							Damage: 0
+						}
+					}
+					type: "item"
+				}
+			]
+			title: "Armadura de ignitium"
+			x: 6.75d
+			y: 2.0d
+		}
+		{
+			dependencies: ["3000000000000091"]
+			description: [
+				"&7&oBajo el mar duerme una ciudad hundida.&r"
+				""
+				"Allí reina el &cHeraldo&r, un no muerto que invoca criaturas abisales."
+				""
+				"&7Lleva pociones de respiración acuática y un casco con afinidad acuática.&r"
+				""
+				"&eObjetivo:&r derrota al &cHeraldo&r."
+			]
+			id: "3000000000000095"
+			optional: true
+			rewards: [
+				{
+					id: "5000000000000095"
+					type: "xp_levels"
+					xp_levels: 12
+				}
+			]
+			shape: "hexagon"
+			size: 1.25d
+			subtitle: "El señor de la ciudad hundida"
+			tasks: [
+				{
+					entity: "cataclysm:the_harbinger"
+					id: "40000000000010A3"
+					title: "Derrota al Heraldo"
+					type: "kill"
+					value: 1L
+				}
+			]
+			title: "&cEl Heraldo"
+			x: 4.62d
+			y: 0.0d
+		}
+		{
+			dependencies: ["3000000000000094"]
+			description: [
+				"&7&oEn el End, en una arena de piedra, espera el guardián.&r"
+				""
+				"El &cGuardián del End&r es el jefe más duro de Cataclysm: se teletransporta, invoca gólems y tiene varias fases. Su botín incluye el &eNúcleo del vacío&r."
+				""
+				"&cNo vayas solo: para esto están tus panas.&r"
+				""
+				"&eObjetivo:&r consigue un &eNúcleo del vacío&r."
+			]
+			icon: "cataclysm:void_core"
+			id: "3000000000000096"
+			rewards: [
+				{
+					id: "5000000000000096"
+					type: "xp_levels"
+					xp_levels: 25
+				}
+			]
+			shape: "hexagon"
+			size: 1.25d
+			subtitle: "El jefe final del Cataclismo"
+			tasks: [
+				{
+					id: "4000000000000096"
+					item: "cataclysm:void_core"
+					type: "item"
+				}
+			]
+			title: "&cGuardián del End"
+			x: 8.88d
+			y: 2.0d
+		}
+		{
+			dependencies: ["3000000000000096"]
+			description: [
+				"&7&oHas vencido al gigante de fuego y al guardián del End.&r"
+				""
+				"Con el Núcleo del vacío se fabrica la &eForja del vacío&r, la mesa del equipo definitivo."
+				""
+				"&6No queda nada en este mundo que te asuste.&r"
+				""
+				"&eObjetivo:&r fabrica la &eForja del vacío&r."
+			]
+			id: "3000000000000097"
+			rewards: [
+				{
+					id: "5000000000000097"
+					type: "xp_levels"
+					xp_levels: 30
+				}
+			]
+			shape: "diamond"
+			size: 1.75d
+			subtitle: "Cazador de jefes"
+			tasks: [
+				{
+					id: "4000000000000097"
+					item: {
+						Count: 1
+						id: "cataclysm:void_forge"
+						tag: {
+							Damage: 0
+						}
+					}
+					type: "item"
+				}
+			]
+			title: "&6&lLa forja del vacío"
+			x: 11.38d
+			y: 2.0d
+		}
+		{
+			description: [
+				"&7&oNo todos los jefes son de Cataclysm.&r"
+				""
+				"&aMowzie's Mobs&r esconde por el mundo cuatro peleas con mecánicas excelentes:"
+				"&7• &eFerrous Wroughtnaut&r: un caballero de hierro encerrado en una cámara subterránea."
+				"&7• &bFrostmaw&r: un mamut de hielo que duerme en las montañas nevadas."
+				"&7• &6Umvuthi&r: el ave solar, en su trono de la sabana."
+				"&7• &eTongbi, el escultor&r: espera en lo alto de su pilar de piedra."
+				""
+				"&eObjetivo:&r derrota a cualquiera de ellos y marca la casilla."
+			]
+			id: "3000000000000098"
+			optional: true
+			rewards: [
+				{
+					id: "5000000000000098"
+					type: "xp_levels"
+					xp_levels: 10
+				}
+			]
+			shape: "rsquare"
+			subtitle: "Las mejores peleas del pack"
+			tasks: [
+				{
+					id: "4000000000000098"
+					title: "He derrotado a un jefe de Mowzie's Mobs"
+					type: "checkmark"
+				}
+			]
+			title: "Los jefes ocultos"
+			x: 0.0d
+			y: -1.0d
+		}
+	]
+	subtitle: ["Prisiones antiguas, jefes por fases y el equipo definitivo."]
+	title: "&cIX. Los jefes del Cataclismo"
+}

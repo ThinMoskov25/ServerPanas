@@ -1,0 +1,103 @@
+# CAPITULO 2000000000000008
+titulo: &5VIII. Encantamientos y gemas
+subtitulo: Apotheosis: más allá del nivel 30, afijos y gemas.
+
+## 3000000000000080
+rol: inicio
+titulo: La mesa mejorada
+subtitulo: Más allá del nivel 30
+desc:
+&7&oLa mesa de encantamientos clásica llega al nivel 30 y ahí se queda.&r
+
+&aApotheosis&r rompe ese límite: la mesa se mejora con estanterías especiales para sacar encantamientos más altos.
+
+&eObjetivo:&r fabrica una &eMesa de encantamientos&r.
+
+## 3000000000000081
+rol: normal
+titulo: Estanterías infernales
+subtitulo: Poder a cambio de riesgo
+desc:
+&7&oLas estanterías normales ya no son el techo.&r
+
+La &eEstantería infernal&r aumenta mucho el poder de encantamiento, pero también la &cvariación&r: los resultados son más extremos, para bien o para mal.
+
+&7Hay estanterías marinas, del End, de sculk y más; cada una afecta de forma distinta.&r
+
+&eObjetivo:&r fabrica &e4 Estanterías infernales&r.
+
+## 3000000000000082
+rol: normal
+titulo: Biblioteca de encantamientos
+subtitulo: Guardar lo que vale la pena
+desc:
+&7&oUn buen encantamiento no se tira.&r
+
+La &eBiblioteca de encantamientos&r almacena los encantamientos de tus libros y te deja sacarlos cuando los necesites.
+
+&eObjetivo:&r fabrica una &eBiblioteca de encantamientos&r.
+
+## 3000000000000083
+rol: hito
+titulo: Botín con afijos
+subtitulo: Botín con nombre propio
+desc:
+&7&oA partir de ahora, el botín cambia.&r
+
+Apotheosis añade &eafijos&r: armas y armaduras con nombre propio y propiedades extra, que aparecen en cofres y las sueltan los monstruos. Hay cinco rarezas: común, poco común, rara, épica y &dmítica&r.
+
+&eObjetivo:&r consigue &e4 materiales comunes&r de afijo.
+
+## 3000000000000084
+rol: normal
+titulo: Mesa de reforja
+subtitulo: Volver a tirar los dados
+desc:
+&7&oSi no te gusta el resultado, vuelve a intentarlo.&r
+
+La &eMesa de reforja&r cambia los afijos de un objeto a cambio de materiales y niveles, para perseguir la combinación que buscas.
+
+&eObjetivo:&r fabrica una &eMesa de reforja&r.
+
+## 3000000000000085
+rol: normal
+titulo: Gemas y engarces
+subtitulo: Piedras con poder
+desc:
+&7&oEl equipo también se puede adornar con poder.&r
+
+Las &bgemas&r se engarzan en el equipo y dan efectos: vida, velocidad, daño extra, robo de vida… Necesitas la &eMesa de corte de gemas&r para trabajarlas y un &eSigilo de engarce&r para abrir huecos.
+
+&eObjetivo:&r fabrica la &eMesa de corte de gemas&r y un &eSigilo de engarce&r.
+
+## 3000000000000086
+rol: final
+titulo: Material mítico
+subtitulo: La cima del equipo
+desc:
+&7&oEl material más raro de todos.&r
+
+El &dmaterial mítico&r solo cae del mejor botín y de los &cInvasores&r: jefes que aparecen en el mundo con equipo mítico completo. Con él se reforjan los objetos más poderosos del juego.
+
+&cMucho cuidado con los Invasores.&r
+
+&eObjetivo:&r consigue un &dmaterial mítico&r.
+
+## 3000000000000087
+rol: normal
+titulo: Encantamientos nuevos
+subtitulo: Más encantamientos, estilo clásico
+tarea 4000000000000088: He conseguido un encantamiento de Ensorcellation
+desc:
+&7&oMás opciones sin romper el estilo del juego.&r
+
+&aEnsorcellation&r añade decenas de encantamientos nuevos. Algunos ejemplos:
+&7• &eExcavación&r
+&7• &eSanguijuela&r
+&7• &eVínculo de alma&r
+&7• &eVitalidad&r
+&7• &eAlcance&r
+
+&7Enchantment Descriptions te explica qué hace cada uno al pasar el ratón sobre el libro.&r
+
+&eObjetivo:&r consigue cualquier encantamiento de Ensorcellation y marca la casilla.

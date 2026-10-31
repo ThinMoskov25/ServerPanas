@@ -1,0 +1,97 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "g02_waystones"
+	group: "1000000000000002"
+	icon: "waystones:waystone"
+	id: "7000000000000002"
+	order_index: 1
+	quests: [
+		{
+			description: [
+				"&bWaystones&r es una red de viaje rapido: activas piedras"
+				"y te teletransportas entre ellas."
+			]
+			icon: "waystones:waystone"
+			id: "9020000000000000"
+			size: 1.5d
+			subtitle: "Viaje rapido"
+			tasks: [{ id: "A020000000000000", title: "Empezar", type: "checkmark" }]
+			title: "&b&lWAYSTONES"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9020000000000000"]
+			description: [
+				"&6PASO 1.&r"
+				"Fabrica una &eWaystone&r (piedra + bloques de piedra)."
+				"Tambien aparecen ya puestas en las aldeas."
+				""
+				"&aDesbloquea:&r activar tu red de viaje."
+			]
+			icon: "waystones:waystone"
+			id: "9020000000000001"
+			subtitle: "La primera piedra"
+			tasks: [{ id: "A020000000000001", title: "Conseguir waystone", type: "checkmark" }]
+			title: "&b1. Fabrica una Waystone"
+			x: 2.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9020000000000001"]
+			description: [
+				"&6PASO 2.&r"
+				"Colocala y haz &eclic derecho&r para activarla y darle"
+				"un nombre. Desde cualquier otra waystone activa podras"
+				"viajar a las que hayas descubierto."
+				""
+				"&aDesbloquea:&r viaje de bolsillo."
+			]
+			icon: "waystones:waystone"
+			id: "9020000000000002"
+			subtitle: "Ponle nombre"
+			tasks: [{ id: "A020000000000002", title: "Entendido", type: "checkmark" }]
+			title: "&b2. Coloca y activa"
+			x: 4.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9020000000000002"]
+			description: [
+				"&6PASO 3.&r"
+				"- &eWarp Stone&r: piedra de bolsillo con cooldown que te"
+				"  lleva a una waystone desde donde estes."
+				"- &ePergamino de Enlace&r: guarda una waystone concreta."
+				""
+				"&aDesbloquea:&r enlazar tus bases."
+			]
+			icon: "waystones:warp_stone"
+			id: "9020000000000003"
+			subtitle: "Viaja desde cualquier parte"
+			tasks: [{ id: "A020000000000003", title: "Entendido", type: "checkmark" }]
+			title: "&b3. Warp Stone y Scrolls"
+			x: 6.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9020000000000003"]
+			description: [
+				"&6PASO 4 (FINAL).&r"
+				"La &eWarp Plate&r es una placa para teletransporte entre"
+				"bases propias. Pon una waystone en tu base y otra en cada"
+				"zona de farmeo; viajar cuesta un poco de XP."
+				""
+				"&6Ya dominas Waystones.&r"
+			]
+			icon: "waystones:warp_plate"
+			id: "9020000000000004"
+			subtitle: "Enlaza tus bases"
+			tasks: [{ id: "A020000000000004", title: "Entendido", type: "checkmark" }]
+			title: "&b4. Warp Plate"
+			x: 8.0d
+			y: 0.0d
+		}
+	]
+	title: "&b2. Waystones"
+}

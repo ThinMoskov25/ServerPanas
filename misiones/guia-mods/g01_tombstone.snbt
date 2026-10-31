@@ -1,0 +1,118 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "g01_tombstone"
+	group: "1000000000000002"
+	icon: "tombstone:grave_key"
+	id: "7000000000000001"
+	order_index: 0
+	quests: [
+		{
+			description: [
+				"&7Tombstone&r guarda tu inventario al morir en una tumba"
+				"que solo tu puedes abrir, y te da un arbol de ventajas."
+				""
+				"Sigue los pasos de izquierda a derecha."
+			]
+			icon: "tombstone:grave_key"
+			id: "9010000000000000"
+			size: 1.5d
+			subtitle: "Nunca pierdas tu equipo"
+			tasks: [{ id: "A010000000000000", title: "Empezar", type: "checkmark" }]
+			title: "&7&lTOMBSTONE"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9010000000000000"]
+			description: [
+				"&6PASO 1.&r"
+				"Al morir se crea tu &7tumba&r en el sitio exacto donde"
+				"caiste. En este server NO desaparece ni se mezcla con la"
+				"de otros jugadores."
+				""
+				"&aDesbloquea:&r fabricar la Brujula de la Muerte."
+			]
+			icon: "tombstone:decorative_grave"
+			id: "9010000000000001"
+			subtitle: "La tumba"
+			tasks: [{ id: "A010000000000001", title: "Entendido", type: "checkmark" }]
+			title: "&71. Muere y encuentra tu tumba"
+			x: 2.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9010000000000001"]
+			description: [
+				"&6PASO 2.&r"
+				"Fabrica una &eBrujula de la Muerte&r: al hacer clic"
+				"derecho su aguja apunta a tu ultima tumba."
+				""
+				"&eConsigues:&r forma segura de volver a tu equipo."
+				"&aDesbloquea:&r recuperar tu tumba."
+			]
+			icon: "tombstone:grave_key"
+			id: "9010000000000002"
+			subtitle: "Encuentra el camino"
+			tasks: [{ id: "A010000000000002", title: "Conseguir brujula", type: "checkmark" }]
+			title: "&72. Brujula de la Muerte"
+			x: 4.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9010000000000002"]
+			description: [
+				"&6PASO 3.&r"
+				"Vuelve a la tumba y haz &eclic derecho&r: recuperas"
+				"&aTODO de golpe&r (inventario, armadura, amuletos y XP)."
+				""
+				"&eConsigues:&r Conocimiento de la Muerte por cada tumba."
+				"&aDesbloquea:&r el Altar de Oracion."
+			]
+			icon: "tombstone:grave_plate"
+			id: "9010000000000003"
+			subtitle: "Recupera tu equipo"
+			tasks: [{ id: "A010000000000003", title: "Entendido", type: "checkmark" }]
+			title: "&73. Recupera TODO de golpe"
+			x: 6.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9010000000000003"]
+			description: [
+				"&6PASO 4.&r"
+				"Fabrica el &eAltar de Oracion&r (Ankh) y gasta tus"
+				"niveles de Conocimiento en &eventajas (Perks)&r: mas"
+				"vida, menos perdida de XP, teletransporte a la tumba."
+				""
+				"&aDesbloquea:&r encantamientos de alma."
+			]
+			icon: "tombstone:ghost_essence"
+			id: "9010000000000004"
+			subtitle: "Gasta tu Conocimiento"
+			tasks: [{ id: "A010000000000004", title: "Entendido", type: "checkmark" }]
+			title: "&74. Altar y Ventajas"
+			x: 8.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9010000000000004"]
+			description: [
+				"&6PASO 5 (FINAL).&r"
+				"Con el libro &eLigado de Alma (Soulbound)&r encantas un"
+				"item para que NUNCA se quede en la tumba."
+				"&eMagic Siphon&r roba XP al matar."
+				""
+				"&6Ya dominas Tombstone.&r"
+			]
+			icon: "tombstone:enchanted_book_soulbound"
+			id: "9010000000000005"
+			subtitle: "Objetos que no se pierden"
+			tasks: [{ id: "A010000000000005", title: "Entendido", type: "checkmark" }]
+			title: "&75. Soulbound y Magic Siphon"
+			x: 10.0d
+			y: 0.0d
+		}
+	]
+	title: "&71. Tombstone"
+}

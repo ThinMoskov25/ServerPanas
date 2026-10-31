@@ -1,0 +1,262 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "11_entre_mundos"
+	group: "1000000000000001"
+	icon: "minecraft:nether_star"
+	id: "2000000000000011"
+	order_index: 10
+	quest_links: [ ]
+	quests: [
+		{
+			description: [
+				"&7&oHas recorrido cada rincón de estos mundos. Ahora toca lo último: cazar al señor de cada reino.&r"
+				""
+				"Un jefe por mundo. Cuatro cabezas. Una leyenda."
+				""
+				"&7Cada misión se completa solo si participas en la muerte del jefe: no vale que te regalen el botín. Cada jugador lleva su propia cuenta, y los jefes se pueden volver a invocar, así que nadie se queda fuera por llegar tarde.&r"
+				""
+				"&eObjetivo:&r marca la casilla para empezar la cacería."
+			]
+			icon: "minecraft:nether_star"
+			id: "3000000000000200"
+			rewards: [
+				{
+					id: "5000000000000200"
+					type: "xp"
+					xp: 100
+				}
+			]
+			shape: "circle"
+			size: 1.5d
+			subtitle: "Un jefe por cada mundo"
+			tasks: [
+				{
+					id: "4000000000000200"
+					title: "Acepto la cacería entre mundos"
+					type: "checkmark"
+				}
+			]
+			title: "&6Cazador entre mundos"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["3000000000000200"]
+			description: [
+				"&7&oEl primer señor: el fuego.&r"
+				""
+				"En la Arena Ardiente del Nether vive &cIgnis&r, un gigante de fuego con escudo y martillo."
+				""
+				"&eObjetivo:&r participa en la muerte de &cIgnis&r."
+			]
+			icon: "cataclysm:ignitium_ingot"
+			id: "3000000000000201"
+			rewards: [
+				{
+					count: 6
+					id: "5000000000000201"
+					item: "minecraft:ancient_debris"
+					type: "item"
+				}
+				{
+					id: "5000000000000202"
+					type: "xp_levels"
+					xp_levels: 10
+				}
+			]
+			shape: "hexagon"
+			size: 1.25d
+			subtitle: "El gigante de fuego del Nether"
+			tasks: [
+				{
+					entity: "cataclysm:ignis"
+					id: "4000000000000201"
+					type: "kill"
+					value: 1L
+				}
+			]
+			title: "&cCazar a Ignis"
+			x: 2.38d
+			y: -3.0d
+		}
+		{
+			dependencies: ["3000000000000200"]
+			description: [
+				"&7&oEl segundo señor: el vacío.&r"
+				""
+				"Sobre las islas del End vuela el &5Dragón de Ender&r, el jefe más clásico de todos. Si ya murió, se vuelve a invocar colocando cuatro cristales del End en el portal de salida."
+				""
+				"&eObjetivo:&r participa en la muerte del &5Dragón de Ender&r."
+			]
+			icon: "minecraft:dragon_head"
+			id: "3000000000000202"
+			rewards: [
+				{
+					count: 3
+					id: "5000000000000203"
+					item: "minecraft:shulker_shell"
+					type: "item"
+				}
+				{
+					id: "5000000000000204"
+					type: "xp_levels"
+					xp_levels: 12
+				}
+			]
+			shape: "hexagon"
+			size: 1.25d
+			subtitle: "El señor del vacío"
+			tasks: [
+				{
+					entity: "minecraft:ender_dragon"
+					id: "4000000000000202"
+					type: "kill"
+					value: 1L
+				}
+			]
+			title: "&cCazar al dragón de Ender"
+			x: 2.38d
+			y: -1.0d
+		}
+		{
+			dependencies: ["3000000000000200"]
+			description: [
+				"&7&oEl tercer señor: el bosque.&r"
+				""
+				"El &cNaga&r, la serpiente gigante del &5Bosque Crepuscular&r, embiste a todo lo que entra en su patio de piedra."
+				""
+				"&eObjetivo:&r participa en la muerte del &cNaga&r."
+			]
+			icon: "twilightforest:naga_trophy"
+			id: "3000000000000203"
+			rewards: [
+				{
+					count: 8
+					id: "5000000000000205"
+					item: "minecraft:diamond"
+					type: "item"
+				}
+				{
+					id: "5000000000000206"
+					type: "xp_levels"
+					xp_levels: 10
+				}
+			]
+			shape: "hexagon"
+			size: 1.25d
+			subtitle: "La serpiente del Crepúsculo"
+			tasks: [
+				{
+					entity: "twilightforest:naga"
+					id: "4000000000000203"
+					type: "kill"
+					value: 1L
+				}
+			]
+			title: "&cCazar al Naga"
+			x: 2.38d
+			y: 1.0d
+		}
+		{
+			dependencies: ["3000000000000200"]
+			description: [
+				"&7&oEl cuarto señor: la oscuridad.&r"
+				""
+				"En lo más profundo de la Oscuridad Profunda acecha el &3Warden&r. No te ve: te oye. Es el enemigo más peligroso del juego base."
+				""
+				"&eObjetivo:&r participa en la muerte del &3Warden&r."
+			]
+			icon: "deeperdarker:warden_carapace"
+			id: "3000000000000204"
+			rewards: [
+				{
+					count: 2
+					id: "5000000000000207"
+					item: "deeperdarker:reinforced_echo_shard"
+					type: "item"
+				}
+				{
+					id: "5000000000000208"
+					type: "xp_levels"
+					xp_levels: 15
+				}
+			]
+			shape: "hexagon"
+			size: 1.25d
+			subtitle: "El guardián ciego del abismo"
+			tasks: [
+				{
+					entity: "minecraft:warden"
+					id: "4000000000000204"
+					type: "kill"
+					value: 1L
+				}
+			]
+			title: "&cCazar al Warden"
+			x: 2.38d
+			y: 3.0d
+		}
+		{
+			dependencies: [
+				"3000000000000201"
+				"3000000000000202"
+				"3000000000000203"
+				"3000000000000204"
+			]
+			description: [
+				"&7&oIgnis. El dragón. El Naga. El Warden. Cuatro mundos, cuatro señores, cuatro victorias.&r"
+				""
+				"Ya no hay jefe que te quede grande. Eres el &6Cazador entre mundos&r, y este servidor lo sabe."
+				""
+				"&eObjetivo:&r marca la casilla y reclama la recompensa que te has ganado."
+			]
+			icon: "minecraft:nether_star"
+			id: "3000000000000205"
+			rewards: [
+				{
+					count: 3
+					id: "5000000000000209"
+					item: "minecraft:netherite_ingot"
+					type: "item"
+				}
+				{
+					id: "500000000000020A"
+					item: "minecraft:totem_of_undying"
+					type: "item"
+				}
+				{
+					count: 2
+					id: "500000000000020B"
+					item: "minecraft:diamond_block"
+					type: "item"
+				}
+				{
+					id: "500000000000020C"
+					item: "minecraft:enchanted_golden_apple"
+					type: "item"
+				}
+				{
+					id: "500000000000020D"
+					type: "xp_levels"
+					xp_levels: 40
+				}
+			]
+			shape: "diamond"
+			size: 1.75d
+			subtitle: "El que caza en todos los mundos"
+			tasks: [
+				{
+					id: "4000000000000205"
+					title: "He cazado a los cuatro señores"
+					type: "checkmark"
+				}
+			]
+			title: "&6&lCazador entre mundos"
+			x: 4.88d
+			y: 0.0d
+		}
+	]
+	subtitle: ["Un jefe por cada mundo. Cuatro cacerías, una leyenda."]
+	title: "&6XI. Entre mundos"
+}

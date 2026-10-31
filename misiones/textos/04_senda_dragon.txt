@@ -1,0 +1,124 @@
+# CAPITULO 2000000000000004
+titulo: &cIV. La senda del dragón
+subtitulo: Del primer nido al acero de dragón.
+
+## 3000000000000030
+rol: inicio
+titulo: El bestiario
+subtitulo: Conoce a tu enemigo
+desc:
+&7&oEl hueso no mentía.&r
+
+En las bibliotecas de las ruinas hay &emanuscritos&r sueltos. Reúnelos y encuaderna un &eBestiario&r: es el único libro que explica cómo sobrevivir a un dragón.
+
+&7Los manuscritos aparecen en cofres de mazmorras y en los nidos de dragón.&r
+
+&eObjetivo:&r fabrica el &eBestiario&r.
+
+## 3000000000000031
+rol: normal
+titulo: El nido
+subtitulo: Entrar donde no deberías
+desc:
+&7&oLos dragones duermen sobre montañas de oro.&r
+
+Busca un &cnido de dragón&r: se distingue desde lejos por la tierra quemada o el hielo que lo rodea.
+
+&cAdvertencia:&r un dragón adulto puede matarte de un golpe. Empieza por los jóvenes, o roba mientras duerme.
+
+&eObjetivo:&r trae &e8 huesos de dragón&r como prueba.
+
+## 3000000000000032
+rol: normal
+titulo: Espada de hueso de dragón
+subtitulo: La primera arma de verdad
+desc:
+&7&oLos huesos de dragón hacen armas que cortan mejor que el diamante.&r
+
+&eObjetivo:&r forja una &eEspada de hueso de dragón&r.
+
+## 3000000000000033
+rol: normal
+titulo: Escamas
+subtitulo: Vestirse de dragón
+tarea 4000000000000033: 12 escamas de dragón (cualquier color)
+desc:
+&7&oLas escamas de dragón son la mejor armadura del mundo conocido.&r
+
+Con ellas se fabrica una armadura completa que da resistencia al fuego, al hielo o al rayo según el dragón.
+
+&eObjetivo:&r reúne &e12 escamas de dragón&r de cualquier color.
+
+## 3000000000000034
+rol: hito
+titulo: El huevo
+subtitulo: Robar el futuro de un dragón
+icono: iceandfire:dragonegg_red
+tarea 4000000000000034: Tengo un huevo de dragón incubando
+desc:
+&7&oAquí empieza lo que viniste a buscar.&r
+
+Roba un &ehuevo de dragón&r de un nido. Ponlo en el suelo y rodéalo de fuego si es de fuego, de agua si es de hielo, o espera una tormenta si es de rayo.
+
+&7Fuego: rojo, verde, bronce y gris.&r
+&7Hielo: azul, blanco, zafiro y plata.&r
+&7Rayo: eléctrico, amatista, cobre y negro.&r
+
+&eObjetivo:&r marca la casilla cuando tengas un huevo incubando.
+
+## 3000000000000035
+rol: normal
+titulo: Criar a la bestia
+subtitulo: Tu dragón, tu responsabilidad
+desc:
+&7&oUn dragón recién nacido reconoce como dueño a quien incubó su huevo.&r
+
+Aliméntalo con &eComida de dragón&r para que crezca: tardará días de juego en ser lo bastante grande para cargarte. Cuando llegue a la etapa 4, ponle una silla y vuela.
+
+&eObjetivo:&r reúne &e4 Comidas de dragón&r.
+
+## 3000000000000036
+rol: normal
+titulo: Cuerno de dragón
+subtitulo: Tu dragón en el bolsillo
+desc:
+&7&oUn dragón no cabe en cualquier sitio.&r
+
+El &eCuerno de dragón&r guarda a tu dragón para llevarlo en el inventario. Es imprescindible para no perderlo y para viajar con él entre dimensiones.
+
+&eObjetivo:&r fabrica un &eCuerno de dragón&r.
+
+## 3000000000000037
+rol: normal
+titulo: La forja de dragón
+subtitulo: Fuego que funde lo imposible
+desc:
+&7&oEl acero de dragón no se funde en un horno cualquiera.&r
+
+La &eForja de dragón&r es una estructura que solo se enciende con el aliento de un dragón adulto. Todo empieza por su núcleo.
+
+&eObjetivo:&r fabrica el &enúcleo de la forja&r.
+
+## 3000000000000038
+rol: hito
+titulo: Acero de dragón
+subtitulo: El metal de los dioses
+desc:
+&7&oNada en este mundo supera al acero de dragón.&r
+
+Para forjarlo necesitas la &csangre de un dragón adulto&r. Eso significa enfrentarte a uno de los grandes.
+
+&cEste es el combate final del capítulo.&r
+
+&eObjetivo:&r forja un &elingote de acero de dragón de fuego&r.
+
+## 3000000000000039
+rol: final
+titulo: Señor de dragones
+subtitulo: Has domado el cielo
+desc:
+&7&oTienes un dragón, armadura de escamas y un arma de acero de dragón. Pocos en este mundo pueden decir lo mismo.&r
+
+&7Pero el mundo es grande, y hay otros caminos que aún no has recorrido…&r
+
+&eObjetivo:&r forja una &eEspada de acero de dragón de fuego&r.

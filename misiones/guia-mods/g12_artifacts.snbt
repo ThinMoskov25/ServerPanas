@@ -1,0 +1,79 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "g12_artifacts"
+	group: "1000000000000002"
+	icon: "artifacts:cross_necklace"
+	id: "700000000000000C"
+	order_index: 11
+	quests: [
+		{
+			description: [
+				"Anade &eArtefactos&r: objetos con poderes pasivos y"
+				"activos que se equipan en &6Curios&r."
+			]
+			icon: "artifacts:cross_necklace"
+			id: "90C0000000000000"
+			size: 1.5d
+			subtitle: "Objetos con poderes"
+			tasks: [{ id: "A0C0000000000000", title: "Empezar", type: "checkmark" }]
+			title: "&e&lARTIFACTS"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["90C0000000000000"]
+			description: [
+				"&6PASO 1."
+				"Busca &ecofres de mazmorra&r y botin de jefe: anillos,"
+				"amuletos, botas, guantes, capas, etc."
+				""
+				"&aDesbloquea:&r equiparlos."
+			]
+			icon: "minecraft:chest"
+			id: "90C0000000000001"
+			subtitle: "Busca el botin"
+			tasks: [{ id: "A0C0000000000001", title: "Entendido", type: "checkmark" }]
+			title: "&e1. Cofres de mazmorra"
+			x: 2.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["90C0000000000001"]
+			description: [
+				"&6PASO 2."
+				"Abre tu inventario y mira la &epestana lateral de"
+				"Curios&r: arrastra cada artefacto a su ranura (anillo,"
+				"collar, cinturon, cabeza, manos...)."
+				""
+				"&aDesbloquea:&r usar sus poderes."
+			]
+			icon: "artifacts:aqua_dashers"
+			id: "90C0000000000002"
+			subtitle: "Equipa cada uno"
+			tasks: [{ id: "A0C0000000000002", title: "Entendido", type: "checkmark" }]
+			title: "&e2. Ranuras de Curios"
+			x: 4.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["90C0000000000002"]
+			description: [
+				"&6PASO 3 (FINAL)."
+				"Muchos funcionan solos (saltar mas, nadar, no quemarte);"
+				"otros se activan con tecla. Combinalos con gemas de"
+				"Apotheosis y amuletos de mana para builds potentes."
+				""
+				"&6Ya dominas Artifacts.&r"
+			]
+			icon: "artifacts:night_vision_goggles"
+			id: "90C0000000000003"
+			subtitle: "A combinar"
+			tasks: [{ id: "A0C0000000000003", title: "Entendido", type: "checkmark" }]
+			title: "&e3. Pasivos y activos"
+			x: 6.0d
+			y: 0.0d
+		}
+	]
+	title: "&e12. Artifacts"
+}

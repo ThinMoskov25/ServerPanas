@@ -1,0 +1,293 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "01_primeros_pasos"
+	group: "1000000000000001"
+	icon: "minecraft:oak_sapling"
+	id: "2000000000000001"
+	order_index: 0
+	quest_links: [ ]
+	quests: [
+		{
+			description: [
+				"&7&oDespiertas en un mundo que no reconoces. No recuerdas cómo llegaste; solo sabes que no estás solo: hay otros como tú, perdidos en estas tierras.&r"
+				"&7&oDicen que en lo más profundo de este mundo duermen &c&odragones&7&o tan viejos como las montañas. Pero antes de soñar con escamas y fuego, hay algo más urgente: sobrevivir a la primera noche.&r"
+				""
+				"Empieza por lo básico: tala unos árboles y fabrica una mesa de trabajo."
+				""
+				"&eObjetivo:&r fabrica una &eMesa de trabajo&r."
+			]
+			id: "3000000000000001"
+			rewards: [
+				{
+					count: 4
+					id: "20CA0C2294DBF634"
+					item: "minecraft:bread"
+					type: "item"
+				}
+				{
+					id: "124009DB621F2E18"
+					type: "xp"
+					xp: 20
+				}
+			]
+			shape: "circle"
+			size: 1.5d
+			subtitle: "Todo gran viaje empieza con un tronco"
+			tasks: [
+				{
+					id: "4000000000000001"
+					item: "minecraft:crafting_table"
+					type: "item"
+				}
+			]
+			title: "&6El despertar"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["3000000000000001"]
+			description: [
+				"&7&oLa madera se rompe. La piedra aguanta.&r"
+				""
+				"Un pico de piedra te permite extraer hierro y excavar de verdad."
+				""
+				"&eObjetivo:&r fabrica un &ePico de piedra&r."
+			]
+			id: "3000000000000002"
+			rewards: [
+				{
+					count: 16
+					id: "5043C9D01ABF1F28"
+					item: "minecraft:torch"
+					type: "item"
+				}
+			]
+			shape: "rsquare"
+			subtitle: "Mejores herramientas, mejor vida"
+			tasks: [
+				{
+					id: "4000000000000002"
+					item: {
+						Count: 1
+						id: "minecraft:stone_pickaxe"
+						tag: {
+							Damage: 0
+						}
+					}
+					type: "item"
+				}
+			]
+			title: "Herramientas de piedra"
+			x: 2.25d
+			y: 0.0d
+		}
+		{
+			dependencies: ["3000000000000002"]
+			description: [
+				"&7&oCuando cae la noche, este mundo cambia.&r"
+				""
+				"Construye un techo, pon una puerta y coloca una cama. Dormir salta la noche y fija tu punto de reaparición."
+				""
+				"&eObjetivo:&r &eduerme en una cama&r."
+			]
+			id: "3000000000000003"
+			rewards: [
+				{
+					id: "26682503B46EF38A"
+					item: "minecraft:cooked_beef"
+					type: "item"
+				}
+				{
+					id: "63FC02A22998DB8C"
+					type: "xp"
+					xp: 30
+				}
+			]
+			shape: "rsquare"
+			subtitle: "Un lugar al que volver"
+			tasks: [
+				{
+					icon: "minecraft:red_bed"
+					id: "4000000000000003"
+					stat: "minecraft:sleep_in_bed"
+					type: "stat"
+					value: 1
+				}
+			]
+			title: "Un refugio"
+			x: 4.25d
+			y: -1.0d
+		}
+		{
+			dependencies: ["3000000000000002"]
+			description: [
+				"&7&oEl hierro es la frontera entre sobrevivir y vivir.&r"
+				""
+				"Baja a las cuevas, pero lleva antorchas: las cuevas de este mundo son más profundas y peligrosas de lo normal."
+				""
+				"&eObjetivo:&r reúne &e8 lingotes de hierro&r."
+			]
+			id: "3000000000000004"
+			rewards: [
+				{
+					count: 3
+					id: "43F21DBAD9C74F0B"
+					item: "minecraft:iron_ingot"
+					type: "item"
+				}
+			]
+			shape: "rsquare"
+			subtitle: "Lo que esconde la piedra"
+			tasks: [
+				{
+					count: 8L
+					id: "4000000000000004"
+					item: "minecraft:iron_ingot"
+					type: "item"
+				}
+			]
+			title: "Hierro en las venas"
+			x: 4.25d
+			y: 1.0d
+		}
+		{
+			dependencies: ["3000000000000004"]
+			description: [
+				"&7&oCambiar de herramienta a cada rato es un fastidio.&r"
+				""
+				"El &eCinturón de herramientas&r guarda tus picos, hachas y palas. Pulsa su tecla asignada para abrir el menú circular y elige la herramienta sin tocar el inventario."
+				""
+				"&7Más adelante conseguirás la mochila grande.&r"
+				""
+				"&eObjetivo:&r fabrica un &eCinturón de herramientas&r."
+			]
+			id: "3000000000000005"
+			rewards: [
+				{
+					id: "639C4B71C04542F7"
+					type: "xp"
+					xp: 50
+				}
+			]
+			shape: "octagon"
+			size: 1.25d
+			subtitle: "Todo a mano, sin abrir el inventario"
+			tasks: [
+				{
+					id: "4000000000000005"
+					item: "toolbelt:belt"
+					type: "item"
+				}
+			]
+			title: "&eEl cinturón de herramientas"
+			x: 6.38d
+			y: 1.0d
+		}
+		{
+			dependencies: ["3000000000000003"]
+			description: [
+				"&7&oEl hambre es el enemigo más constante.&r"
+				""
+				"Con &aFarmer's Delight&r y &aCroptopia&r puedes cocinar platos que llenan mucho más que un filete seco y dan efectos útiles."
+				""
+				"&eObjetivo:&r fabrica una &eOlla de cocina&r."
+			]
+			id: "3000000000000006"
+			rewards: [
+				{
+					count: 6
+					id: "5AC8DDD4D2FA1AE7"
+					item: "minecraft:wheat_seeds"
+					type: "item"
+				}
+			]
+			shape: "rsquare"
+			subtitle: "Comer bien cambia todo"
+			tasks: [
+				{
+					id: "4000000000000006"
+					item: "farmersdelight:cooking_pot"
+					type: "item"
+				}
+			]
+			title: "El arte de cocinar"
+			x: 6.38d
+			y: -1.0d
+		}
+		{
+			dependencies: ["3000000000000005"]
+			description: [
+				"&7&oMorir es parte del viaje. Perderlo todo, no.&r"
+				""
+				"Con &aTombstone&r, al morir se crea una tumba con todo tu inventario, y solo &etú&r puedes abrirla."
+				""
+				"La &eLlave de tumba&r aparece en tu inventario la primera vez que mueres y señala dónde está tu tumba. También se puede fabricar. Mejorándola podrás incluso teletransportarte hasta ella."
+				""
+				"&eObjetivo:&r ten una &eLlave de tumba&r en el inventario."
+			]
+			id: "3000000000000007"
+			rewards: [
+				{
+					id: "5000000000000009"
+					type: "xp"
+					xp: 40
+				}
+			]
+			shape: "rsquare"
+			subtitle: "La llave que te lleva a tu tumba"
+			tasks: [
+				{
+					id: "4000000000000007"
+					item: "tombstone:grave_key"
+					type: "item"
+				}
+			]
+			title: "Seguro de vida"
+			x: 8.5d
+			y: 1.0d
+		}
+		{
+			dependencies: [
+				"3000000000000006"
+				"3000000000000007"
+			]
+			description: [
+				"&7&oHas sobrevivido. Tienes techo, comida y herramientas. Pero este mundo es enorme, y algo te llama desde el horizonte.&r"
+				""
+				"&6Es hora de explorar.&r"
+				""
+				"&eObjetivo:&r marca la casilla cuando estés listo para el capítulo II."
+			]
+			icon: "minecraft:compass"
+			id: "3000000000000008"
+			rewards: [
+				{
+					id: "500000000000000A"
+					item: "minecraft:compass"
+					type: "item"
+				}
+				{
+					id: "500000000000000B"
+					type: "xp_levels"
+					xp_levels: 5
+				}
+			]
+			shape: "diamond"
+			size: 1.75d
+			subtitle: "El final del principio"
+			tasks: [
+				{
+					id: "4000000000000008"
+					title: "Estoy listo para partir"
+					type: "checkmark"
+				}
+			]
+			title: "&6&lHacia lo desconocido"
+			x: 10.88d
+			y: 0.0d
+		}
+	]
+	subtitle: ["Sobrevive a tu primera noche y prepárate para el viaje."]
+	title: "&6I. Primeros pasos"
+}

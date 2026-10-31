@@ -1,0 +1,107 @@
+# CAPITULO 2000000000000010
+titulo: &3X. El Otro Lado
+subtitulo: La dimensión que se esconde tras las Ciudades Antiguas.
+
+## 3000000000000100
+rol: inicio
+titulo: La ciudad silenciosa
+subtitulo: Las Ciudades Antiguas no son ruinas
+desc:
+&7&oHay algo mal en las Ciudades Antiguas. No son ruinas: son puertas. Y alguien las selló desde el otro lado.&r
+
+Baja a la Oscuridad Profunda, encuentra una Ciudad Antigua y saquea sus cofres.
+
+&cCuidado:&r ahí abajo vive el Warden. Muévete agachado, evita los sensores de sculk y no rompas nada que chille.
+
+&eObjetivo:&r consigue &e3 fragmentos de eco&r.
+
+## 3000000000000101
+rol: jefe
+titulo: El corazón de las profundidades
+subtitulo: Matar lo que no debería morir
+desc:
+&7&oUn fragmento de eco normal no abre nada. Hay que reforzarlo, y para eso necesitas lo que el Warden lleva dentro.&r
+
+&cSí: hay que matar al Warden.&r
+
+&7Consejo: no lo pelees de frente. Atácalo desde lejos o desde una posición elevada, lleva manzanas doradas y hazlo con tus panas. Tiene 500 de vida y golpea durísimo incluso contra armadura de netherita.&r
+
+&eObjetivo:&r consigue el &eCorazón de las profundidades&r.
+
+## 3000000000000102
+rol: normal
+titulo: La llave
+subtitulo: La llave del portal
+desc:
+&7&oCon el corazón puedes reforzar el fragmento.&r
+
+El &eFragmento de eco reforzado&r es la llave: úsalo en el portal sellado del centro de la Ciudad Antigua.
+
+&7También sirve para convertir equipo de netherita en equipo de Guardián en la mesa de herrería.&r
+
+&eObjetivo:&r fabrica un &eFragmento de eco reforzado&r.
+
+## 3000000000000103
+rol: hito
+titulo: El Otro Lado
+subtitulo: Lo que hay bajo la piedra base
+desc:
+&7&oEl portal se abre.&r
+
+Bienvenido al &5Otro Lado&r: una caverna infinita donde el sculk ganó hace mucho tiempo. Cuatro biomas te esperan:
+&7• &3Tierras profundas&r: el nivel base, hostil.
+&7• &3Bosque del eco&r: árboles de eco gigantes.
+&7• &3Cavernas florecientes&r: lo más parecido a la vida que hay aquí.
+&7• &3Columnas nubladas&r: pilares entre la niebla.
+
+&cLos sonidos aquí no son decorativos. Si oyes algo acercarse, es porque viene.&r
+
+&eObjetivo:&r entra en el &5Otro Lado&r.
+
+## 3000000000000104
+rol: normal
+titulo: Resonarium
+subtitulo: El mineral de las profundidades
+desc:
+&7&oEl mineral propio de esta dimensión.&r
+
+El &bResonarium&r sale de la piedra de sculk y la pizarra lúgubre. Con él se fabrican herramientas más rápidas que las de diamante.
+
+&7Las menas normales (hierro, oro, diamante) también abundan aquí.&r
+
+&eObjetivo:&r reúne &e8 de Resonarium&r.
+
+## 3000000000000105
+rol: jefe
+titulo: El Acechador
+subtitulo: Algo te está cazando
+desc:
+&7&oEsta dimensión tiene su propio cazador.&r
+
+El &cAcechador&r vive en los templos antiguos del Otro Lado. Es rápido, a ratos invisible, y te encuentra por el sonido.
+
+&7No corras: tus pasos lo guían. Camina agachado y golpea cuando aparezca.&r
+
+&eObjetivo:&r consigue el &eCaparazón de Guardián&r que suelta el Acechador.
+
+## 3000000000000106
+rol: normal
+titulo: Armadura de Guardián
+subtitulo: Volverse invisible al sculk
+desc:
+&7&oLa mejor armadura de esta dimensión.&r
+
+La &eArmadura de Guardián&r amortigua tus vibraciones, así que los mobs de sculk dejan de detectarte.
+
+&eObjetivo:&r forja un &ePeto de Guardián&r.
+
+## 3000000000000107
+rol: normal
+titulo: Élitros de almas
+subtitulo: Volar sin cohetes
+desc:
+&7&oDos premios más de esta dimensión.&r
+
+Los &5Élitros de almas&r funcionan como los normales, pero con impulso propio sin cohetes. El &3Transmisor de sculk&r, por su parte, da acceso remoto a tus cofres.
+
+&eObjetivo:&r consigue unos &5Élitros de almas&r.

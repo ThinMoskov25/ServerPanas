@@ -1,0 +1,9 @@
+lang:es_es
+resourcePacks:["vanilla","file/Espanol-ServerPanas"]
+incompatibleResourcePacks:[]
+maxFpsLimit:120
+renderDistance:8
+simulationDistance:8
+guiScale:0
+narrator:0
+tutorialStep:none

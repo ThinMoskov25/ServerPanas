@@ -1,0 +1,96 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "g10_mowziesmobs"
+	group: "1000000000000002"
+	icon: "mowziesmobs:mob_remover"
+	id: "700000000000000A"
+	order_index: 9
+	quests: [
+		{
+			description: [
+				"Jefes con &emecanica aprendida&r: no se ganan a lo bruto,"
+				"hay que esquivar sus ataques. Usa escudo y aprende el"
+				"'tell' (aviso visual) de cada ataque antes de golpear."
+			]
+			icon: "mowziesmobs:mob_remover"
+			id: "90A0000000000000"
+			size: 1.5d
+			subtitle: "Jefes con patron"
+			tasks: [{ id: "A0A0000000000000", title: "Empezar", type: "checkmark" }]
+			title: "&b&lMOWZIE'S MOBS"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["90A0000000000000"]
+			description: [
+				"&6PASO 1.&r"
+				"&7Ferrous Wroughtnaut&r en mazmorras de piedra: esquiva"
+				"su hachazo y pega entre golpes."
+				""
+				"&aDesbloquea:&r su casco y hacha."
+			]
+			icon: "minecraft:iron_block"
+			id: "90A0000000000001"
+			subtitle: "El guardian de hierro"
+			tasks: [{ id: "A0A0000000000001", title: "Entendido", type: "checkmark" }]
+			title: "&b1. Ferrous Wroughtnaut"
+			x: 2.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["90A0000000000001"]
+			description: [
+				"&6PASO 2.&r"
+				"&eUmvuthi&r en campamentos de hombres barbudos (sabana):"
+				"refleja sus rayos solares con tu escudo."
+				""
+				"&aDesbloquea:&r la capa solar."
+			]
+			icon: "minecraft:golden_helmet"
+			id: "90A0000000000002"
+			subtitle: "El del sol"
+			tasks: [{ id: "A0A0000000000002", title: "Entendido", type: "checkmark" }]
+			title: "&b2. Umvuthi (Barako)"
+			x: 4.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["90A0000000000002"]
+			description: [
+				"&6PASO 3.&r"
+				"La &aNaga de Mowzie&r vive en junglas y te enrosca."
+				"Mantente movil y golpea cuando se separe."
+				""
+				"&aDesbloquea:&r al Frostmaw."
+			]
+			icon: "minecraft:jungle_leaves"
+			id: "90A0000000000003"
+			subtitle: "En la jungla"
+			tasks: [{ id: "A0A0000000000003", title: "Entendido", type: "checkmark" }]
+			title: "&b3. Naga de Mowzie"
+			x: 6.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["90A0000000000003"]
+			description: [
+				"&6PASO 4 (FINAL).&r"
+				"&bFrostmaw&r en cueva de hielo con un colmillo clavado:"
+				"golpea el colmillo para despertarlo, esquiva el zarpazo y"
+				"el rugido. Botin: el &bColmillo del Frostmaw&r, mascaras."
+				""
+				"&6Ya dominas Mowzie's Mobs.&r"
+			]
+			icon: "minecraft:packed_ice"
+			id: "90A0000000000004"
+			subtitle: "El coloso de hielo"
+			tasks: [{ id: "A0A0000000000004", title: "Entendido", type: "checkmark" }]
+			title: "&b4. Frostmaw"
+			x: 8.0d
+			y: 0.0d
+		}
+	]
+	title: "&b10. Mowzie's Mobs"
+}

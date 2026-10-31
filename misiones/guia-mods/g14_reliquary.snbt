@@ -1,0 +1,79 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "g14_reliquary"
+	group: "1000000000000002"
+	icon: "reliquary:mercy_cross"
+	id: "700000000000000E"
+	order_index: 13
+	quests: [
+		{
+			description: [
+				"Objetos magicos unicos con mecanicas propias: mochila que"
+				"recoge sola, corazon infernal, varitas, amuletos de mob."
+			]
+			icon: "reliquary:mercy_cross"
+			id: "90E0000000000000"
+			size: 1.5d
+			subtitle: "Reliquias arcanas"
+			tasks: [{ id: "A0E0000000000000", title: "Empezar", type: "checkmark" }]
+			title: "&d&lRELIQUARY"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["90E0000000000000"]
+			description: [
+				"&6PASO 1."
+				"Mata mobs para conseguir sus &eesencias/corazones&r"
+				"(zombi, esqueleto, slime, etc.)."
+				""
+				"&aDesbloquea:&r fabricar items."
+			]
+			icon: "reliquary:zombie_heart"
+			id: "90E0000000000001"
+			subtitle: "Mata mobs"
+			tasks: [{ id: "A0E0000000000001", title: "Entendido", type: "checkmark" }]
+			title: "&d1. Consigue esencias"
+			x: 2.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["90E0000000000001"]
+			description: [
+				"&6PASO 2."
+				"Fabrica los items en su receta: usa &eJEI&r (tecla R"
+				"sobre el item para ver como se hace)."
+				""
+				"&aDesbloquea:&r los items top."
+			]
+			icon: "reliquary:alkahest"
+			id: "90E0000000000002"
+			subtitle: "Mira las recetas"
+			tasks: [{ id: "A0E0000000000002", title: "Entendido", type: "checkmark" }]
+			title: "&d2. Fabrica con JEI"
+			x: 4.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["90E0000000000002"]
+			description: [
+				"&6PASO 3 (FINAL)."
+				"Ejemplos: &eMochila del Mercader&r (recoge y apila drops),"
+				"&cCorazon Infernal&r (fabrica municion/pociones), &eAnillo"
+				"del Pacto&r. Muchos van en Curios; otros en mano. El"
+				"Altar del Pacto convierte materiales comunes en utiles."
+				""
+				"&6Ya dominas Reliquary.&r"
+			]
+			icon: "reliquary:mercy_cross"
+			id: "90E0000000000003"
+			subtitle: "Mochila y corazon"
+			tasks: [{ id: "A0E0000000000003", title: "Entendido", type: "checkmark" }]
+			title: "&d3. Items top"
+			x: 6.0d
+			y: 0.0d
+		}
+	]
+	title: "&d14. Reliquary"
+}

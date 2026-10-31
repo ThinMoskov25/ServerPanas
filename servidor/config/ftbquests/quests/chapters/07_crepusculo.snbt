@@ -1,0 +1,179 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "07_crepusculo"
+	group: "1000000000000001"
+	icon: "twilightforest:magic_map_focus"
+	id: "2000000000000007"
+	order_index: 7
+	quest_links: [ ]
+	quests: [
+		{
+			description: [
+				"&7&oHay un bosque que no aparece en ningún mapa.&r"
+				""
+				"Para entrar, cava un hoyo de 2×2, llénalo de agua, rodéalo de flores y setas, y lanza un &bdiamante&r dentro. Si lo haces bien, caerá un rayo."
+				""
+				"&7Uno de los diamantes activa el portal; el resto te vendrá bien al otro lado.&r"
+				""
+				"&eObjetivo:&r reúne &e4 diamantes&r."
+			]
+			id: "3000000000000060"
+			rewards: [
+				{
+					id: "5000000000000060"
+					item: "minecraft:diamond"
+					type: "item"
+				}
+			]
+			shape: "circle"
+			size: 1.5d
+			subtitle: "Abrir la puerta"
+			tasks: [
+				{
+					count: 4L
+					id: "4000000000000060"
+					item: "minecraft:diamond"
+					type: "item"
+				}
+			]
+			title: "&6El portal prohibido"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["3000000000000060"]
+			description: [
+				"&7&oAquí nunca amanece.&r"
+				""
+				"Bienvenido al &5Bosque Crepuscular&r: laberintos, torres, jefes y árboles tan altos que tapan el cielo."
+				""
+				"&cCuidado:&r hay zonas bloqueadas hasta que derrotes al jefe correspondiente."
+				""
+				"&eObjetivo:&r entra en el &5Bosque Crepuscular&r."
+			]
+			id: "3000000000000061"
+			rewards: [
+				{
+					id: "5000000000000061"
+					type: "xp"
+					xp: 100
+				}
+			]
+			shape: "rsquare"
+			subtitle: "Un mundo bajo los árboles"
+			tasks: [
+				{
+					dimension: "twilightforest:twilight_forest"
+					id: "4000000000000061"
+					type: "dimension"
+				}
+			]
+			title: "Entrar al Crepúsculo"
+			x: 2.25d
+			y: 0.0d
+		}
+		{
+			dependencies: ["3000000000000061"]
+			description: [
+				"&7&oEl bosque es enorme y es fácil perderse.&r"
+				""
+				"El &eFoco de mapa mágico&r permite fabricar mapas que marcan las estructuras del Crepúsculo."
+				""
+				"&eObjetivo:&r fabrica un &eFoco de mapa mágico&r."
+			]
+			id: "3000000000000062"
+			rewards: [
+				{
+					id: "5000000000000062"
+					type: "xp"
+					xp: 60
+				}
+			]
+			shape: "rsquare"
+			subtitle: "No perderse en la penumbra"
+			tasks: [
+				{
+					id: "4000000000000062"
+					item: "twilightforest:magic_map_focus"
+					type: "item"
+				}
+			]
+			title: "Mapa mágico"
+			x: 4.38d
+			y: -1.0d
+		}
+		{
+			dependencies: ["3000000000000061"]
+			description: [
+				"&7&oUna serpiente gigante custodia su patio de piedra.&r"
+				""
+				"El &cNaga&r es el primer jefe del bosque. Al caer suelta sus escamas, con las que se fabrica una de las mejores armaduras tempranas."
+				""
+				"&eObjetivo:&r derrota al &cNaga&r."
+			]
+			id: "3000000000000063"
+			optional: true
+			rewards: [
+				{
+					id: "5000000000000063"
+					type: "xp_levels"
+					xp_levels: 10
+				}
+			]
+			shape: "hexagon"
+			size: 1.25d
+			subtitle: "El primer gran jefe"
+			tasks: [
+				{
+					entity: "twilightforest:naga"
+					id: "40000000000010A1"
+					title: "Derrota al Naga"
+					type: "kill"
+					value: 1L
+				}
+			]
+			title: "&cEl Naga"
+			x: 4.38d
+			y: 1.0d
+		}
+		{
+			dependencies: ["3000000000000063"]
+			description: [
+				"&7&oTras el Naga, la torre del Lich.&r"
+				""
+				"El &cLich&r se esconde tras copias de sí mismo y escudos mágicos. Al derrotarlo se desbloquea el resto del bosque."
+				""
+				"&7Este capítulo es opcional, pero el equipo del Crepúsculo está entre los mejores del pack.&r"
+				""
+				"&eObjetivo:&r derrota al &cLich&r."
+			]
+			id: "3000000000000064"
+			optional: true
+			rewards: [
+				{
+					id: "5000000000000064"
+					type: "xp_levels"
+					xp_levels: 15
+				}
+			]
+			shape: "hexagon"
+			size: 1.25d
+			subtitle: "La llave del bosque"
+			tasks: [
+				{
+					entity: "twilightforest:lich"
+					id: "40000000000010A2"
+					title: "Derrota al Lich"
+					type: "kill"
+					value: 1L
+				}
+			]
+			title: "&cEl Lich de la torre"
+			x: 6.62d
+			y: 1.0d
+		}
+	]
+	subtitle: ["Una dimensión de aventura con jefes y progresión propia."]
+	title: "&5VII. El Bosque Crepuscular"
+}

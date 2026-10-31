@@ -1,0 +1,175 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "05_monturas"
+	group: "1000000000000001"
+	icon: "chococraft:chocobo_saddle"
+	id: "2000000000000005"
+	order_index: 5
+	quest_links: [ ]
+	quests: [
+		{
+			description: [
+				"&7&oNo todas las monturas escupen fuego.&r"
+				""
+				"Los &eChocobos&r son aves enormes, rápidas y mucho más fáciles de criar que un dragón. Todo empieza con el &eGysahl verde&r: su comida favorita y lo que usarás para domarlos."
+				""
+				"&eObjetivo:&r consigue &e3 semillas de Gysahl verde&r."
+			]
+			id: "3000000000000040"
+			rewards: [
+				{
+					count: 4
+					id: "5000000000000040"
+					item: "chococraft:gysahl_green"
+					type: "item"
+				}
+			]
+			shape: "circle"
+			size: 1.5d
+			subtitle: "El camino fácil al cielo"
+			tasks: [
+				{
+					count: 3L
+					id: "4000000000000040"
+					item: "chococraft:gysahl_green_seeds"
+					type: "item"
+				}
+			]
+			title: "&6Semillas de Gysahl"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["3000000000000040"]
+			description: [
+				"&7&oTodo buen jinete conoce a su montura.&r"
+				""
+				"La &eChocopedia&r explica todo sobre los chocobos: colores, habilidades y cómo criarlos."
+				""
+				"&7Dato: los chocobos dorados pueden volar.&r"
+				""
+				"&eObjetivo:&r consigue la &eChocopedia&r."
+			]
+			id: "3000000000000041"
+			rewards: [
+				{
+					id: "5000000000000041"
+					type: "xp"
+					xp: 40
+				}
+			]
+			shape: "rsquare"
+			subtitle: "El manual del jinete"
+			tasks: [
+				{
+					id: "4000000000000041"
+					item: "chococraft:chocopedia"
+					type: "item"
+				}
+			]
+			title: "Chocopedia"
+			x: 2.25d
+			y: 0.0d
+		}
+		{
+			dependencies: ["3000000000000041"]
+			description: [
+				"&7&oA partir de aquí, caminar es opcional.&r"
+				""
+				"Doma un chocobo dándole Gysahl verde y ponle una silla para montarlo."
+				""
+				"&eObjetivo:&r fabrica una &eSilla de chocobo&r."
+			]
+			id: "3000000000000042"
+			rewards: [
+				{
+					id: "5000000000000042"
+					type: "xp"
+					xp: 80
+				}
+			]
+			shape: "octagon"
+			size: 1.25d
+			subtitle: "Tu primera montura"
+			tasks: [
+				{
+					id: "4000000000000042"
+					item: "chococraft:chocobo_saddle"
+					type: "item"
+				}
+			]
+			title: "&eSilla de chocobo"
+			x: 4.38d
+			y: -1.0d
+		}
+		{
+			dependencies: ["3000000000000042"]
+			description: [
+				"&7&oUn buen chocobo carga contigo y con tu botín.&r"
+				""
+				"Las &eAlforjas&r convierten a tu chocobo en un almacén con patas, y el &eSilbato&r lo llama desde lejos para que nunca lo pierdas."
+				""
+				"&eObjetivo:&r fabrica las &eAlforjas&r y el &eSilbato de chocobo&r."
+			]
+			id: "3000000000000043"
+			rewards: [
+				{
+					id: "5000000000000043"
+					type: "xp_levels"
+					xp_levels: 4
+				}
+			]
+			shape: "rsquare"
+			subtitle: "Montura y mula a la vez"
+			tasks: [
+				{
+					id: "4000000000000043"
+					item: "chococraft:chocobo_saddle_bags"
+					type: "item"
+				}
+				{
+					id: "4000000000000044"
+					item: "chococraft:chocobo_whistle"
+					type: "item"
+				}
+			]
+			title: "Equipo de jinete"
+			x: 6.5d
+			y: -1.0d
+		}
+		{
+			dependencies: ["3000000000000041"]
+			description: [
+				"&7&oHay otra montura voladora en este mundo, y es mucho más agresiva.&r"
+				""
+				"Los &eHipogrifos&r viven en las montañas. Si consigues un huevo y lo incubas, tendrás una montura voladora que crece mucho más rápido que un dragón."
+				""
+				"&eObjetivo:&r consigue un &eHuevo de hipogrifo&r."
+			]
+			id: "3000000000000044"
+			optional: true
+			rewards: [
+				{
+					id: "5000000000000044"
+					type: "xp"
+					xp: 100
+				}
+			]
+			shape: "rsquare"
+			subtitle: "Mitad águila, mitad caballo"
+			tasks: [
+				{
+					id: "4000000000000045"
+					item: "iceandfire:hippogryph_egg"
+					type: "item"
+				}
+			]
+			title: "Huevo de hipogrifo"
+			x: 4.38d
+			y: 1.0d
+		}
+	]
+	subtitle: ["Chocobos e hipogrifos: el camino rápido al horizonte."]
+	title: "&aV. Monturas y jinetes"
+}

@@ -1,0 +1,78 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "g18_dungeonsarise"
+	group: "1000000000000002"
+	icon: "minecraft:chiseled_stone_bricks"
+	id: "7000000000000012"
+	order_index: 17
+	quests: [
+		{
+			description: [
+				"Pone grandes fortalezas, barcos voladores y ruinas"
+				"tematicas lejos del spawn."
+			]
+			icon: "minecraft:chiseled_stone_bricks"
+			id: "9120000000000000"
+			size: 1.5d
+			subtitle: "Grandes fortalezas"
+			tasks: [{ id: "A120000000000000", title: "Empezar", type: "checkmark" }]
+			title: "&6&lDUNGEONS ARISE"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9120000000000000"]
+			description: [
+				"&6PASO 1."
+				"Aleate del spawn: apareceran grandes fortalezas y barcos."
+				"Lleva pico, antorchas, comida y agua."
+				""
+				"&aDesbloquea:&r entrar preparado."
+			]
+			icon: "minecraft:map"
+			id: "9120000000000001"
+			subtitle: "Busca estructuras"
+			tasks: [{ id: "A120000000000001", title: "Entendido", type: "checkmark" }]
+			title: "&61. Alejate y explora"
+			x: 2.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9120000000000001"]
+			description: [
+				"&6PASO 2."
+				"Hay &etrampas&r, mobs y laberintos. Avanza despacio y"
+				"revisa el suelo."
+				""
+				"&aDesbloquea:&r el botin por jugador."
+			]
+			icon: "minecraft:tripwire_hook"
+			id: "9120000000000002"
+			subtitle: "Laberintos y mobs"
+			tasks: [{ id: "A120000000000002", title: "Entendido", type: "checkmark" }]
+			title: "&62. Cuidado con trampas"
+			x: 4.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9120000000000002"]
+			description: [
+				"&6PASO 3 (FINAL)."
+				"El botin usa &eLootr&r: &acada jugador ve su propio"
+				"cofre&r, asi nadie se queda sin premio aunque otro abra"
+				"primero."
+				""
+				"&6Ya dominas Dungeons Arise.&r"
+			]
+			icon: "minecraft:chest"
+			id: "9120000000000003"
+			subtitle: "Para todos"
+			tasks: [{ id: "A120000000000003", title: "Entendido", type: "checkmark" }]
+			title: "&63. Botin con Lootr"
+			x: 6.0d
+			y: 0.0d
+		}
+	]
+	title: "&618. Dungeons Arise"
+}

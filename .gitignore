@@ -1,0 +1,58 @@
+# --- Credenciales: NUNCA versionar (el repositorio es publico) ---
+automatizacion/exaroton-token.xml
+automatizacion/exaroton.env
+automatizacion/config.json
+*.secret
+*.token
+*.env
+*.pem
+*.key
+id_*
+*.ppk
+.dev.vars
+
+# --- Datos de jugadores y respaldos descargados ---
+respaldos/
+panel/datos/inventarios/
+panel/datos/logs/
+panel/datos/estado-espejo.json
+panel/datos/config-panel.json
+panel/datos/panel-errores.log
+panel/datos/*.log
+panel/datos/*.tmp
+despliegue-nube/servidor.json
+automatizacion/snapshots/
+automatizacion/logs/
+automatizacion/*.log
+
+# --- Binarios pesados (se reconstruyen o se descargan) ---
+*.jar
+*.zip
+distribucion/
+archivo/
+
+# --- Compilación de los mods propios ---
+mods-propios/*/build/
+mods-propios/*/.gradle/
+mods-propios/*/run/
+mods-propios/*/out/
+!mods-propios/*/gradle/wrapper/gradle-wrapper.jar
+
+# --- Caches y temporales ---
+__pycache__/
+*.pyc
+herramientas/misiones/items_reales.json
+_tmp-amigos/
+_build-curseforge/
+.vscode/
+.idea/
+*.tmp
+
+# --- Usuarios del panel (hashes de contrasenas) ---
+panel/datos/usuarios.json
+
+# --- Enlace secreto de encendido y estado de despliegues ---
+panel/datos/nube.json
+panel/datos/tunel.json
+encendido-nube/node_modules/
+encendido-nube/.wrangler/

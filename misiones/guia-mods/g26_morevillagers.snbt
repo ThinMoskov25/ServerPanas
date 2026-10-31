@@ -1,0 +1,78 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "g26_morevillagers"
+	group: "1000000000000002"
+	icon: "minecraft:emerald"
+	id: "700000000000001A"
+	order_index: 25
+	quests: [
+		{
+			description: [
+				"Anade mas oficios de aldeano con bloques de trabajo y"
+				"tratos nuevos."
+			]
+			icon: "minecraft:emerald"
+			id: "91A0000000000000"
+			size: 1.5d
+			subtitle: "Aldeas con mas oficios"
+			tasks: [{ id: "A1A0000000000000", title: "Empezar", type: "checkmark" }]
+			title: "&6&lMORE VILLAGERS"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["91A0000000000000"]
+			description: [
+				"&6PASO 1."
+				"Hay oficios nuevos (florista, minero, pescadero...) con"
+				"tratos utiles y sus propios bloques de trabajo."
+				""
+				"&aDesbloquea:&r asignar oficios."
+			]
+			icon: "minecraft:bell"
+			id: "91A0000000000001"
+			subtitle: "Oficios nuevos"
+			tasks: [{ id: "A1A0000000000001", title: "Entendido", type: "checkmark" }]
+			title: "&61. Visita aldeas"
+			x: 2.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["91A0000000000001"]
+			description: [
+				"&6PASO 2."
+				"Pon el bloque de trabajo nuevo cerca de un aldeano"
+				"desempleado para que tome ese oficio."
+				""
+				"&aDesbloquea:&r mejores tratos."
+			]
+			icon: "minecraft:composter"
+			id: "91A0000000000002"
+			subtitle: "Pon el bloque"
+			tasks: [{ id: "A1A0000000000002", title: "Entendido", type: "checkmark" }]
+			title: "&62. Asigna oficios"
+			x: 4.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["91A0000000000002"]
+			description: [
+				"&6PASO 3 (FINAL)."
+				"Sube el nivel de cada aldeano comerciando para desbloquear"
+				"los mejores tratos. Combina con Guard Villagers para"
+				"proteger tu economia."
+				""
+				"&6Ya dominas More Villagers.&r"
+			]
+			icon: "minecraft:emerald_block"
+			id: "91A0000000000003"
+			subtitle: "Tratos baratos"
+			tasks: [{ id: "A1A0000000000003", title: "Entendido", type: "checkmark" }]
+			title: "&63. Economia de aldea"
+			x: 6.0d
+			y: 0.0d
+		}
+	]
+	title: "&626. More Villagers"
+}

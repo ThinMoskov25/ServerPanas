@@ -1,0 +1,66 @@
+# CAPITULO 2000000000000007
+titulo: &5VII. El Bosque Crepuscular
+subtitulo: Una dimensión de aventura con jefes y progresión propia.
+
+## 3000000000000060
+rol: inicio
+titulo: El portal prohibido
+subtitulo: Abrir la puerta
+desc:
+&7&oHay un bosque que no aparece en ningún mapa.&r
+
+Para entrar, cava un hoyo de 2×2, llénalo de agua, rodéalo de flores y setas, y lanza un &bdiamante&r dentro. Si lo haces bien, caerá un rayo.
+
+&7Uno de los diamantes activa el portal; el resto te vendrá bien al otro lado.&r
+
+&eObjetivo:&r reúne &e4 diamantes&r.
+
+## 3000000000000061
+rol: normal
+titulo: Entrar al Crepúsculo
+subtitulo: Un mundo bajo los árboles
+desc:
+&7&oAquí nunca amanece.&r
+
+Bienvenido al &5Bosque Crepuscular&r: laberintos, torres, jefes y árboles tan altos que tapan el cielo.
+
+&cCuidado:&r hay zonas bloqueadas hasta que derrotes al jefe correspondiente.
+
+&eObjetivo:&r entra en el &5Bosque Crepuscular&r.
+
+## 3000000000000062
+rol: normal
+titulo: Mapa mágico
+subtitulo: No perderse en la penumbra
+desc:
+&7&oEl bosque es enorme y es fácil perderse.&r
+
+El &eFoco de mapa mágico&r permite fabricar mapas que marcan las estructuras del Crepúsculo.
+
+&eObjetivo:&r fabrica un &eFoco de mapa mágico&r.
+
+## 3000000000000063
+rol: jefe
+titulo: El Naga
+subtitulo: El primer gran jefe
+matar 4000000000000063 40000000000010A1 twilightforest:naga | Derrota al Naga
+desc:
+&7&oUna serpiente gigante custodia su patio de piedra.&r
+
+El &cNaga&r es el primer jefe del bosque. Al caer suelta sus escamas, con las que se fabrica una de las mejores armaduras tempranas.
+
+&eObjetivo:&r derrota al &cNaga&r.
+
+## 3000000000000064
+rol: jefe
+titulo: El Lich de la torre
+subtitulo: La llave del bosque
+matar 4000000000000064 40000000000010A2 twilightforest:lich | Derrota al Lich
+desc:
+&7&oTras el Naga, la torre del Lich.&r
+
+El &cLich&r se esconde tras copias de sí mismo y escudos mágicos. Al derrotarlo se desbloquea el resto del bosque.
+
+&7Este capítulo es opcional, pero el equipo del Crepúsculo está entre los mejores del pack.&r
+
+&eObjetivo:&r derrota al &cLich&r.

@@ -1,0 +1,100 @@
+# CAPITULO 2000000000000006
+titulo: &dVI. Las artes arcanas
+subtitulo: Hechizos, artefactos y reliquias que suben de nivel.
+
+## 3000000000000050
+rol: inicio
+titulo: El primer hechizo
+subtitulo: La otra forma de poder
+desc:
+&7&oNo todo el poder se forja en un yunque.&r
+
+&aIron's Spellbooks&r trae magia de verdad: fuego, hielo, rayo, sangre y nigromancia. Los hechizos gastan maná, que se mejora con equipo y objetos de Curios.
+
+&eObjetivo:&r consigue un &eLibro de hechizos&r básico.
+
+## 3000000000000051
+rol: normal
+titulo: Libro de hierro
+subtitulo: Más páginas, más poder
+desc:
+&7&oUn buen mago necesita un buen libro.&r
+
+Los libros mejores admiten más hechizos y dan más maná.
+
+&eObjetivo:&r consigue un &eLibro de hechizos de hierro&r.
+
+## 3000000000000052
+rol: normal
+titulo: Libro de diamante
+subtitulo: Magia seria
+desc:
+&7&oEl último paso antes de la magia de verdad.&r
+
+&eObjetivo:&r consigue un &eLibro de hechizos de diamante&r.
+
+## 3000000000000053
+rol: hito
+titulo: Libro de piel de dragón
+subtitulo: Donde la magia y el dragón se juntan
+desc:
+&7&oAquí se cruzan los dos caminos.&r
+
+El &eLibro de piel de dragón&r se fabrica con escamas de dragón y es uno de los mejores del juego. Solo quien ha enfrentado a un dragón puede llegar hasta aquí.
+
+&7Requiere haber completado «Escamas» en el capítulo IV.&r
+
+&eObjetivo:&r consigue un &eLibro de piel de dragón&r.
+
+## 3000000000000054
+rol: normal
+titulo: Artefactos antiguos
+subtitulo: Poder que no se empuña
+tarea 4000000000000054: He equipado un artefacto en Curios
+desc:
+&7&oHay objetos que trabajan por ti sin que los sostengas.&r
+
+Los &eArtefactos&r son objetos con poderes pasivos que se llevan en los huecos de &aCurios&r. No se fabrican: aparecen en cofres de mazmorras.
+
+&eObjetivo:&r equipa un artefacto cualquiera y marca la casilla.
+
+## 3000000000000055
+rol: hito
+titulo: Mesa de investigación
+subtitulo: Amuletos que suben de nivel
+desc:
+&7&oLas reliquias no son simples trofeos: crecen contigo.&r
+
+A diferencia de los artefactos, las &eReliquias&r se pueden mejorar. Con la &eMesa de investigación&r desbloqueas sus habilidades gastando experiencia. Cada reliquia tiene su propio árbol de mejoras.
+
+&eObjetivo:&r fabrica una &eMesa de investigación&r.
+
+## 3000000000000056
+rol: normal
+titulo: Relicario sagrado
+subtitulo: La colección de verdad
+desc:
+&7&oHay más de cuarenta reliquias repartidas por el mundo.&r
+
+Algunas de las más buscadas:
+&7• &eRelicario sagrado&r
+&7• &eEspejo mágico&r
+&7• &eTalismán del escarabajo&r
+&7• &eCinturón del cazador&r
+
+Revisa la descripción de cada una en el juego para ver sus habilidades.
+
+&eObjetivo:&r consigue el &eRelicario sagrado&r.
+
+## 3000000000000057
+rol: normal
+titulo: Tótem en el amuleto
+subtitulo: Una vida extra, siempre puesta
+desc:
+&7&oUna segunda oportunidad que no ocupa la mano.&r
+
+Con &aCharm of Undying&r, el &eTótem de la inmortalidad&r funciona desde el hueco de amuleto de Curios: te salva aunque lleves escudo y espada.
+
+&7Lo sueltan los Evocadores, en las mansiones del bosque y en las invasiones.&r
+
+&eObjetivo:&r consigue un &eTótem de la inmortalidad&r.

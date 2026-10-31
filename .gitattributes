@@ -1,0 +1,4 @@
+# Saltos de linea: los scripts de Linux deben quedarse en LF
+*.sh text eol=lf
+*.bat text eol=crlf
+*.ps1 text eol=crlf

@@ -1,0 +1,78 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "g13_relics"
+	group: "1000000000000002"
+	icon: "relics:ragged_cape"
+	id: "700000000000000D"
+	order_index: 12
+	quests: [
+		{
+			description: [
+				"Anade &6Reliquias&r: objetos muy fuertes que se equipan"
+				"en Curios y se mejoran de nivel."
+			]
+			icon: "relics:ragged_cape"
+			id: "90D0000000000000"
+			size: 1.5d
+			subtitle: "Reliquias que suben de nivel"
+			tasks: [{ id: "A0D0000000000000", title: "Empezar", type: "checkmark" }]
+			title: "&6&lRELICS"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["90D0000000000000"]
+			description: [
+				"&6PASO 1."
+				"Busca reliquias en cofres de mazmorra y botin de jefe."
+				"Cada una tiene efectos unicos (vuelo corto, escudo, etc.)."
+				""
+				"&aDesbloquea:&r equiparlas en Curios."
+			]
+			icon: "minecraft:chest"
+			id: "90D0000000000001"
+			subtitle: "Botin de mazmorra"
+			tasks: [{ id: "A0D0000000000001", title: "Entendido", type: "checkmark" }]
+			title: "&61. Encuentra reliquias"
+			x: 2.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["90D0000000000001"]
+			description: [
+				"&6PASO 2."
+				"Arrastra cada reliquia a su ranura de &6Curios&r. Lee su"
+				"tooltip para ver que hace y como se activa."
+				""
+				"&aDesbloquea:&r mejorarlas."
+			]
+			icon: "relics:ragged_cape"
+			id: "90D0000000000002"
+			subtitle: "A su ranura"
+			tasks: [{ id: "A0D0000000000002", title: "Entendido", type: "checkmark" }]
+			title: "&62. Equipa en Curios"
+			x: 4.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["90D0000000000002"]
+			description: [
+				"&6PASO 3 (FINAL)."
+				"Las reliquias se &emejoran de nivel&r gastando XP o"
+				"materiales y suben sus efectos. Mira su tooltip para ver"
+				"el coste de cada mejora."
+				""
+				"&6Ya dominas Relics.&r"
+			]
+			icon: "minecraft:experience_bottle"
+			id: "90D0000000000003"
+			subtitle: "Mas poder"
+			tasks: [{ id: "A0D0000000000003", title: "Entendido", type: "checkmark" }]
+			title: "&63. Sube de nivel"
+			x: 6.0d
+			y: 0.0d
+		}
+	]
+	title: "&613. Relics"
+}

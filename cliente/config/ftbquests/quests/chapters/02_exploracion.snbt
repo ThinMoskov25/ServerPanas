@@ -1,0 +1,260 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "02_exploracion"
+	group: "1000000000000001"
+	icon: "minecraft:compass"
+	id: "2000000000000002"
+	order_index: 1
+	quest_links: [ ]
+	quests: [
+		{
+			dependencies: ["3000000000000008"]
+			description: [
+				"&7&oEste mundo no es el que conocías.&r"
+				""
+				"&aTerralith&r ha reescrito la tierra: hay más de 90 biomas nuevos ahí fuera. Picos de cristal, cuevas de hongos gigantes, desiertos de ceniza…"
+				""
+				"&eObjetivo:&r fabrica un &eMapa&r y empieza a dibujar tu historia."
+			]
+			id: "3000000000000010"
+			rewards: [
+				{
+					count: 2
+					id: "5000000000000010"
+					item: "minecraft:paper"
+					type: "item"
+				}
+				{
+					id: "5000000000000011"
+					type: "xp"
+					xp: 30
+				}
+			]
+			shape: "circle"
+			size: 1.5d
+			subtitle: "Un mundo más grande de lo que crees"
+			tasks: [
+				{
+					id: "4000000000000010"
+					item: "minecraft:map"
+					type: "item"
+				}
+			]
+			title: "&6Cartógrafo novato"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["3000000000000010"]
+			description: [
+				"&7&oCaminar está bien. Teletransportarse está mejor.&r"
+				""
+				"Las &eWaystones&r son piedras antiguas repartidas por el mundo. Activa dos y podrás viajar entre ellas. Aparecen marcadas en el mapa de Xaero."
+				""
+				"&7Consejo: también puedes fabricar las tuyas y ponerlas en tu base.&r"
+				""
+				"&eObjetivo:&r consigue una &eWaystone&r."
+			]
+			id: "3000000000000011"
+			rewards: [
+				{
+					id: "5000000000000012"
+					item: "waystones:return_scroll"
+					type: "item"
+				}
+			]
+			shape: "rsquare"
+			subtitle: "Atajos por el mundo"
+			tasks: [
+				{
+					id: "4000000000000011"
+					item: "waystones:waystone"
+					type: "item"
+				}
+			]
+			title: "Piedras de viaje"
+			x: 2.38d
+			y: -1.0d
+		}
+		{
+			dependencies: ["3000000000000011"]
+			description: [
+				"&7&oCuando la cosa se pone fea, necesitas una salida rápida.&r"
+				""
+				"La &ePiedra de deformación&r te deja viajar desde cualquier lugar a una Waystone que ya hayas activado. Se recarga con el tiempo, así que puedes usarla una y otra vez."
+				""
+				"&eObjetivo:&r fabrica una &ePiedra de deformación&r."
+			]
+			id: "3000000000000012"
+			rewards: [
+				{
+					id: "5000000000000013"
+					type: "xp_levels"
+					xp_levels: 3
+				}
+			]
+			shape: "rsquare"
+			subtitle: "Volver siempre a casa"
+			tasks: [
+				{
+					id: "4000000000000012"
+					item: {
+						Count: 1
+						id: "waystones:warp_stone"
+						tag: {
+							Damage: 0
+						}
+					}
+					type: "item"
+				}
+			]
+			title: "Piedra de deformación"
+			x: 4.5d
+			y: -1.0d
+		}
+		{
+			dependencies: ["3000000000000010"]
+			description: [
+				"&7&oBajo tierra hay ciudades olvidadas.&r"
+				""
+				"&aYUNG's Better Dungeons&r ha reconstruido las mazmorras: ahora son laberintos de varias plantas con cofres, trampas y generadores de monstruos."
+				""
+				"&6Importante para jugar con tus panas:&r con &aLootr&r, los cofres de estructura son &eindividuales&r. Cada jugador abre el mismo cofre y recibe &esu propio botín&r, una sola vez. El primero que llega no se lo lleva todo, así que nadie necesita madrugar ni correr."
+				""
+				"&7Los cofres de Lootr tienen otra textura y brillan si aún no los has abierto.&r"
+				""
+				"&eObjetivo:&r baja, saquea y vuelve vivo con &e6 esmeraldas&r como prueba."
+			]
+			id: "3000000000000013"
+			rewards: [
+				{
+					id: "5000000000000014"
+					item: "minecraft:golden_apple"
+					type: "item"
+				}
+				{
+					id: "5000000000000015"
+					type: "xp"
+					xp: 100
+				}
+			]
+			shape: "octagon"
+			size: 1.25d
+			subtitle: "Lo que duerme bajo la tierra"
+			tasks: [
+				{
+					count: 6L
+					id: "4000000000000013"
+					item: "minecraft:emerald"
+					type: "item"
+				}
+			]
+			title: "&eSaqueador de mazmorras"
+			x: 2.38d
+			y: 1.0d
+		}
+		{
+			dependencies: ["3000000000000013"]
+			description: [
+				"&7&oNo todas las ruinas están bajo tierra.&r"
+				""
+				"&aWhen Dungeons Arise&r y &aStructory&r han sembrado el mundo de fortalezas, torres y campamentos con buen botín y mejores guardianes."
+				""
+				"&eObjetivo:&r saquea fortalezas y reúne &e4 diamantes&r."
+			]
+			id: "3000000000000014"
+			rewards: [
+				{
+					count: 3
+					id: "5000000000000016"
+					item: "minecraft:diamond"
+					type: "item"
+				}
+			]
+			shape: "rsquare"
+			subtitle: "Fortalezas sobre la superficie"
+			tasks: [
+				{
+					count: 4L
+					id: "4000000000000014"
+					item: "minecraft:diamond"
+					type: "item"
+				}
+			]
+			title: "Ruinas en pie"
+			x: 4.5d
+			y: 1.0d
+		}
+		{
+			dependencies: ["3000000000000012"]
+			description: [
+				"&7&oViajar lejos significa cargar mucho.&r"
+				""
+				"La &eMochila del viajero&r es la única mochila del pack, y es la buena: dos tanques de líquido, mesa de trabajo y saco de dormir integrados. Se equipa en la espalda y se ve puesta en tu personaje."
+				""
+				"&7Hay versiones temáticas (abeja, creeper, dragón…) si quieres cambiarle el aspecto.&r"
+				""
+				"&eObjetivo:&r fabrica una &eMochila del viajero&r."
+			]
+			id: "3000000000000015"
+			rewards: [
+				{
+					id: "5000000000000017"
+					type: "xp"
+					xp: 80
+				}
+			]
+			shape: "octagon"
+			size: 1.25d
+			subtitle: "Tu casa a la espalda"
+			tasks: [
+				{
+					id: "4000000000000015"
+					item: "travelersbackpack:standard"
+					type: "item"
+				}
+			]
+			title: "&eMochila del viajero"
+			x: 6.62d
+			y: -1.0d
+		}
+		{
+			dependencies: [
+				"3000000000000014"
+				"3000000000000015"
+			]
+			description: [
+				"&7&oHas visto biomas sin nombre, saqueado ruinas y abierto caminos entre piedras antiguas. En una de esas mazmorras encontraste algo extraño: un hueso demasiado grande para cualquier animal conocido… y tibio al tacto.&r"
+				""
+				"&cAlgo enorme vive en este mundo.&r"
+				""
+				"&eObjetivo:&r marca la casilla para abrir el capítulo IV: La senda del dragón."
+			]
+			icon: "iceandfire:dragonbone"
+			id: "3000000000000016"
+			rewards: [
+				{
+					id: "5000000000000018"
+					type: "xp_levels"
+					xp_levels: 8
+				}
+			]
+			shape: "diamond"
+			size: 1.75d
+			subtitle: "El hallazgo que lo cambia todo"
+			tasks: [
+				{
+					id: "4000000000000016"
+					title: "Reconozco la señal"
+					type: "checkmark"
+				}
+			]
+			title: "&6&lEl hueso tibio"
+			x: 9.12d
+			y: 0.0d
+		}
+	]
+	subtitle: ["Mapas, piedras de viaje, mazmorras y ruinas."]
+	title: "&6II. El mundo exterior"
+}

@@ -1,0 +1,73 @@
+# CAPITULO 2000000000000011
+titulo: &6XI. Entre mundos
+subtitulo: Un jefe por cada mundo. Cuatro cacerías, una leyenda.
+
+## 3000000000000200
+rol: inicio
+titulo: Cazador entre mundos
+subtitulo: Un jefe por cada mundo
+tarea 4000000000000200: Acepto la cacería entre mundos
+desc:
+&7&oHas recorrido cada rincón de estos mundos. Ahora toca lo último: cazar al señor de cada reino.&r
+
+Un jefe por mundo. Cuatro cabezas. Una leyenda.
+
+&7Cada misión se completa solo si participas en la muerte del jefe: no vale que te regalen el botín. Cada jugador lleva su propia cuenta, y los jefes se pueden volver a invocar, así que nadie se queda fuera por llegar tarde.&r
+
+&eObjetivo:&r marca la casilla para empezar la cacería.
+
+## 3000000000000201
+rol: jefe
+titulo: Cazar a Ignis
+subtitulo: El gigante de fuego del Nether
+desc:
+&7&oEl primer señor: el fuego.&r
+
+En la Arena Ardiente del Nether vive &cIgnis&r, un gigante de fuego con escudo y martillo.
+
+&eObjetivo:&r participa en la muerte de &cIgnis&r.
+
+## 3000000000000202
+rol: jefe
+titulo: Cazar al dragón de Ender
+subtitulo: El señor del vacío
+desc:
+&7&oEl segundo señor: el vacío.&r
+
+Sobre las islas del End vuela el &5Dragón de Ender&r, el jefe más clásico de todos. Si ya murió, se vuelve a invocar colocando cuatro cristales del End en el portal de salida.
+
+&eObjetivo:&r participa en la muerte del &5Dragón de Ender&r.
+
+## 3000000000000203
+rol: jefe
+titulo: Cazar al Naga
+subtitulo: La serpiente del Crepúsculo
+desc:
+&7&oEl tercer señor: el bosque.&r
+
+El &cNaga&r, la serpiente gigante del &5Bosque Crepuscular&r, embiste a todo lo que entra en su patio de piedra.
+
+&eObjetivo:&r participa en la muerte del &cNaga&r.
+
+## 3000000000000204
+rol: jefe
+titulo: Cazar al Warden
+subtitulo: El guardián ciego del abismo
+desc:
+&7&oEl cuarto señor: la oscuridad.&r
+
+En lo más profundo de la Oscuridad Profunda acecha el &3Warden&r. No te ve: te oye. Es el enemigo más peligroso del juego base.
+
+&eObjetivo:&r participa en la muerte del &3Warden&r.
+
+## 3000000000000205
+rol: final
+titulo: Cazador entre mundos
+subtitulo: El que caza en todos los mundos
+tarea 4000000000000205: He cazado a los cuatro señores
+desc:
+&7&oIgnis. El dragón. El Naga. El Warden. Cuatro mundos, cuatro señores, cuatro victorias.&r
+
+Ya no hay jefe que te quede grande. Eres el &6Cazador entre mundos&r, y este servidor lo sabe.
+
+&eObjetivo:&r marca la casilla y reclama la recompensa que te has ganado.

@@ -1,0 +1,6 @@
+#Inventory sorter blacklists
+[blacklists]
+	#Container blacklist
+	containerBlacklist = ["curios:curios_container"]
+	#Slot type blacklist
+	slotBlacklist = ["top.theillusivec4.curios.common.inventory.CurioSlot", "top.theillusivec4.curios.common.inventory.CosmeticCurioSlot"]

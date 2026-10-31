@@ -1,0 +1,78 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "g22_farmersdelight"
+	group: "1000000000000002"
+	icon: "farmersdelight:cooking_pot"
+	id: "7000000000000016"
+	order_index: 21
+	quests: [
+		{
+			description: [
+				"Mejora la cocina con platos que curan mas y dan efectos"
+				"utiles para jefes."
+			]
+			icon: "farmersdelight:cooking_pot"
+			id: "9160000000000000"
+			size: 1.5d
+			subtitle: "Comer bien importa"
+			tasks: [{ id: "A160000000000000", title: "Empezar", type: "checkmark" }]
+			title: "&a&lFARMER'S DELIGHT"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9160000000000000"]
+			description: [
+				"&6PASO 1."
+				"Fabrica la &6Olla de Cocina&r y la &6Tabla de Cortar&r."
+				""
+				"&aDesbloquea:&r cocinar platos."
+			]
+			icon: "farmersdelight:cooking_pot"
+			id: "9160000000000001"
+			subtitle: "Tus herramientas"
+			tasks: [{ id: "A160000000000001", title: "Entendido", type: "checkmark" }]
+			title: "&a1. Olla y Tabla"
+			x: 2.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9160000000000001"]
+			description: [
+				"&6PASO 2."
+				"Pon la olla sobre fuego, echa ingredientes y recoge el"
+				"plato con un &ecuenco&r. Usa el &eCuchillo&r en la tabla"
+				"para despiezar carnes y cultivos en mas porciones."
+				""
+				"&aDesbloquea:&r banquetes."
+			]
+			icon: "farmersdelight:cooking_pot"
+			id: "9160000000000002"
+			subtitle: "Sobre el fuego"
+			tasks: [{ id: "A160000000000002", title: "Entendido", type: "checkmark" }]
+			title: "&a2. Cocina platos"
+			x: 4.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9160000000000002"]
+			description: [
+				"&6PASO 3 (FINAL)."
+				"Los platos dan &esaturacion alta&r y efectos (regen,"
+				"resistencia). Una &eComida de la Granja&r de un bloque"
+				"alimenta a todo tu grupo."
+				""
+				"&6Ya dominas Farmer's Delight.&r"
+			]
+			icon: "farmersdelight:roast_chicken_block"
+			id: "9160000000000003"
+			subtitle: "Comida para el grupo"
+			tasks: [{ id: "A160000000000003", title: "Entendido", type: "checkmark" }]
+			title: "&a3. Banquetes"
+			x: 6.0d
+			y: 0.0d
+		}
+	]
+	title: "&a22. Farmer's Delight"
+}

@@ -1,0 +1,284 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "08_encantamientos"
+	group: "1000000000000001"
+	icon: "apotheosis:gem"
+	id: "2000000000000008"
+	order_index: 4
+	quest_links: [ ]
+	quests: [
+		{
+			dependencies: ["3000000000000004"]
+			description: [
+				"&7&oLa mesa de encantamientos clásica llega al nivel 30 y ahí se queda.&r"
+				""
+				"&aApotheosis&r rompe ese límite: la mesa se mejora con estanterías especiales para sacar encantamientos más altos."
+				""
+				"&eObjetivo:&r fabrica una &eMesa de encantamientos&r."
+			]
+			id: "3000000000000080"
+			rewards: [
+				{
+					count: 8
+					id: "5000000000000080"
+					item: "minecraft:lapis_lazuli"
+					type: "item"
+				}
+			]
+			shape: "circle"
+			size: 1.5d
+			subtitle: "Más allá del nivel 30"
+			tasks: [
+				{
+					id: "4000000000000080"
+					item: "minecraft:enchanting_table"
+					type: "item"
+				}
+			]
+			title: "&6La mesa mejorada"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["3000000000000080"]
+			description: [
+				"&7&oLas estanterías normales ya no son el techo.&r"
+				""
+				"La &eEstantería infernal&r aumenta mucho el poder de encantamiento, pero también la &cvariación&r: los resultados son más extremos, para bien o para mal."
+				""
+				"&7Hay estanterías marinas, del End, de sculk y más; cada una afecta de forma distinta.&r"
+				""
+				"&eObjetivo:&r fabrica &e4 Estanterías infernales&r."
+			]
+			id: "3000000000000081"
+			rewards: [
+				{
+					id: "5000000000000081"
+					type: "xp"
+					xp: 80
+				}
+			]
+			shape: "rsquare"
+			subtitle: "Poder a cambio de riesgo"
+			tasks: [
+				{
+					count: 4L
+					id: "4000000000000081"
+					item: "apotheosis:hellshelf"
+					type: "item"
+				}
+			]
+			title: "Estanterías infernales"
+			x: 2.38d
+			y: 0.0d
+		}
+		{
+			dependencies: ["3000000000000081"]
+			description: [
+				"&7&oUn buen encantamiento no se tira.&r"
+				""
+				"La &eBiblioteca de encantamientos&r almacena los encantamientos de tus libros y te deja sacarlos cuando los necesites."
+				""
+				"&eObjetivo:&r fabrica una &eBiblioteca de encantamientos&r."
+			]
+			id: "3000000000000082"
+			rewards: [
+				{
+					id: "5000000000000082"
+					type: "xp_levels"
+					xp_levels: 6
+				}
+			]
+			shape: "rsquare"
+			subtitle: "Guardar lo que vale la pena"
+			tasks: [
+				{
+					id: "4000000000000082"
+					item: "apotheosis:library"
+					type: "item"
+				}
+			]
+			title: "Biblioteca de encantamientos"
+			x: 4.5d
+			y: -0.5d
+		}
+		{
+			dependencies: ["3000000000000080"]
+			description: [
+				"&7&oA partir de ahora, el botín cambia.&r"
+				""
+				"Apotheosis añade &eafijos&r: armas y armaduras con nombre propio y propiedades extra, que aparecen en cofres y las sueltan los monstruos. Hay cinco rarezas: común, poco común, rara, épica y &dmítica&r."
+				""
+				"&eObjetivo:&r consigue &e4 materiales comunes&r de afijo."
+			]
+			id: "3000000000000083"
+			rewards: [
+				{
+					id: "5000000000000083"
+					type: "xp"
+					xp: 70
+				}
+			]
+			shape: "octagon"
+			size: 1.25d
+			subtitle: "Botín con nombre propio"
+			tasks: [
+				{
+					count: 4L
+					id: "4000000000000083"
+					item: "apotheosis:common_material"
+					type: "item"
+				}
+			]
+			title: "&eBotín con afijos"
+			x: 2.38d
+			y: 1.75d
+		}
+		{
+			dependencies: ["3000000000000083"]
+			description: [
+				"&7&oSi no te gusta el resultado, vuelve a intentarlo.&r"
+				""
+				"La &eMesa de reforja&r cambia los afijos de un objeto a cambio de materiales y niveles, para perseguir la combinación que buscas."
+				""
+				"&eObjetivo:&r fabrica una &eMesa de reforja&r."
+			]
+			id: "3000000000000084"
+			rewards: [
+				{
+					count: 2
+					id: "5000000000000084"
+					item: "apotheosis:rare_material"
+					type: "item"
+				}
+			]
+			shape: "rsquare"
+			subtitle: "Volver a tirar los dados"
+			tasks: [
+				{
+					id: "4000000000000084"
+					item: "apotheosis:reforging_table"
+					type: "item"
+				}
+			]
+			title: "Mesa de reforja"
+			x: 4.5d
+			y: 1.25d
+		}
+		{
+			dependencies: ["3000000000000083"]
+			description: [
+				"&7&oEl equipo también se puede adornar con poder.&r"
+				""
+				"Las &bgemas&r se engarzan en el equipo y dan efectos: vida, velocidad, daño extra, robo de vida… Necesitas la &eMesa de corte de gemas&r para trabajarlas y un &eSigilo de engarce&r para abrir huecos."
+				""
+				"&eObjetivo:&r fabrica la &eMesa de corte de gemas&r y un &eSigilo de engarce&r."
+			]
+			id: "3000000000000085"
+			rewards: [
+				{
+					count: 4
+					id: "5000000000000085"
+					item: "apotheosis:gem_dust"
+					type: "item"
+				}
+			]
+			shape: "rsquare"
+			subtitle: "Piedras con poder"
+			tasks: [
+				{
+					id: "4000000000000085"
+					item: "apotheosis:gem_cutting_table"
+					type: "item"
+				}
+				{
+					id: "4000000000000086"
+					item: "apotheosis:sigil_of_socketing"
+					type: "item"
+				}
+			]
+			title: "Gemas y engarces"
+			x: 4.5d
+			y: 3.0d
+		}
+		{
+			dependencies: [
+				"3000000000000082"
+				"3000000000000085"
+			]
+			description: [
+				"&7&oEl material más raro de todos.&r"
+				""
+				"El &dmaterial mítico&r solo cae del mejor botín y de los &cInvasores&r: jefes que aparecen en el mundo con equipo mítico completo. Con él se reforjan los objetos más poderosos del juego."
+				""
+				"&cMucho cuidado con los Invasores.&r"
+				""
+				"&eObjetivo:&r consigue un &dmaterial mítico&r."
+			]
+			icon: "apotheosis:mythic_material"
+			id: "3000000000000086"
+			rewards: [
+				{
+					id: "5000000000000086"
+					type: "xp_levels"
+					xp_levels: 20
+				}
+			]
+			shape: "diamond"
+			size: 1.75d
+			subtitle: "La cima del equipo"
+			tasks: [
+				{
+					id: "4000000000000087"
+					item: "apotheosis:mythic_material"
+					type: "item"
+				}
+			]
+			title: "&6&lMaterial mítico"
+			x: 6.88d
+			y: 1.25d
+		}
+		{
+			dependencies: ["3000000000000080"]
+			description: [
+				"&7&oMás opciones sin romper el estilo del juego.&r"
+				""
+				"&aEnsorcellation&r añade decenas de encantamientos nuevos. Algunos ejemplos:"
+				"&7• &eExcavación&r"
+				"&7• &eSanguijuela&r"
+				"&7• &eVínculo de alma&r"
+				"&7• &eVitalidad&r"
+				"&7• &eAlcance&r"
+				""
+				"&7Enchantment Descriptions te explica qué hace cada uno al pasar el ratón sobre el libro.&r"
+				""
+				"&eObjetivo:&r consigue cualquier encantamiento de Ensorcellation y marca la casilla."
+			]
+			id: "3000000000000087"
+			optional: true
+			rewards: [
+				{
+					count: 3
+					id: "5000000000000087"
+					item: "minecraft:book"
+					type: "item"
+				}
+			]
+			shape: "rsquare"
+			subtitle: "Más encantamientos, estilo clásico"
+			tasks: [
+				{
+					id: "4000000000000088"
+					title: "He conseguido un encantamiento de Ensorcellation"
+					type: "checkmark"
+				}
+			]
+			title: "Encantamientos nuevos"
+			x: 2.38d
+			y: -1.75d
+		}
+	]
+	subtitle: ["Apotheosis: más allá del nivel 30, afijos y gemas."]
+	title: "&5VIII. Encantamientos y gemas"
+}

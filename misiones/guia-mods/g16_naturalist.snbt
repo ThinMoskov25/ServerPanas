@@ -1,0 +1,78 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "g16_naturalist"
+	group: "1000000000000002"
+	icon: "naturalist:field_guide"
+	id: "7000000000000010"
+	order_index: 15
+	quests: [
+		{
+			description: [
+				"Repuebla el mundo con fauna realista (ciervos, osos,"
+				"serpientes, luciernagas, patos, lagartos, caracoles)."
+			]
+			icon: "naturalist:field_guide"
+			id: "9100000000000000"
+			size: 1.5d
+			subtitle: "Fauna viva"
+			tasks: [{ id: "A100000000000000", title: "Empezar", type: "checkmark" }]
+			title: "&2&lNATURALIST"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9100000000000000"]
+			description: [
+				"&6PASO 1."
+				"Cada animal vive en su bioma: osos y ciervos en bosque,"
+				"serpientes en desierto, etc."
+				""
+				"&c&lCuidado: osos y serpientes atacan si tocas sus crias.&r"
+			]
+			icon: "minecraft:oak_leaves"
+			id: "9100000000000001"
+			subtitle: "Cada animal su casa"
+			tasks: [{ id: "A100000000000001", title: "Entendido", type: "checkmark" }]
+			title: "&21. Explora biomas"
+			x: 2.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9100000000000001"]
+			description: [
+				"&6PASO 2."
+				"Crialos con su comida (bayas, semillas, insectos). Recoge"
+				"&eleche&r de nuevos animales, cuero y &eluciernagas&r en"
+				"tarro para luz."
+				""
+				"&aDesbloquea:&r el Field Guide."
+			]
+			icon: "minecraft:milk_bucket"
+			id: "9100000000000002"
+			subtitle: "Productos nuevos"
+			tasks: [{ id: "A100000000000002", title: "Entendido", type: "checkmark" }]
+			title: "&22. Cria y recoge"
+			x: 4.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9100000000000002"]
+			description: [
+				"&6PASO 3 (FINAL)."
+				"Usa el &eField Guide&r (item libro) para ver que come y"
+				"donde vive cada animal."
+				""
+				"&6Ya dominas Naturalist.&r"
+			]
+			icon: "naturalist:field_guide"
+			id: "9100000000000003"
+			subtitle: "Tu enciclopedia"
+			tasks: [{ id: "A100000000000003", title: "Entendido", type: "checkmark" }]
+			title: "&23. Field Guide"
+			x: 6.0d
+			y: 0.0d
+		}
+	]
+	title: "&216. Naturalist"
+}

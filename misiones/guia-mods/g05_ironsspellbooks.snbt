@@ -1,0 +1,116 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "g05_ironsspellbooks"
+	group: "1000000000000002"
+	icon: "irons_spellbooks:diamond_spell_book"
+	id: "7000000000000005"
+	order_index: 4
+	quests: [
+		{
+			description: [
+				"Sistema de magia RPG con mas de 70 hechizos en escuelas:"
+				"fuego, hielo, rayo, sangre, nigromancia, sagrado,"
+				"evocacion, eldritch y naturaleza."
+			]
+			icon: "irons_spellbooks:diamond_spell_book"
+			id: "9050000000000000"
+			size: 1.5d
+			subtitle: "Conviertete en mago"
+			tasks: [{ id: "A050000000000000", title: "Empezar", type: "checkmark" }]
+			title: "&d&lIRON'S SPELLBOOKS"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9050000000000000"]
+			description: [
+				"&6PASO 1.&r"
+				"Mata &dlanzadores de hechizos&r (magos hostiles) para"
+				"conseguir &eEsencia Arcana&r y pergaminos de hechizo."
+				""
+				"&aDesbloquea:&r fabricar tu equipo de mago."
+			]
+			icon: "irons_spellbooks:arcane_essence"
+			id: "9050000000000001"
+			subtitle: "Consigue esencia"
+			tasks: [{ id: "A050000000000001", title: "Entendido", type: "checkmark" }]
+			title: "&d1. Caza magos"
+			x: 2.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9050000000000001"]
+			description: [
+				"&6PASO 2.&r"
+				"Fabrica una &eMesa de Inscripcion&r (multibloque 2x1) y"
+				"un &eLibro de Hechizos&r (sube de nivel: cobre, hierro,"
+				"oro, diamante, netherite)."
+				""
+				"&aDesbloquea:&r grabar hechizos."
+			]
+			icon: "irons_spellbooks:inscription_table"
+			id: "9050000000000002"
+			subtitle: "Tu equipo base"
+			tasks: [{ id: "A050000000000002", title: "Entendido", type: "checkmark" }]
+			title: "&d2. Mesa y Libro"
+			x: 4.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9050000000000002"]
+			description: [
+				"&6PASO 3.&r"
+				"En la mesa, mete un &ePergamino&r en una ranura del libro"
+				"para grabar ese hechizo de forma permanente (los sueltos"
+				"se gastan de un uso)."
+				""
+				"&aDesbloquea:&r lanzar hechizos."
+			]
+			icon: "irons_spellbooks:scroll"
+			id: "9050000000000003"
+			subtitle: "Hazlo permanente"
+			tasks: [{ id: "A050000000000003", title: "Entendido", type: "checkmark" }]
+			title: "&d3. Graba un hechizo"
+			x: 6.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9050000000000003"]
+			description: [
+				"&6PASO 4.&r"
+				"Pon el libro en la &eranura de Spellbook&r, elige el"
+				"hechizo con la rueda y lanzalo con &eV&r. Cada hechizo"
+				"gasta mana y tiene enfriamiento."
+				""
+				"&aDesbloquea:&r builds de mana."
+			]
+			icon: "irons_spellbooks:diamond_spell_book"
+			id: "9050000000000004"
+			subtitle: "A la batalla"
+			tasks: [{ id: "A050000000000004", title: "Entendido", type: "checkmark" }]
+			title: "&d4. Lanza con V"
+			x: 8.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9050000000000004"]
+			description: [
+				"&6PASO 5 (FINAL).&r"
+				"Equipa &eanillos/amuletos&r de mana (Curios) y armas con"
+				"poder de hechizo. En la &eArcane Anvil&r con Tinta subes"
+				"el nivel de un hechizo grabado."
+				""
+				"&6Ya eres mago.&r"
+			]
+			icon: "irons_spellbooks:arcane_anvil"
+			id: "9050000000000005"
+			subtitle: "Lanza sin parar"
+			tasks: [{ id: "A050000000000005", title: "Entendido", type: "checkmark" }]
+			title: "&d5. Mana y mejora"
+			x: 10.0d
+			y: 0.0d
+		}
+	]
+	title: "&d5. Iron's Spellbooks"
+}

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Entrar · Panel SERVER PANAS</title>
+<style>
+  :root{
+    color-scheme:dark;
+    --bg:#0a1016; --panel:#111d27; --borde:#253743; --txt:#edf5f4; --suave:#9aadb4;
+    --verde:#42d3a0; --rojo:#f07178; --azul:#66a9f7;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;display:grid;place-items:center;font-family:'Segoe UI',system-ui,sans-serif;color:var(--txt);
+    background:radial-gradient(ellipse at 78% -20%,rgba(38,116,104,.18),transparent 45%),var(--bg);
+    padding:24px max(16px, env(safe-area-inset-right, 0px)) 24px max(16px, env(safe-area-inset-left, 0px))}
+  .caja{width:100%;max-width:380px;background:linear-gradient(150deg,rgba(20,34,44,.98),rgba(15,27,36,.98));
+    border:1px solid rgba(132,170,180,.14);border-radius:16px;padding:28px 26px;box-shadow:0 14px 34px rgba(0,0,0,.25);display:flex;flex-direction:column;gap:18px}
+  .marca{display:flex;align-items:center;gap:12px;font-weight:700;letter-spacing:.06em}
+  .logo{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:14px;font-weight:800;color:#061810;background:linear-gradient(145deg,#65e2b2,#48a9c2)}
+  .marca small{display:block;font-size:10px;color:var(--suave);font-weight:500;letter-spacing:.12em}
+  h1{margin:0;font-size:20px}
+  form{display:flex;flex-direction:column;gap:14px}
+  label{display:flex;flex-direction:column;gap:6px;color:var(--suave);font-size:13px}
+  input{background:#0c151d;color:var(--txt);border:1px solid #2a3e49;border-radius:9px;padding:11px 12px;font:inherit;font-size:15px;outline:none}
+  input:focus{border-color:var(--azul);box-shadow:0 0 0 3px rgba(102,169,247,.13)}
+  button{margin-top:4px;padding:11px;border:1px solid #52d6a5;border-radius:9px;background:linear-gradient(135deg,#58dfac,#35bb8e);color:#062017;font:inherit;font-weight:700;cursor:pointer}
+  button:disabled{opacity:.6;cursor:wait}
+  button:focus-visible,input:focus-visible{outline:2px solid var(--azul);outline-offset:2px}
+  .error{min-height:20px;color:var(--rojo);font-size:13.5px;margin:0}
+  .pie{color:var(--suave);font-size:12px;margin:0}
+</style>
+</head>
+<body>
+<main class="caja">
+  <div class="marca"><span class="logo">SP</span><span>SERVER PANAS<small>ADMINISTRACION DEL SERVIDOR</small></span></div>
+  <h1>Iniciar sesión</h1>
+  <form id="form" autocomplete="on">
+    <label>Usuario<input id="usuario" name="username" autocomplete="username" required autofocus></label>
+    <label>Contraseña<input id="clave" name="password" type="password" autocomplete="current-password" required></label>
+    <button id="btn" type="submit">Entrar</button>
+    <p class="error" id="error" role="alert"></p>
+  </form>
+  <p class="pie">Tras 5 intentos fallidos el acceso se bloquea 10 minutos.</p>
+</main>
+<script>
+document.getElementById('form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('btn'), err = document.getElementById('error');
+  btn.disabled = true; err.textContent = '';
+  try {
+    const r = await fetch('/api/login', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'X-Panel-SP': '1'},
+      body: JSON.stringify({usuario: document.getElementById('usuario').value.trim(), clave: document.getElementById('clave').value})
+    });
+    const d = await r.json().catch(() => ({}));
+    if (r.ok && d.ok) { location.href = '/'; return; }
+    err.textContent = d.error || ('Error ' + r.status);
+  } catch (ex) {
+    err.textContent = 'No se pudo conectar con el panel.';
+  }
+  btn.disabled = false;
+});
+</script>
+</body>
+</html>

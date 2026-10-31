@@ -1,0 +1,77 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "g29_quark"
+	group: "1000000000000002"
+	icon: "quark:myalite"
+	id: "700000000000001D"
+	order_index: 28
+	quests: [
+		{
+			description: [
+				"Anade muchisima calidad de vida, decoracion y utilidades."
+				"Casi todo es tecla o clic, no hace falta craftear nada."
+			]
+			icon: "quark:myalite"
+			id: "91D0000000000000"
+			size: 1.5d
+			subtitle: "Calidad de vida"
+			tasks: [{ id: "A1D0000000000000", title: "Empezar", type: "checkmark" }]
+			title: "&a&lQUARK"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["91D0000000000000"]
+			description: [
+				"&6PASO 1."
+				"- Abre cofres aunque tengan un bloque encima."
+				"- Boton/atajo para &eordenar&r cofre e inventario."
+				""
+				"&aDesbloquea:&r mas utilidades."
+			]
+			icon: "minecraft:chest"
+			id: "91D0000000000001"
+			subtitle: "Lo mas util"
+			tasks: [{ id: "A1D0000000000001", title: "Entendido", type: "checkmark" }]
+			title: "&a1. Cofres y orden"
+			x: 2.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["91D0000000000001"]
+			description: [
+				"&6PASO 2."
+				"Mochilas de cuero, cestas, cajones etiquetados y bloques"
+				"de construccion nuevos."
+				""
+				"&aDesbloquea:&r atajos de movimiento."
+			]
+			icon: "minecraft:barrel"
+			id: "91D0000000000002"
+			subtitle: "Cajones y cestas"
+			tasks: [{ id: "A1D0000000000002", title: "Entendido", type: "checkmark" }]
+			title: "&a2. Almacenaje"
+			x: 4.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["91D0000000000002"]
+			description: [
+				"&6PASO 3 (FINAL)."
+				"Revisa la config de Quark en JEI; casi todo es tecla o"
+				"clic. Incluye atajos de movimiento y muchas mejoras."
+				""
+				"&6Ya conoces Quark.&r"
+			]
+			icon: "quark:myalite"
+			id: "91D0000000000003"
+			subtitle: "Todo en JEI"
+			tasks: [{ id: "A1D0000000000003", title: "Entendido", type: "checkmark" }]
+			title: "&a3. Revisa la config"
+			x: 6.0d
+			y: 0.0d
+		}
+	]
+	title: "&a29. Quark"
+}

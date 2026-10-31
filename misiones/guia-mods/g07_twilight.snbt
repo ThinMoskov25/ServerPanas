@@ -1,0 +1,190 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "g07_twilight"
+	group: "1000000000000002"
+	icon: "twilightforest:twilight_portal_miniature_structure"
+	id: "7000000000000007"
+	order_index: 6
+	quests: [
+		{
+			description: [
+				"&5Guia de Twilight Forest&r."
+				""
+				"Sigue las fichas de izquierda a derecha: cada jefe"
+				"desbloquea la siguiente zona. Entrar antes de tiempo te"
+				"castiga con efectos (Hambre, Ceguera...)."
+			]
+			icon: "twilightforest:twilight_portal_miniature_structure"
+			id: "9070000000000000"
+			size: 1.5d
+			subtitle: "Progresion por jefes"
+			tasks: [{ id: "A070000000000000", title: "Empezar", type: "checkmark" }]
+			title: "&5&lTWILIGHT FOREST"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9070000000000000"]
+			description: [
+				"&6PASO 1.&r"
+				"&eAbrir el portal:&r"
+				"1. Cava un hoyo &e2x2&r y llenalo de agua."
+				"2. Rodea el agua con flores, setas o hierba alta."
+				"3. Lanza un &ediamante&r al agua: cae un rayo y el agua"
+				"   se vuelve un portal morado."
+				"4. Salta dentro para viajar al Crepusculo."
+				""
+				"&7Lleva comida, cama y equipo de hierro minimo.&r"
+			]
+			icon: "minecraft:diamond"
+			id: "9070000000000001"
+			subtitle: "El portal"
+			tasks: [{ id: "A070000000000001", title: "Portal abierto", type: "checkmark" }]
+			title: "&51. Abrir el portal"
+			x: 2.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9070000000000001"]
+			description: [
+				"&6PASO 2.&r"
+				"&eNaga&r (primer jefe, obligatorio):"
+				"1. Busca un &epatio de piedra&r (Naga Courtyard)."
+				"2. Es una serpiente gigante que carga y rodea el patio."
+				"   Pegale y escondete tras los pilares."
+				"3. Suelta &eEscamas de Naga&r: tu primera armadura."
+				""
+				"&aDesbloquea:&r el Laberinto (Lich)."
+			]
+			icon: "twilightforest:naga_scale"
+			id: "9070000000000002"
+			subtitle: "La Naga"
+			tasks: [{ id: "A070000000000002", title: "Naga vencida", type: "checkmark" }]
+			title: "&a2. Naga"
+			x: 4.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9070000000000002"]
+			description: [
+				"&6PASO 3.&r"
+				"&eLich&r (en el Laberinto):"
+				"1. Entra al &eLaberinto&r subterraneo."
+				"2. Refleja sus &ebolas de energia&r con un golpe para"
+				"   bajarle el escudo; cuando no tenga esbirros, pegale."
+				"3. Suelta un &eCetro&r (Zombi/Vida/Escudo)."
+				""
+				"&aDesbloquea:&r Pantano de Fuego y la Hydra."
+			]
+			icon: "twilightforest:lich_scepter"
+			id: "9070000000000003"
+			subtitle: "El Lich"
+			tasks: [{ id: "A070000000000003", title: "Lich vencido", type: "checkmark" }]
+			title: "&a3. Lich"
+			x: 6.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9070000000000003"]
+			description: [
+				"&6PASO 4.&r"
+				"&eMinoshroom&r (Laberinto profundo):"
+				"1. Baja al nivel inferior del Laberinto."
+				"2. Embiste en linea recta; esquiva de lado y golpea su"
+				"   costado."
+				"3. Suelta el &eHacha del Minotauro&r."
+				""
+				"&aDesbloquea:&r el acceso a la Hydra."
+			]
+			icon: "twilightforest:minotaur_axe"
+			id: "9070000000000004"
+			subtitle: "Minoshroom"
+			tasks: [{ id: "A070000000000004", title: "Minoshroom vencido", type: "checkmark" }]
+			title: "&a4. Minoshroom"
+			x: 8.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9070000000000004"]
+			description: [
+				"&6PASO 5.&r"
+				"&eHydra&r (Pantano de Fuego):"
+				"1. Busca la guarida de la &cHydra&r (3 cabezas)."
+				"2. Cada cabeza muerde o lanza fuego; cubrete y pega a las"
+				"   cabezas una a una. Ten Resistencia al Fuego."
+				"3. Suelta &eQuijada de Hydra&r y trofeo."
+				""
+				"&aDesbloquea:&r la Torre Oscura (Ur-Ghast)."
+			]
+			icon: "twilightforest:hydra_chop"
+			id: "9070000000000005"
+			subtitle: "Hydra"
+			tasks: [{ id: "A070000000000005", title: "Hydra vencida", type: "checkmark" }]
+			title: "&c5. Hydra"
+			x: 10.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9070000000000005"]
+			description: [
+				"&6PASO 6.&r"
+				"&eUr-Ghast&r (Torre Oscura):"
+				"1. Sube la Torre venciendo a los &eCaballeros Fantasma&r."
+				"2. Arriba, el &cUr-Ghast&r lanza lluvia de fuego. Refleja"
+				"   sus bolas y escondete tras los pilares de obsidiana."
+				"3. Suelta la &eTela de Nube&r y su trofeo."
+				""
+				"&aDesbloquea:&r el Bosque Nevado."
+			]
+			icon: "twilightforest:carminite"
+			id: "9070000000000006"
+			subtitle: "Ur-Ghast"
+			tasks: [{ id: "A070000000000006", title: "Ur-Ghast vencido", type: "checkmark" }]
+			title: "&c6. Ur-Ghast"
+			x: 12.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9070000000000006"]
+			description: [
+				"&6PASO 7.&r"
+				"&eYeti Alfa&r (Cueva del Yeti):"
+				"1. En el Bosque Nevado busca la &eCueva del Yeti&r."
+				"2. El &eYeti Alfa&r te agarra y lanza; pega cuando"
+				"   aterriza y esquiva su carga."
+				"3. Suelta &ePelo de Yeti Alfa&r para armadura de frio."
+				""
+				"&aDesbloquea:&r el Glaciar (Reina de las Nieves)."
+			]
+			icon: "twilightforest:alpha_yeti_fur"
+			id: "9070000000000007"
+			subtitle: "Yeti Alfa"
+			tasks: [{ id: "A070000000000007", title: "Yeti Alfa vencido", type: "checkmark" }]
+			title: "&b7. Yeti Alfa"
+			x: 14.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9070000000000007"]
+			description: [
+				"&6PASO 8 (FINAL).&r"
+				"&eReina de las Nieves&r (Glaciar):"
+				"1. En lo alto del &eGlaciar&r espera la &bReina&r."
+				"2. Invoca espinas de hielo y rayos; destruye las espinas,"
+				"   esquiva el rayo y golpea en sus pausas."
+				"3. Suelta su trofeo y materiales finales."
+				""
+				"&6Completaste la progresion de Twilight Forest.&r"
+			]
+			icon: "twilightforest:ice_bomb"
+			id: "9070000000000008"
+			subtitle: "Jefe final"
+			tasks: [{ id: "A070000000000008", title: "Twilight completado", type: "checkmark" }]
+			title: "&b8. Reina de las Nieves"
+			x: 16.0d
+			y: 0.0d
+		}
+	]
+	title: "&57. Twilight Forest"
+}

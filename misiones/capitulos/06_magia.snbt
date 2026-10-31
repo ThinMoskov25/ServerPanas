@@ -1,0 +1,271 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "06_magia"
+	group: "1000000000000001"
+	icon: "irons_spellbooks:diamond_spell_book"
+	id: "2000000000000006"
+	order_index: 6
+	quest_links: [ ]
+	quests: [
+		{
+			description: [
+				"&7&oNo todo el poder se forja en un yunque.&r"
+				""
+				"&aIron's Spellbooks&r trae magia de verdad: fuego, hielo, rayo, sangre y nigromancia. Los hechizos gastan maná, que se mejora con equipo y objetos de Curios."
+				""
+				"&eObjetivo:&r consigue un &eLibro de hechizos&r básico."
+			]
+			id: "3000000000000050"
+			rewards: [
+				{
+					id: "5000000000000050"
+					type: "xp"
+					xp: 50
+				}
+			]
+			shape: "circle"
+			size: 1.5d
+			subtitle: "La otra forma de poder"
+			tasks: [
+				{
+					id: "4000000000000050"
+					item: "irons_spellbooks:spell_book"
+					type: "item"
+				}
+			]
+			title: "&6El primer hechizo"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["3000000000000050"]
+			description: [
+				"&7&oUn buen mago necesita un buen libro.&r"
+				""
+				"Los libros mejores admiten más hechizos y dan más maná."
+				""
+				"&eObjetivo:&r consigue un &eLibro de hechizos de hierro&r."
+			]
+			id: "3000000000000051"
+			rewards: [
+				{
+					id: "5000000000000051"
+					type: "xp"
+					xp: 70
+				}
+			]
+			shape: "rsquare"
+			subtitle: "Más páginas, más poder"
+			tasks: [
+				{
+					id: "4000000000000051"
+					item: "irons_spellbooks:iron_spell_book"
+					type: "item"
+				}
+			]
+			title: "Libro de hierro"
+			x: 2.25d
+			y: -1.0d
+		}
+		{
+			dependencies: ["3000000000000051"]
+			description: [
+				"&7&oEl último paso antes de la magia de verdad.&r"
+				""
+				"&eObjetivo:&r consigue un &eLibro de hechizos de diamante&r."
+			]
+			id: "3000000000000052"
+			rewards: [
+				{
+					id: "5000000000000052"
+					type: "xp_levels"
+					xp_levels: 8
+				}
+			]
+			shape: "rsquare"
+			subtitle: "Magia seria"
+			tasks: [
+				{
+					id: "4000000000000052"
+					item: "irons_spellbooks:diamond_spell_book"
+					type: "item"
+				}
+			]
+			title: "Libro de diamante"
+			x: 4.38d
+			y: -1.0d
+		}
+		{
+			dependencies: [
+				"3000000000000052"
+				"3000000000000033"
+			]
+			description: [
+				"&7&oAquí se cruzan los dos caminos.&r"
+				""
+				"El &eLibro de piel de dragón&r se fabrica con escamas de dragón y es uno de los mejores del juego. Solo quien ha enfrentado a un dragón puede llegar hasta aquí."
+				""
+				"&7Requiere haber completado «Escamas» en el capítulo IV.&r"
+				""
+				"&eObjetivo:&r consigue un &eLibro de piel de dragón&r."
+			]
+			icon: "irons_spellbooks:dragonskin_spell_book"
+			id: "3000000000000053"
+			rewards: [
+				{
+					id: "5000000000000053"
+					type: "xp_levels"
+					xp_levels: 20
+				}
+			]
+			shape: "octagon"
+			size: 1.25d
+			subtitle: "Donde la magia y el dragón se juntan"
+			tasks: [
+				{
+					id: "4000000000000053"
+					item: "irons_spellbooks:dragonskin_spell_book"
+					type: "item"
+				}
+			]
+			title: "&eLibro de piel de dragón"
+			x: 6.62d
+			y: -1.0d
+		}
+		{
+			dependencies: ["3000000000000050"]
+			description: [
+				"&7&oHay objetos que trabajan por ti sin que los sostengas.&r"
+				""
+				"Los &eArtefactos&r son objetos con poderes pasivos que se llevan en los huecos de &aCurios&r. No se fabrican: aparecen en cofres de mazmorras."
+				""
+				"&eObjetivo:&r equipa un artefacto cualquiera y marca la casilla."
+			]
+			id: "3000000000000054"
+			optional: true
+			rewards: [
+				{
+					id: "5000000000000054"
+					type: "xp"
+					xp: 60
+				}
+			]
+			shape: "rsquare"
+			subtitle: "Poder que no se empuña"
+			tasks: [
+				{
+					id: "4000000000000054"
+					title: "He equipado un artefacto en Curios"
+					type: "checkmark"
+				}
+			]
+			title: "Artefactos antiguos"
+			x: 2.25d
+			y: 1.0d
+		}
+		{
+			dependencies: ["3000000000000054"]
+			description: [
+				"&7&oLas reliquias no son simples trofeos: crecen contigo.&r"
+				""
+				"A diferencia de los artefactos, las &eReliquias&r se pueden mejorar. Con la &eMesa de investigación&r desbloqueas sus habilidades gastando experiencia. Cada reliquia tiene su propio árbol de mejoras."
+				""
+				"&eObjetivo:&r fabrica una &eMesa de investigación&r."
+			]
+			id: "3000000000000055"
+			rewards: [
+				{
+					count: 2
+					id: "5000000000000055"
+					item: "relics:relic_experience_bottle"
+					type: "item"
+				}
+			]
+			shape: "octagon"
+			size: 1.25d
+			subtitle: "Amuletos que suben de nivel"
+			tasks: [
+				{
+					id: "4000000000000055"
+					item: "relics:researching_table"
+					type: "item"
+				}
+			]
+			title: "&eMesa de investigación"
+			x: 4.38d
+			y: 1.0d
+		}
+		{
+			dependencies: ["3000000000000055"]
+			description: [
+				"&7&oHay más de cuarenta reliquias repartidas por el mundo.&r"
+				""
+				"Algunas de las más buscadas:"
+				"&7• &eRelicario sagrado&r"
+				"&7• &eEspejo mágico&r"
+				"&7• &eTalismán del escarabajo&r"
+				"&7• &eCinturón del cazador&r"
+				""
+				"Revisa la descripción de cada una en el juego para ver sus habilidades."
+				""
+				"&eObjetivo:&r consigue el &eRelicario sagrado&r."
+			]
+			id: "3000000000000056"
+			rewards: [
+				{
+					id: "5000000000000056"
+					type: "xp_levels"
+					xp_levels: 8
+				}
+			]
+			shape: "rsquare"
+			subtitle: "La colección de verdad"
+			tasks: [
+				{
+					id: "4000000000000056"
+					item: "relics:holy_locket"
+					type: "item"
+				}
+			]
+			title: "Relicario sagrado"
+			x: 6.62d
+			y: 1.0d
+		}
+		{
+			dependencies: ["3000000000000056"]
+			description: [
+				"&7&oUna segunda oportunidad que no ocupa la mano.&r"
+				""
+				"Con &aCharm of Undying&r, el &eTótem de la inmortalidad&r funciona desde el hueco de amuleto de Curios: te salva aunque lleves escudo y espada."
+				""
+				"&7Lo sueltan los Evocadores, en las mansiones del bosque y en las invasiones.&r"
+				""
+				"&eObjetivo:&r consigue un &eTótem de la inmortalidad&r."
+			]
+			id: "3000000000000057"
+			optional: true
+			rewards: [
+				{
+					id: "5000000000000057"
+					type: "xp"
+					xp: 100
+				}
+			]
+			shape: "rsquare"
+			subtitle: "Una vida extra, siempre puesta"
+			tasks: [
+				{
+					id: "4000000000000057"
+					item: "minecraft:totem_of_undying"
+					type: "item"
+				}
+			]
+			title: "Tótem en el amuleto"
+			x: 8.75d
+			y: 1.0d
+		}
+	]
+	subtitle: ["Hechizos, artefactos y reliquias que suben de nivel."]
+	title: "&dVI. Las artes arcanas"
+}

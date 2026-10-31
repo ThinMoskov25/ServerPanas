@@ -1,0 +1,95 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "g24_chococraft"
+	group: "1000000000000002"
+	icon: "chococraft:chocobo_saddle"
+	id: "7000000000000018"
+	order_index: 23
+	quests: [
+		{
+			description: [
+				"Anade &eChocobos&r, aves montables que corren, saltan y"
+				"algunas vuelan o nadan."
+			]
+			icon: "chococraft:chocobo_saddle"
+			id: "9180000000000000"
+			size: 1.5d
+			subtitle: "Monturas chocobo"
+			tasks: [{ id: "A180000000000000", title: "Empezar", type: "checkmark" }]
+			title: "&e&lCHOCOCRAFT"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9180000000000000"]
+			description: [
+				"&6PASO 1."
+				"Consigue &aGysahl Verde&r (su comida) y plantalo con las"
+				"semillas que sueltan los chocobos salvajes."
+				""
+				"&aDesbloquea:&r domar un chocobo."
+			]
+			icon: "minecraft:wheat_seeds"
+			id: "9180000000000001"
+			subtitle: "Su comida"
+			tasks: [{ id: "A180000000000001", title: "Entendido", type: "checkmark" }]
+			title: "&e1. Gysahl Verde"
+			x: 2.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9180000000000001"]
+			description: [
+				"&6PASO 2."
+				"Dale Gysahl a un chocobo salvaje para &edomarlo&r"
+				"(aparecen corazones)."
+				""
+				"&aDesbloquea:&r montarlo."
+			]
+			icon: "chococraft:chocobo_feather"
+			id: "9180000000000002"
+			subtitle: "Con corazones"
+			tasks: [{ id: "A180000000000002", title: "Entendido", type: "checkmark" }]
+			title: "&e2. Doma un chocobo"
+			x: 4.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9180000000000002"]
+			description: [
+				"&6PASO 3."
+				"Ponle &esilla&r para montarlo y &ealforjas&r para que"
+				"cargue items."
+				""
+				"&aDesbloquea:&r criar mejores chocobos."
+			]
+			icon: "chococraft:chocobo_saddle"
+			id: "9180000000000003"
+			subtitle: "A cabalgar"
+			tasks: [{ id: "A180000000000003", title: "Entendido", type: "checkmark" }]
+			title: "&e3. Silla y alforjas"
+			x: 6.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9180000000000003"]
+			description: [
+				"&6PASO 4 (FINAL)."
+				"Cria dos chocobos con Gysahl para colores y habilidades"
+				"mejores (volar, nadar, trepar). La &eChocopedia&r explica"
+				"razas y habilidades."
+				""
+				"&6Ya dominas ChocoCraft.&r"
+			]
+			icon: "minecraft:egg"
+			id: "9180000000000004"
+			subtitle: "Mejores habilidades"
+			tasks: [{ id: "A180000000000004", title: "Entendido", type: "checkmark" }]
+			title: "&e4. Cria por colores"
+			x: 8.0d
+			y: 0.0d
+		}
+	]
+	title: "&e24. ChocoCraft"
+}

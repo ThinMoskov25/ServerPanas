@@ -1,0 +1,78 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "g17_creeperoverhaul"
+	group: "1000000000000002"
+	icon: "minecraft:creeper_head"
+	id: "7000000000000011"
+	order_index: 16
+	quests: [
+		{
+			description: [
+				"Redisena a los creepers: cada bioma tiene su creeper con"
+				"aspecto, sonido y habilidad distinta."
+			]
+			icon: "minecraft:creeper_head"
+			id: "9110000000000000"
+			size: 1.5d
+			subtitle: "Creepers por bioma"
+			tasks: [{ id: "A110000000000000", title: "Empezar", type: "checkmark" }]
+			title: "&2&lCREEPER OVERHAUL"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9110000000000000"]
+			description: [
+				"&6PASO 1."
+				"Solo explora: veras el creeper de nieve, de jungla, de"
+				"desierto, de pantano, etc."
+				""
+				"&aDesbloquea:&r aprender sus trucos."
+			]
+			icon: "minecraft:grass_block"
+			id: "9110000000000001"
+			subtitle: "Conocelos"
+			tasks: [{ id: "A110000000000001", title: "Entendido", type: "checkmark" }]
+			title: "&21. Explora"
+			x: 2.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9110000000000001"]
+			description: [
+				"&6PASO 2."
+				"Algunos &esaltan&r hacia ti, otros dejan &eefectos&r o"
+				"fuego al explotar."
+				""
+				"&aDesbloquea:&r defenderte bien."
+			]
+			icon: "minecraft:gunpowder"
+			id: "9110000000000002"
+			subtitle: "No todos iguales"
+			tasks: [{ id: "A110000000000002", title: "Entendido", type: "checkmark" }]
+			title: "&22. Aprende sus ataques"
+			x: 4.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9110000000000002"]
+			description: [
+				"&6PASO 3 (FINAL)."
+				"Defiendete igual que siempre: distancia, arco, o un"
+				"&egato&r cerca para ahuyentarlos. Los drops siguen siendo"
+				"polvora."
+				""
+				"&6Ya dominas Creeper Overhaul.&r"
+			]
+			icon: "minecraft:bow"
+			id: "9110000000000003"
+			subtitle: "Distancia y gatos"
+			tasks: [{ id: "A110000000000003", title: "Entendido", type: "checkmark" }]
+			title: "&23. Defiendete"
+			x: 6.0d
+			y: 0.0d
+		}
+	]
+	title: "&217. Creeper Overhaul"
+}

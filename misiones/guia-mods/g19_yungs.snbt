@@ -1,0 +1,77 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "g19_yungs"
+	group: "1000000000000002"
+	icon: "minecraft:stone_bricks"
+	id: "7000000000000013"
+	order_index: 18
+	quests: [
+		{
+			description: [
+				"El set de YUNG's mejora mazmorras, templos del desierto,"
+				"fortalezas del Nether, minas y pozos."
+			]
+			icon: "minecraft:stone_bricks"
+			id: "9130000000000000"
+			size: 1.5d
+			subtitle: "Mejores estructuras vanilla"
+			tasks: [{ id: "A130000000000000", title: "Empezar", type: "checkmark" }]
+			title: "&6&lYUNG'S"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9130000000000000"]
+			description: [
+				"&6PASO 1."
+				"Las mazmorras ahora son grandes, con varias salas, mobs"
+				"y botin. Lleva antorchas y cuidado con los spawners."
+				""
+				"&aDesbloquea:&r templos y fortalezas."
+			]
+			icon: "minecraft:mossy_stone_bricks"
+			id: "9130000000000001"
+			subtitle: "Better Dungeons"
+			tasks: [{ id: "A130000000000001", title: "Entendido", type: "checkmark" }]
+			title: "&61. Mejores Mazmorras"
+			x: 2.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9130000000000001"]
+			description: [
+				"&6PASO 2."
+				"Templos del desierto, fortalezas del Nether y minas"
+				"abandonadas ahora son mucho mas grandes y con mejor botin."
+				""
+				"&aDesbloquea:&r la brujula de YUNG."
+			]
+			icon: "minecraft:nether_bricks"
+			id: "9130000000000002"
+			subtitle: "Nether y desierto"
+			tasks: [{ id: "A130000000000002", title: "Entendido", type: "checkmark" }]
+			title: "&62. Templos y Fortalezas"
+			x: 4.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9130000000000002"]
+			description: [
+				"&6PASO 3 (FINAL)."
+				"Algunas estructuras sueltan la &eBrujula de YUNG&r, que"
+				"apunta a otras estructuras cercanas. Ideal para explorar."
+				""
+				"&6Ya dominas las estructuras de YUNG's.&r"
+			]
+			icon: "minecraft:compass"
+			id: "9130000000000003"
+			subtitle: "Encuentra estructuras"
+			tasks: [{ id: "A130000000000003", title: "Entendido", type: "checkmark" }]
+			title: "&63. Wayfinder Compass"
+			x: 6.0d
+			y: 0.0d
+		}
+	]
+	title: "&619. YUNG's Structures"
+}

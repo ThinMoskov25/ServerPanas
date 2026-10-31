@@ -1,0 +1,97 @@
+# CAPITULO 2000000000000001
+titulo: &6I. Primeros pasos
+subtitulo: Sobrevive a tu primera noche y prepárate para el viaje.
+
+## 3000000000000001
+rol: inicio
+titulo: El despertar
+subtitulo: Todo gran viaje empieza con un tronco
+desc:
+&7&oDespiertas en un mundo que no reconoces. No recuerdas cómo llegaste; solo sabes que no estás solo: hay otros como tú, perdidos en estas tierras.&r
+&7&oDicen que en lo más profundo de este mundo duermen &c&odragones&7&o tan viejos como las montañas. Pero antes de soñar con escamas y fuego, hay algo más urgente: sobrevivir a la primera noche.&r
+
+Empieza por lo básico: tala unos árboles y fabrica una mesa de trabajo.
+
+&eObjetivo:&r fabrica una &eMesa de trabajo&r.
+
+## 3000000000000002
+rol: normal
+titulo: Herramientas de piedra
+subtitulo: Mejores herramientas, mejor vida
+desc:
+&7&oLa madera se rompe. La piedra aguanta.&r
+
+Un pico de piedra te permite extraer hierro y excavar de verdad.
+
+&eObjetivo:&r fabrica un &ePico de piedra&r.
+
+## 3000000000000003
+rol: normal
+titulo: Un refugio
+subtitulo: Un lugar al que volver
+desc:
+&7&oCuando cae la noche, este mundo cambia.&r
+
+Construye un techo, pon una puerta y coloca una cama. Dormir salta la noche y fija tu punto de reaparición.
+
+&eObjetivo:&r &eduerme en una cama&r.
+
+## 3000000000000004
+rol: normal
+titulo: Hierro en las venas
+subtitulo: Lo que esconde la piedra
+desc:
+&7&oEl hierro es la frontera entre sobrevivir y vivir.&r
+
+Baja a las cuevas, pero lleva antorchas: las cuevas de este mundo son más profundas y peligrosas de lo normal.
+
+&eObjetivo:&r reúne &e8 lingotes de hierro&r.
+
+## 3000000000000005
+rol: hito
+titulo: El cinturón de herramientas
+subtitulo: Todo a mano, sin abrir el inventario
+desc:
+&7&oCambiar de herramienta a cada rato es un fastidio.&r
+
+El &eCinturón de herramientas&r guarda tus picos, hachas y palas. Pulsa su tecla asignada para abrir el menú circular y elige la herramienta sin tocar el inventario.
+
+&7Más adelante conseguirás la mochila grande.&r
+
+&eObjetivo:&r fabrica un &eCinturón de herramientas&r.
+
+## 3000000000000006
+rol: normal
+titulo: El arte de cocinar
+subtitulo: Comer bien cambia todo
+desc:
+&7&oEl hambre es el enemigo más constante.&r
+
+Con &aFarmer's Delight&r y &aCroptopia&r puedes cocinar platos que llenan mucho más que un filete seco y dan efectos útiles.
+
+&eObjetivo:&r fabrica una &eOlla de cocina&r.
+
+## 3000000000000007
+rol: normal
+titulo: Seguro de vida
+subtitulo: La llave que te lleva a tu tumba
+desc:
+&7&oMorir es parte del viaje. Perderlo todo, no.&r
+
+Con &aTombstone&r, al morir se crea una tumba con todo tu inventario, y solo &etú&r puedes abrirla.
+
+La &eLlave de tumba&r aparece en tu inventario la primera vez que mueres y señala dónde está tu tumba. También se puede fabricar. Mejorándola podrás incluso teletransportarte hasta ella.
+
+&eObjetivo:&r ten una &eLlave de tumba&r en el inventario.
+
+## 3000000000000008
+rol: final
+titulo: Hacia lo desconocido
+subtitulo: El final del principio
+tarea 4000000000000008: Estoy listo para partir
+desc:
+&7&oHas sobrevivido. Tienes techo, comida y herramientas. Pero este mundo es enorme, y algo te llama desde el horizonte.&r
+
+&6Es hora de explorar.&r
+
+&eObjetivo:&r marca la casilla cuando estés listo para el capítulo II.

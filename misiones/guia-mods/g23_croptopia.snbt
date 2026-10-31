@@ -1,0 +1,78 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "g23_croptopia"
+	group: "1000000000000002"
+	icon: "croptopia:tomato"
+	id: "7000000000000017"
+	order_index: 22
+	quests: [
+		{
+			description: [
+				"Anade decenas de cultivos y recetas de comida realista"
+				"(tomate, cebolla, arroz, frutas y mas)."
+			]
+			icon: "croptopia:tomato"
+			id: "9170000000000000"
+			size: 1.5d
+			subtitle: "Decenas de cultivos"
+			tasks: [{ id: "A170000000000000", title: "Empezar", type: "checkmark" }]
+			title: "&a&lCROPTOPIA"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9170000000000000"]
+			description: [
+				"&6PASO 1."
+				"Consigue semillas cortando hierba y comprando en aldeas."
+				"Cada cultivo tiene su semilla."
+				""
+				"&aDesbloquea:&r cultivar."
+			]
+			icon: "croptopia:tomato_seed"
+			id: "9170000000000001"
+			subtitle: "Corta hierba"
+			tasks: [{ id: "A170000000000001", title: "Entendido", type: "checkmark" }]
+			title: "&a1. Consigue semillas"
+			x: 2.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9170000000000001"]
+			description: [
+				"&6PASO 2."
+				"Planta en tierra de cultivo regada igual que el trigo."
+				"Cosecha cuando madure para obtener fruta/verdura."
+				""
+				"&aDesbloquea:&r recetas de cocina."
+			]
+			icon: "minecraft:farmland"
+			id: "9170000000000002"
+			subtitle: "Como el trigo"
+			tasks: [{ id: "A170000000000002", title: "Entendido", type: "checkmark" }]
+			title: "&a2. Planta y cosecha"
+			x: 4.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9170000000000002"]
+			description: [
+				"&6PASO 3 (FINAL)."
+				"Usa la &eSarten&r y las recetas (zumos, pizzas, ensaladas)"
+				"para comidas que alimentan mucho. Combina con Farmer's"
+				"Delight para la mejor cocina del pack."
+				""
+				"&6Ya dominas Croptopia.&r"
+			]
+			icon: "croptopia:frying_pan"
+			id: "9170000000000003"
+			subtitle: "Con sarten y horno"
+			tasks: [{ id: "A170000000000003", title: "Entendido", type: "checkmark" }]
+			title: "&a3. Cocina recetas"
+			x: 6.0d
+			y: 0.0d
+		}
+	]
+	title: "&a23. Croptopia"
+}

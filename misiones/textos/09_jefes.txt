@@ -1,0 +1,114 @@
+# CAPITULO 2000000000000009
+titulo: &cIX. Los jefes del Cataclismo
+subtitulo: Prisiones antiguas, jefes por fases y el equipo definitivo.
+
+## 3000000000000090
+rol: inicio
+titulo: Metal antiguo
+subtitulo: Algo duerme bajo las arenas
+desc:
+&7&oHay mazmorras en este mundo que no son ruinas: son prisiones.&r
+
+&aL_Ender's Cataclysm&r ha sembrado el mundo de templos donde duerme algo mucho peor que un esqueleto. El &eMetal antiguo&r aparece en esas estructuras: es la señal de que estás en el sitio correcto.
+
+&eObjetivo:&r consigue &e3 lingotes de metal antiguo&r.
+
+## 3000000000000091
+rol: jefe
+titulo: Maledictus
+subtitulo: El faraón que no descansa
+desc:
+&7&oEn el desierto se alza una pirámide maldita.&r
+
+Dentro espera &cMaledictus&r, un faraón no muerto que invoca tormentas de arena y esbirros. Es el primer jefe recomendado: lleva arco y deja espacio para esquivar.
+
+&eObjetivo:&r consigue su botín, la &eIra del desierto&r.
+
+## 3000000000000092
+rol: jefe
+titulo: Monstruosidad de netherita
+subtitulo: Una montaña que camina
+desc:
+&7&oEn el Nether camina una mole de netherita viva.&r
+
+La &cMonstruosidad de netherita&r golpea tan fuerte que puede matarte en uno o dos golpes, tiene muchísima vida y hace temblar el suelo. Al caer suelta su &eCuerno&r, con el que se forja el Yelmo monstruoso.
+
+&eObjetivo:&r consigue el &eCuerno monstruoso&r.
+
+## 3000000000000093
+rol: jefe
+titulo: Ignis
+subtitulo: El gigante de la arena
+desc:
+&7&oEn la Arena Ardiente del Nether arde un gigante.&r
+
+&cIgnis&r lucha con escudo y martillo, y cambia de arma y de patrón según le bajas la vida. Suelta &eIgnitium&r, el material de una armadura inmune al fuego.
+
+&eObjetivo:&r consigue &e2 lingotes de ignitium&r.
+
+## 3000000000000094
+rol: normal
+titulo: Armadura de ignitium
+subtitulo: Armadura que vuela y no arde
+desc:
+&7&oDe lo mejor del pack.&r
+
+La armadura de &eIgnitium&r da inmunidad al fuego, y su pechera funciona como unos élitros.
+
+&eObjetivo:&r forja una &ePechera de ignitium&r.
+
+## 3000000000000095
+rol: jefe
+titulo: El Heraldo
+subtitulo: El señor de la ciudad hundida
+matar 4000000000000095 40000000000010A3 cataclysm:the_harbinger | Derrota al Heraldo
+desc:
+&7&oBajo el mar duerme una ciudad hundida.&r
+
+Allí reina el &cHeraldo&r, un no muerto que invoca criaturas abisales.
+
+&7Lleva pociones de respiración acuática y un casco con afinidad acuática.&r
+
+&eObjetivo:&r derrota al &cHeraldo&r.
+
+## 3000000000000096
+rol: jefe
+titulo: Guardián del End
+subtitulo: El jefe final del Cataclismo
+desc:
+&7&oEn el End, en una arena de piedra, espera el guardián.&r
+
+El &cGuardián del End&r es el jefe más duro de Cataclysm: se teletransporta, invoca gólems y tiene varias fases. Su botín incluye el &eNúcleo del vacío&r.
+
+&cNo vayas solo: para esto están tus panas.&r
+
+&eObjetivo:&r consigue un &eNúcleo del vacío&r.
+
+## 3000000000000097
+rol: final
+titulo: La forja del vacío
+subtitulo: Cazador de jefes
+desc:
+&7&oHas vencido al gigante de fuego y al guardián del End.&r
+
+Con el Núcleo del vacío se fabrica la &eForja del vacío&r, la mesa del equipo definitivo.
+
+&6No queda nada en este mundo que te asuste.&r
+
+&eObjetivo:&r fabrica la &eForja del vacío&r.
+
+## 3000000000000098
+rol: normal
+titulo: Los jefes ocultos
+subtitulo: Las mejores peleas del pack
+tarea 4000000000000098: He derrotado a un jefe de Mowzie's Mobs
+desc:
+&7&oNo todos los jefes son de Cataclysm.&r
+
+&aMowzie's Mobs&r esconde por el mundo cuatro peleas con mecánicas excelentes:
+&7• &eFerrous Wroughtnaut&r: un caballero de hierro encerrado en una cámara subterránea.
+&7• &bFrostmaw&r: un mamut de hielo que duerme en las montañas nevadas.
+&7• &6Umvuthi&r: el ave solar, en su trono de la sabana.
+&7• &eTongbi, el escultor&r: espera en lo alto de su pilar de piedra.
+
+&eObjetivo:&r derrota a cualquiera de ellos y marca la casilla.

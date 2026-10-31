@@ -1,0 +1,78 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "g28_sereneseasons"
+	group: "1000000000000002"
+	icon: "minecraft:snowball"
+	id: "700000000000001C"
+	order_index: 27
+	quests: [
+		{
+			description: [
+				"Anade las 4 estaciones con clima y colores cambiantes."
+			]
+			icon: "minecraft:snowball"
+			id: "91C0000000000000"
+			size: 1.5d
+			subtitle: "Las 4 estaciones"
+			tasks: [{ id: "A1C0000000000000", title: "Empezar", type: "checkmark" }]
+			title: "&b&lSERENE SEASONS"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["91C0000000000000"]
+			description: [
+				"&6PASO 1."
+				"Fijate en la &ebarra superior&r del server: muestra la"
+				"estacion y la hora local de Bogota."
+				""
+				"&aDesbloquea:&r entender el clima."
+			]
+			icon: "minecraft:clock"
+			id: "91C0000000000001"
+			subtitle: "Estacion y hora"
+			tasks: [{ id: "A1C0000000000001", title: "Entendido", type: "checkmark" }]
+			title: "&b1. Mira la barra"
+			x: 2.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["91C0000000000001"]
+			description: [
+				"&6PASO 2."
+				"En este server los &amobs aparecen igual todo el ano&r:"
+				"la estacion es solo &eambiental&r (colores, lluvia,"
+				"nieve), no corta el spawn de criaturas."
+				""
+				"&aDesbloquea:&r planear cultivos."
+			]
+			icon: "minecraft:oak_leaves"
+			id: "91C0000000000002"
+			subtitle: "Mobs igual todo el ano"
+			tasks: [{ id: "A1C0000000000002", title: "Entendido", type: "checkmark" }]
+			title: "&b2. Solo ambiental"
+			x: 4.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["91C0000000000002"]
+			description: [
+				"&6PASO 3 (FINAL)."
+				"Algunos cultivos crecen mejor en su temporada. Fuera de"
+				"epoca crecen mas lento; usa un &einvernadero&r (luz +"
+				"calor) para los de fuera de temporada."
+				""
+				"&6Ya entiendes Serene Seasons.&r"
+			]
+			icon: "minecraft:wheat"
+			id: "91C0000000000003"
+			subtitle: "Usa invernadero"
+			tasks: [{ id: "A1C0000000000003", title: "Entendido", type: "checkmark" }]
+			title: "&b3. Cultivos por temporada"
+			x: 6.0d
+			y: 0.0d
+		}
+	]
+	title: "&b28. Serene Seasons"
+}

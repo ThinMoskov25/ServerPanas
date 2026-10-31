@@ -1,0 +1,99 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "g11_apotheosis"
+	group: "1000000000000002"
+	icon: "apotheosis:gem"
+	id: "700000000000000B"
+	order_index: 10
+	quests: [
+		{
+			description: [
+				"Reinventa el encantamiento y anade un sistema RPG de"
+				"botin con afijos, gemas y rarezas."
+			]
+			icon: "apotheosis:gem"
+			id: "90B0000000000000"
+			size: 1.5d
+			subtitle: "Encantamientos y gemas"
+			tasks: [{ id: "A0B0000000000000", title: "Empezar", type: "checkmark" }]
+			title: "&5&lAPOTHEOSIS"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["90B0000000000000"]
+			description: [
+				"&6PASO 1.&r"
+				"Encantar usa 3 stats, no solo libreros:"
+				"- &eEterna&r: sube el nivel (cada punto = +2)."
+				"- &eQuanta&r: potencia del resultado."
+				"- &eArcana&r: mejora la rareza de los encantamientos."
+				""
+				"&aDesbloquea:&r llegar a nivel 100."
+			]
+			icon: "minecraft:enchanting_table"
+			id: "90B0000000000001"
+			subtitle: "Eterna, Quanta, Arcana"
+			tasks: [{ id: "A0B0000000000001", title: "Entendido", type: "checkmark" }]
+			title: "&51. Los 3 stats"
+			x: 2.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["90B0000000000001"]
+			description: [
+				"&6PASO 2.&r"
+				"Mesa de encantar rodeada de libreros; anade los bloques"
+				"del mod (Prismatic, Eterna) para pasar de nivel 30 hacia"
+				"&e100&r. Sube Eterna primero: el salto 30->100 da los"
+				"encantamientos realmente fuertes."
+				""
+				"&aDesbloquea:&r gemas y sockets."
+			]
+			icon: "minecraft:bookshelf"
+			id: "90B0000000000002"
+			subtitle: "Mesa mejorada"
+			tasks: [{ id: "A0B0000000000002", title: "Entendido", type: "checkmark" }]
+			title: "&52. Nivel 100"
+			x: 4.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["90B0000000000002"]
+			description: [
+				"&6PASO 3.&r"
+				"Consigue &bGemas&r y equipo con &eranuras (sockets)&r en"
+				"mazmorras, torres y jefes."
+				""
+				"&aDesbloquea:&r engarzar."
+			]
+			icon: "apotheosis:gem"
+			id: "90B0000000000003"
+			subtitle: "Equipo con ranuras"
+			tasks: [{ id: "A0B0000000000003", title: "Entendido", type: "checkmark" }]
+			title: "&53. Gemas y sockets"
+			x: 6.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["90B0000000000003"]
+			description: [
+				"&6PASO 4 (FINAL).&r"
+				"En la &6Mesa de Reforge&r engarza la gema en un arma o"
+				"armadura con ranura. El botin sale con color: Comun ->"
+				"Raro -> Epico -> Ancestral -> &6Mitico&r."
+				""
+				"&6Ya dominas Apotheosis.&r"
+			]
+			icon: "apotheosis:vial_experience"
+			id: "90B0000000000004"
+			subtitle: "Botin mitico"
+			tasks: [{ id: "A0B0000000000004", title: "Entendido", type: "checkmark" }]
+			title: "&54. Engarza y rarezas"
+			x: 8.0d
+			y: 0.0d
+		}
+	]
+	title: "&511. Apotheosis"
+}

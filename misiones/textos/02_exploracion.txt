@@ -1,0 +1,89 @@
+# CAPITULO 2000000000000002
+titulo: &6II. El mundo exterior
+subtitulo: Mapas, piedras de viaje, mazmorras y ruinas.
+
+## 3000000000000010
+rol: inicio
+titulo: Cartógrafo novato
+subtitulo: Un mundo más grande de lo que crees
+desc:
+&7&oEste mundo no es el que conocías.&r
+
+&aTerralith&r ha reescrito la tierra: hay más de 90 biomas nuevos ahí fuera. Picos de cristal, cuevas de hongos gigantes, desiertos de ceniza…
+
+&eObjetivo:&r fabrica un &eMapa&r y empieza a dibujar tu historia.
+
+## 3000000000000011
+rol: normal
+titulo: Piedras de viaje
+subtitulo: Atajos por el mundo
+desc:
+&7&oCaminar está bien. Teletransportarse está mejor.&r
+
+Las &eWaystones&r son piedras antiguas repartidas por el mundo. Activa dos y podrás viajar entre ellas. Aparecen marcadas en el mapa de Xaero.
+
+&7Consejo: también puedes fabricar las tuyas y ponerlas en tu base.&r
+
+&eObjetivo:&r consigue una &eWaystone&r.
+
+## 3000000000000012
+rol: normal
+titulo: Piedra de deformación
+subtitulo: Volver siempre a casa
+desc:
+&7&oCuando la cosa se pone fea, necesitas una salida rápida.&r
+
+La &ePiedra de deformación&r te deja viajar desde cualquier lugar a una Waystone que ya hayas activado. Se recarga con el tiempo, así que puedes usarla una y otra vez.
+
+&eObjetivo:&r fabrica una &ePiedra de deformación&r.
+
+## 3000000000000013
+rol: hito
+titulo: Saqueador de mazmorras
+subtitulo: Lo que duerme bajo la tierra
+desc:
+&7&oBajo tierra hay ciudades olvidadas.&r
+
+&aYUNG's Better Dungeons&r ha reconstruido las mazmorras: ahora son laberintos de varias plantas con cofres, trampas y generadores de monstruos.
+
+&6Importante para jugar con tus panas:&r con &aLootr&r, los cofres de estructura son &eindividuales&r. Cada jugador abre el mismo cofre y recibe &esu propio botín&r, una sola vez. El primero que llega no se lo lleva todo, así que nadie necesita madrugar ni correr.
+
+&7Los cofres de Lootr tienen otra textura y brillan si aún no los has abierto.&r
+
+&eObjetivo:&r baja, saquea y vuelve vivo con &e6 esmeraldas&r como prueba.
+
+## 3000000000000014
+rol: normal
+titulo: Ruinas en pie
+subtitulo: Fortalezas sobre la superficie
+desc:
+&7&oNo todas las ruinas están bajo tierra.&r
+
+&aWhen Dungeons Arise&r y &aStructory&r han sembrado el mundo de fortalezas, torres y campamentos con buen botín y mejores guardianes.
+
+&eObjetivo:&r saquea fortalezas y reúne &e4 diamantes&r.
+
+## 3000000000000015
+rol: hito
+titulo: Mochila del viajero
+subtitulo: Tu casa a la espalda
+desc:
+&7&oViajar lejos significa cargar mucho.&r
+
+La &eMochila del viajero&r es la única mochila del pack, y es la buena: dos tanques de líquido, mesa de trabajo y saco de dormir integrados. Se equipa en la espalda y se ve puesta en tu personaje.
+
+&7Hay versiones temáticas (abeja, creeper, dragón…) si quieres cambiarle el aspecto.&r
+
+&eObjetivo:&r fabrica una &eMochila del viajero&r.
+
+## 3000000000000016
+rol: final
+titulo: El hueso tibio
+subtitulo: El hallazgo que lo cambia todo
+tarea 4000000000000016: Reconozco la señal
+desc:
+&7&oHas visto biomas sin nombre, saqueado ruinas y abierto caminos entre piedras antiguas. En una de esas mazmorras encontraste algo extraño: un hueso demasiado grande para cualquier animal conocido… y tibio al tacto.&r
+
+&cAlgo enorme vive en este mundo.&r
+
+&eObjetivo:&r marca la casilla para abrir el capítulo IV: La senda del dragón.

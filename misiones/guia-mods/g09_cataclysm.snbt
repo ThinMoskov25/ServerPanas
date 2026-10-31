@@ -1,0 +1,96 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "g09_cataclysm"
+	group: "1000000000000002"
+	icon: "cataclysm:monstrous_helm"
+	id: "7000000000000009"
+	order_index: 8
+	quests: [
+		{
+			description: [
+				"Anade jefes epicos y mazmorras con equipo de alto nivel."
+				"En este server tienen vida x2. Ve en grupo con tus panas."
+			]
+			icon: "cataclysm:monstrous_helm"
+			id: "9090000000000000"
+			size: 1.5d
+			subtitle: "Jefes de verdad"
+			tasks: [{ id: "A090000000000000", title: "Empezar", type: "checkmark" }]
+			title: "&c&lCATACLYSM"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9090000000000000"]
+			description: [
+				"&6PASO 1.&r"
+				"Explora para hallar sus estructuras: &eMazmorra de"
+				"Piedra&r (Ignis), &eObservatorio&r (Netherite Monstrosity),"
+				"templos del End y oceano."
+				""
+				"&aDesbloquea:&r invocar al jefe."
+			]
+			icon: "minecraft:stone_bricks"
+			id: "9090000000000001"
+			subtitle: "Explora"
+			tasks: [{ id: "A090000000000001", title: "Entendido", type: "checkmark" }]
+			title: "&c1. Halla la estructura"
+			x: 2.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9090000000000001"]
+			description: [
+				"&6PASO 2.&r"
+				"Reune el material para invocar a cada jefe (p.ej. el"
+				"&cOjo Infernal&r para &cIgnis&r)."
+				""
+				"&aDesbloquea:&r prepararte para la pelea."
+			]
+			icon: "cataclysm:bone_reptile_summon"
+			id: "9090000000000002"
+			subtitle: "El material"
+			tasks: [{ id: "A090000000000002", title: "Entendido", type: "checkmark" }]
+			title: "&c2. Reune la invocacion"
+			x: 4.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9090000000000002"]
+			description: [
+				"&6PASO 3.&r"
+				"Lleva armadura top, pociones de Resistencia y"
+				"Regeneracion, y comida de Farmer's Delight. Estos jefes"
+				"pegan en area y tienen fases: aprende el patron."
+				""
+				"&aDesbloquea:&r el botin unico."
+			]
+			icon: "minecraft:netherite_chestplate"
+			id: "9090000000000003"
+			subtitle: "Equipo top"
+			tasks: [{ id: "A090000000000003", title: "Entendido", type: "checkmark" }]
+			title: "&c3. Preparate"
+			x: 6.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9090000000000003"]
+			description: [
+				"&6PASO 4 (FINAL).&r"
+				"Consigue armas unicas (Monstrous Helm, Cursed Bow,"
+				"Infernal Forge), de las mejores del pack."
+				""
+				"&6Ya dominas Cataclysm.&r"
+			]
+			icon: "cataclysm:infernal_forge"
+			id: "9090000000000004"
+			subtitle: "Armas unicas"
+			tasks: [{ id: "A090000000000004", title: "Entendido", type: "checkmark" }]
+			title: "&c4. Botin legendario"
+			x: 8.0d
+			y: 0.0d
+		}
+	]
+	title: "&c9. L_Ender's Cataclysm"
+}

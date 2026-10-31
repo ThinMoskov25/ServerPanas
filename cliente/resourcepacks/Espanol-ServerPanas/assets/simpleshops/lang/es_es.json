@@ -1,0 +1,9 @@
+{
+	"itemGroup.Simple Shops": "Tiendas Simples",
+	"item.simpleshops.green_stockbar": "Visor de Stock Verde",
+	"item.simpleshops.red_stockbar": "Visor de Stock Rojo",
+	"item.simpleshops.wooden_stockbar": "Visor de Stock de Madera",
+	"item.simpleshops.quartz_stockbar": "Visor de Stock de Cuarzo",
+	"block.simpleshops.simple_shop": "Tienda",
+	"block.simpleshops.creative_simple_shop": "Tienda Creativa"
+}

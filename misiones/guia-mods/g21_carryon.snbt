@@ -1,0 +1,78 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "g21_carryon"
+	group: "1000000000000002"
+	icon: "minecraft:chest"
+	id: "7000000000000015"
+	order_index: 20
+	quests: [
+		{
+			description: [
+				"Te deja cargar en brazos cofres, hornos, maquinas y mobs"
+				"completos, con su contenido."
+			]
+			icon: "minecraft:chest"
+			id: "9150000000000000"
+			size: 1.5d
+			subtitle: "Mueve todo sin vaciar"
+			tasks: [{ id: "A150000000000000", title: "Empezar", type: "checkmark" }]
+			title: "&6&lCARRY ON"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9150000000000000"]
+			description: [
+				"&6PASO 1."
+				"Agachate (&eShift&r) y haz clic en un cofre, horno, yunque"
+				"o incluso un mob (vaca, aldeano) para levantarlo."
+				""
+				"&aDesbloquea:&r caminar con la carga."
+			]
+			icon: "minecraft:furnace"
+			id: "9150000000000001"
+			subtitle: "Shift + clic"
+			tasks: [{ id: "A150000000000001", title: "Entendido", type: "checkmark" }]
+			title: "&61. Agachate y agarra"
+			x: 2.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9150000000000001"]
+			description: [
+				"&6PASO 2."
+				"Lo levantas y caminas con el (vas &emas lento&r). Vuelve"
+				"a hacer clic para soltarlo donde quieras."
+				""
+				"&aDesbloquea:&r mudanzas completas."
+			]
+			icon: "minecraft:hopper"
+			id: "9150000000000002"
+			subtitle: "Vas mas lento"
+			tasks: [{ id: "A150000000000002", title: "Entendido", type: "checkmark" }]
+			title: "&62. Camina con el"
+			x: 4.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9150000000000002"]
+			description: [
+				"&6PASO 3 (FINAL)."
+				"Sirve para mudar tu base sin vaciar cada cofre, mover tu"
+				"granja de aldeanos o reubicar hornos encendidos."
+				"Combinalo con un caballo con cofre para mudanzas largas."
+				""
+				"&6Ya dominas Carry On.&r"
+			]
+			icon: "minecraft:chest_minecart"
+			id: "9150000000000003"
+			subtitle: "Sin vaciar nada"
+			tasks: [{ id: "A150000000000003", title: "Entendido", type: "checkmark" }]
+			title: "&63. Mudanzas"
+			x: 6.0d
+			y: 0.0d
+		}
+	]
+	title: "&621. Carry On"
+}

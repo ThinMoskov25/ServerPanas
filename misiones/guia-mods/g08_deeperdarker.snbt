@@ -1,0 +1,96 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "g08_deeperdarker"
+	group: "1000000000000002"
+	icon: "deeperdarker:reinforced_echo_shard"
+	id: "7000000000000008"
+	order_index: 7
+	quests: [
+		{
+			description: [
+				"Expande el Deep Dark y anade &3El Otro Lado&r, una"
+				"dimension oscura espejo del mundo."
+			]
+			icon: "deeperdarker:reinforced_echo_shard"
+			id: "9080000000000000"
+			size: 1.5d
+			subtitle: "El reflejo oscuro"
+			tasks: [{ id: "A080000000000000", title: "Empezar", type: "checkmark" }]
+			title: "&3&lDEEPER DARKER"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9080000000000000"]
+			description: [
+				"&6PASO 1.&r"
+				"Encuentra una &eCiudad Antigua&r en el Deep Dark. Lleva"
+				"botas con Caida de Pluma y pociones de Sigilo; el"
+				"&cWarden&r te mata rapido."
+				""
+				"&c&lNUNCA corras ni mines cerca de sensores Sculk.&r"
+			]
+			icon: "minecraft:sculk_sensor"
+			id: "9080000000000001"
+			subtitle: "Sigilo total"
+			tasks: [{ id: "A080000000000001", title: "Entendido", type: "checkmark" }]
+			title: "&31. Ciudad Antigua"
+			x: 2.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9080000000000001"]
+			description: [
+				"&6PASO 2.&r"
+				"Consigue &eFragmentos de Eco&r y materiales del Warden;"
+				"fabrica el &eFragmento de Eco Reforzado&r."
+				""
+				"&aDesbloquea:&r crear el portal."
+			]
+			icon: "minecraft:echo_shard"
+			id: "9080000000000002"
+			subtitle: "Material del Warden"
+			tasks: [{ id: "A080000000000002", title: "Entendido", type: "checkmark" }]
+			title: "&32. Fragmentos de Eco"
+			x: 4.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9080000000000002"]
+			description: [
+				"&6PASO 3.&r"
+				"Crea el portal con &eSculk&r y el fragmento para abrir el"
+				"paso a &3El Otro Lado&r."
+				""
+				"&aDesbloquea:&r la nueva dimension."
+			]
+			icon: "deeperdarker:reinforced_echo_shard"
+			id: "9080000000000003"
+			subtitle: "El Otro Lado"
+			tasks: [{ id: "A080000000000003", title: "Entendido", type: "checkmark" }]
+			title: "&33. Abre el portal"
+			x: 6.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9080000000000003"]
+			description: [
+				"&6PASO 4 (FINAL).&r"
+				"En El Otro Lado hay materiales nuevos, estructuras y un"
+				"jefe. Fabrica armadura y herramientas de Sculk e items"
+				"de sigilo para esquivar al Warden."
+				""
+				"&6Ya dominas Deeper Darker.&r"
+			]
+			icon: "deeperdarker:sculk_sword"
+			id: "9080000000000004"
+			subtitle: "Materiales nuevos"
+			tasks: [{ id: "A080000000000004", title: "Entendido", type: "checkmark" }]
+			title: "&34. Explora y vence"
+			x: 8.0d
+			y: 0.0d
+		}
+	]
+	title: "&38. Deeper Darker"
+}

@@ -1,0 +1,1709 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Panel SERVER PANAS</title>
+<style>
+  /* ===== Tokens ===== */
+  :root{
+    color-scheme:dark;
+    --bg:#0a1016; --bg2:#0e1720; --panel:#111d27; --panel2:#172631;
+    --borde:#253743; --linea:rgba(132,170,180,.14);
+    --txt:#edf5f4; --suave:#9aadb4; --tenue:#69808a;
+    --verde:#42d3a0; --verde2:#237f65; --rojo:#f07178; --amar:#efbd63;
+    --azul:#66a9f7; --morado:#b390ff; --sombra:0 14px 34px rgba(0,0,0,.18);
+    --hueco:16px;
+  }
+
+  /* ===== Base ===== */
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;display:flex;min-height:100vh;
+    font-family:'Segoe UI',system-ui,sans-serif;color:var(--txt);letter-spacing:.005em;
+    background:radial-gradient(ellipse at 78% -20%,rgba(38,116,104,.13),transparent 42%),var(--bg);
+  }
+  ::selection{background:rgba(66,211,160,.3);color:var(--txt)}
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-thumb{background:#344a55;border-radius:5px}
+  button,input,select,textarea{font:inherit}
+  button{color:inherit}
+  button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--azul);outline-offset:2px}
+  .suave{color:var(--suave)}
+  .mono{font-family:Consolas,monospace;font-size:12px;color:var(--suave);word-break:break-all}
+
+  /* ===== Barra lateral ===== */
+  aside{
+    flex:0 0 258px;width:258px;position:sticky;top:0;height:100vh;
+    display:flex;flex-direction:column;gap:15px;padding:22px 14px 16px;
+    background:rgba(13,22,30,.96);border-right:1px solid rgba(126,161,171,.13);
+    box-shadow:8px 0 30px rgba(0,0,0,.12);backdrop-filter:blur(14px)
+  }
+  .marca{display:flex;align-items:center;gap:12px;padding:5px 10px 12px;font-weight:700;font-size:15px;letter-spacing:.06em}
+  .marca .logo{
+    width:40px;height:40px;border-radius:12px;display:grid;place-items:center;
+    font-size:14px;font-weight:800;color:#061810;
+    background:linear-gradient(145deg,#65e2b2,#48a9c2);box-shadow:0 8px 20px rgba(66,211,160,.2)
+  }
+  .marca-copy{display:flex;flex-direction:column;gap:4px}
+  .marca-copy small{font-size:10px;color:var(--suave);font-weight:500;letter-spacing:.12em}
+  aside nav{display:flex;flex-direction:column;gap:3px;overflow-y:auto}
+  .nav-heading{padding:9px 12px 3px;color:var(--tenue);font-size:10px;font-weight:750;letter-spacing:.14em}
+  .navbtn{
+    display:flex;align-items:center;gap:11px;width:100%;min-height:42px;padding:10px 12px;
+    border:1px solid transparent;border-radius:10px;background:none;cursor:pointer;
+    color:var(--suave);font-size:13px;font-weight:550;text-align:left;transition:.15s
+  }
+  .navbtn:hover{background:#15232c;color:var(--txt);border-color:rgba(132,170,180,.1)}
+  .navbtn.activo{
+    color:#e9fff6;background:linear-gradient(100deg,rgba(50,155,119,.2),rgba(23,38,49,.82));
+    border-color:rgba(66,211,160,.17);box-shadow:inset 3px 0 0 var(--verde)
+  }
+  .navbtn .ic{font-size:16px;width:20px;text-align:center;filter:saturate(.8)}
+  .estadoLat{
+    margin-top:auto;padding:14px;font-size:13px;line-height:1.55;color:var(--txt);
+    background:linear-gradient(145deg,#14252d,#101b24);border:1px solid var(--linea);border-radius:13px
+  }
+  .punto{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px}
+  .estadoLat .punto{box-shadow:0 0 0 4px rgba(66,211,160,.09)}
+  .sesionLat{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:12.5px;padding:0 4px}
+  .sesionLat[hidden],.navbtn[hidden],.nav-heading[hidden],.card[hidden],.btn[hidden]{display:none}
+
+  /* ===== Contenido ===== */
+  main{flex:1;width:100%;min-width:0;max-width:1600px;margin:0 auto;padding:34px clamp(22px,3.3vw,52px) 56px}
+  section[hidden],.subpanel[hidden]{display:none}
+  /* Espaciado vertical uniforme entre los bloques de cada pestana */
+  main > section > * + *,.subpanel > * + *{margin-top:var(--hueco)}
+  .top{
+    display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;
+    min-height:76px;padding-bottom:20px;margin-bottom:25px;border-bottom:1px solid rgba(132,170,180,.13)
+  }
+  .top h1{margin:0;font-size:27px;font-weight:720;letter-spacing:-.035em}
+  .top .sub{margin-top:6px;color:var(--suave);font-size:13px}
+
+  .grid{display:grid;gap:18px}
+  .cols3{grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))}
+  .cols2{grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr))}
+
+  .card{
+    background:linear-gradient(150deg,rgba(20,34,44,.98),rgba(15,27,36,.98));
+    border:1px solid var(--linea);border-radius:16px;padding:21px 22px;box-shadow:var(--sombra)
+  }
+  .card h2{margin:0 0 14px;font-size:15px;font-weight:600;letter-spacing:.005em}
+  .card h3{margin:0 0 10px;font-size:12px;font-weight:600;letter-spacing:.055em;text-transform:uppercase;color:var(--suave)}
+  .card p.suave{margin-top:0}
+  /* Cabecera de tarjeta: titulo a la izquierda, acciones a la derecha */
+  .card-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:10px}
+  .card-head h2{margin:0}
+  .etq{color:var(--suave);font-size:13px;font-weight:400}
+  /* Fila de ajuste: etiqueta a la izquierda, control a la derecha */
+  .ajuste{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+
+  .stat{position:relative;display:flex;flex-direction:column;gap:9px}
+  .stat .ic{width:36px;height:36px;display:grid;place-items:center;border-radius:11px;background:rgba(66,211,160,.09);color:#7de5bf;font-size:17px}
+  .stat .n{font-size:28px;font-weight:700;letter-spacing:-.04em}
+  .stat .l{font-size:12px;color:var(--suave)}
+
+  /* ===== Botones ===== */
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;min-height:38px;padding:9px 14px;
+    background:#172731;color:var(--txt);border:1px solid #2b414d;border-radius:9px;
+    cursor:pointer;font-size:12.5px;font-weight:600;transition:.15s
+  }
+  .btn:hover{border-color:rgba(66,211,160,.65);background:#1b3037;transform:translateY(-1px)}
+  .btn.p{color:#062017;background:linear-gradient(135deg,#58dfac,#35bb8e);border-color:#52d6a5;font-weight:650}
+  .btn.p:hover{background:linear-gradient(135deg,#70e9bd,#46c99b)}
+  .btn.r{color:#ffc4c7;background:rgba(112,39,46,.16);border-color:rgba(240,113,120,.48)}
+  .btn.r:hover{background:#3a1e1e}
+  .btn.az{color:#c7e1ff;background:rgba(54,103,157,.15);border-color:rgba(102,169,247,.38)}
+  .btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+  .btn.sm{padding:6px 11px;font-size:12.5px;border-radius:8px}
+  .btn.sm .cmdhint{font-size:11px;color:var(--suave);margin-left:4px}
+
+  /* ===== Formularios ===== */
+  .fila{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  input,select,textarea{background:#0c151d;color:var(--txt);border:1px solid #2a3e49;border-radius:9px;padding:10px 12px;font-size:14px;outline:none}
+  input:focus,select:focus,textarea:focus{border-color:var(--azul);box-shadow:0 0 0 3px rgba(102,169,247,.13)}
+  textarea{width:100%;font-family:Consolas,monospace;font-size:13px;line-height:1.5}
+  label{color:var(--suave);font-size:13px}
+  .switch{position:relative;display:inline-block;width:44px;height:24px}
+  .switch input{display:none}
+  .slider{position:absolute;inset:0;background:#3a4155;border-radius:24px;cursor:pointer;transition:.2s}
+  .slider::before{content:'';position:absolute;width:18px;height:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}
+  .switch input:checked + .slider{background:var(--verde)}
+  .switch input:checked + .slider::before{transform:translateX(20px)}
+
+  /* ===== Tablas, chips y mensajes ===== */
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{text-align:left;padding:11px 12px;border-bottom:1px solid rgba(132,170,180,.12);vertical-align:middle}
+  th{color:#8399a2;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.1em}
+  tr:hover td{background:rgba(106,151,161,.06)}
+  .chip{display:inline-block;padding:4px 9px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:.01em}
+  .chip.verde{background:rgba(37,127,91,.2);color:#81e5bb}
+  .chip.rojo{background:rgba(141,49,57,.22);color:#ffafb4}
+  .chip.amar{background:rgba(133,100,34,.23);color:#f4d18d}
+  .chip.gris{background:rgba(128,149,160,.12);color:#aebdc4}
+  .chip.mora{background:rgba(120,81,185,.22);color:#cdb9ff}
+  .chip.azul{background:rgba(59,111,174,.2);color:#aed1ff}
+  .salida{background:#091118;border:1px solid #263a45;border-radius:10px;padding:14px;max-height:460px;overflow:auto;font-family:Consolas,monospace;font-size:12.5px;white-space:pre-wrap;line-height:1.55}
+  .msg{padding:12px 16px;border-radius:11px;margin-bottom:14px;font-size:14px;display:flex;gap:10px;align-items:center}
+  .msg.ok{background:#102a1c;border:1px solid var(--verde2)}
+  .msg.error{background:#2e1515;border:1px solid var(--rojo)}
+  .msg.info{background:#14253d;border:1px solid #2f5a99}
+
+  /* ===== Jugadores y copias ===== */
+  .jcard{background:#14232d;border:1px solid var(--linea);border-radius:12px;padding:14px;cursor:pointer;transition:.15s}
+  .jcard:hover{border-color:rgba(66,211,160,.55);transform:translateY(-2px)}
+  .jcard.sel{border-color:var(--verde);box-shadow:0 0 0 2px rgba(67,193,135,.3)}
+  .jcard .av{width:40px;height:40px;border-radius:9px;background:linear-gradient(135deg,#4c8dff,#9b6dff);display:grid;place-items:center;font-weight:700;font-size:18px}
+  .timeline{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+  .punto-copia{width:26px;height:26px;border-radius:7px;background:#2a3042;display:grid;place-items:center;font-size:10px;color:var(--suave);cursor:pointer;border:2px solid transparent}
+  .punto-copia:hover{border-color:var(--azul)}
+  .punto-copia.a{border-color:var(--amar);color:var(--amar)}
+  .punto-copia.b{border-color:var(--verde);color:var(--verde)}
+  .punto-copia.pocos{background:#3a1b1b}
+  .barrita{height:5px;border-radius:3px;background:linear-gradient(90deg,var(--rojo),var(--amar),var(--verde));margin-top:3px}
+
+  /* ===== Sub-pestanas ===== */
+  .subtabs{display:flex;gap:4px;margin-bottom:18px;flex-wrap:wrap;border-bottom:1px solid rgba(132,170,180,.16)}
+  .subtab{padding:10px 18px;border:none;background:none;color:var(--suave);cursor:pointer;font-size:12px;border-radius:9px 9px 0 0;border-bottom:2px solid transparent;transition:.15s}
+  .subtab:hover{color:var(--txt);background:var(--panel)}
+  .subtab.activo{color:#e9fff6;border-bottom-color:var(--verde);font-weight:600}
+
+  /* ===== Porcentajes (tienda) ===== */
+  .pctbox{display:inline-flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--borde);border-radius:10px;padding:3px 10px 3px 4px;transition:.15s}
+  .pctbox:focus-within{border-color:var(--azul)}
+  .pctbox input{border:none;background:none;width:66px;text-align:right;padding:6px 2px;font-weight:700;font-size:15px}
+  .pctbox .sig{font-size:16px;color:var(--suave);font-weight:700}
+  .pctbox.sube{border-color:var(--verde);box-shadow:inset 0 0 0 1px rgba(67,193,135,.25)}
+  .pctbox.sube input{color:var(--verde)}
+  .pctbox.baja{border-color:var(--amar);box-shadow:inset 0 0 0 1px rgba(233,185,73,.25)}
+  .pctbox.baja input{color:var(--amar)}
+  .pctbox.igual input{color:var(--txt)}
+  .flecha{font-size:12px;min-width:46px;text-align:center;font-weight:600}
+  .flecha.sube{color:var(--verde)}.flecha.baja{color:var(--amar)}.flecha.igual{color:var(--tenue)}
+  .prev-final.sube{color:var(--verde)}.prev-final.baja{color:var(--amar)}
+
+  /* ===== Valores personalizados ===== */
+  .ovwrap{display:flex;flex-wrap:wrap;gap:10px}
+  .ovchip{display:inline-flex;align-items:center;gap:10px;background:#152630;border:1px solid #2b414d;border-radius:11px;padding:8px 10px 8px 13px;transition:.15s}
+  .ovchip:hover{border-color:rgba(66,211,160,.55)}
+  .ovchip .oid{font-family:Consolas,monospace;font-size:12.5px}
+  .ovchip .oval{font-weight:700;color:var(--amar)}
+  .ovchip .ox{border:none;background:#3a1e1e;color:#ffb9b9;border-radius:7px;width:26px;height:26px;cursor:pointer;font-size:14px;line-height:1}
+  .ovchip .ox:hover{background:#5a2a2a}
+  .ovchip .oe{border:none;background:#1b2740;color:#cfe0ff;border-radius:7px;padding:4px 9px;cursor:pointer;font-size:12px}
+  .ovchip .oe:hover{background:#243354}
+
+  /* ===== Progreso de tareas en segundo plano ===== */
+  .loader{width:16px;height:16px;border:2px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:giro .7s linear infinite;display:inline-block}
+  @keyframes giro{to{transform:rotate(360deg)}}
+  .tarea-prog{background:var(--panel2);border:1px solid var(--borde);border-radius:11px;padding:12px 14px;margin-top:12px}
+  .tarea-prog .cab{display:flex;align-items:center;gap:10px;font-size:13.5px;margin-bottom:9px}
+  .tarea-prog .cab .et{font-weight:600}
+  .tarea-prog .cab .ph{color:var(--suave);font-size:12.5px}
+  .tarea-prog .barra{height:9px;border-radius:5px;background:#2a3042;overflow:hidden}
+  .tarea-prog .barra > span{display:block;height:100%;border-radius:5px;background:linear-gradient(90deg,var(--verde2),var(--verde));width:0;transition:width .4s ease}
+  .tarea-prog.err .barra > span{background:linear-gradient(90deg,#8f2e2e,var(--rojo))}
+  .tarea-prog .msg2{margin-top:8px;font-size:12.5px;color:var(--suave)}
+  .tarea-prog.activa .barra > span{background-image:linear-gradient(90deg,var(--verde2),var(--verde),var(--verde2));background-size:200% 100%;animation:fluye 1.3s linear infinite}
+  @keyframes fluye{to{background-position:200% 0}}
+  .pasos-mini{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:9px}
+  .pasos-mini .p{font-size:11.5px;padding:3px 9px;border-radius:20px;background:#262b38;color:var(--tenue)}
+  .pasos-mini .p.on{background:#143726;color:#6ee7a8}
+  .pasos-mini .p.now{background:#3a3115;color:#f3d478}
+
+  /* ===== Comandos predeterminados (consola) ===== */
+  .cmdgrupo{margin-bottom:14px}
+  .cmdgrupo:last-child{margin-bottom:0}
+  .cmdgrupo > .gt{font-size:12.5px;color:var(--suave);font-weight:600;text-transform:uppercase;letter-spacing:.3px;margin:0 0 7px}
+  .cmdgrupo .fila{gap:8px}
+
+  /* ===== Responsive ===== */
+  @media(max-width:820px){
+    body{display:block}
+    aside{
+      position:sticky;top:0;z-index:20;width:100%;height:auto;
+      padding:10px 14px 8px;gap:8px;border-right:0;border-bottom:1px solid rgba(126,161,171,.18);
+      box-shadow:0 8px 24px rgba(0,0,0,.24)
+    }
+    .marca{padding:0 4px 2px;font-size:13px}
+    .marca .logo{width:32px;height:32px;border-radius:9px}
+    .marca-copy small{font-size:9px}
+    aside nav{flex-direction:row;gap:5px;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:thin;padding:0 0 4px}
+    .nav-heading{display:none}
+    .navbtn{flex:0 0 auto;width:auto;min-height:36px;padding:8px 10px;font-size:11px;gap:7px}
+    .navbtn .ic{width:auto;font-size:14px}
+    .estadoLat{display:none}
+    main{padding:24px 18px 42px}
+  }
+  @media(max-width:540px){
+    :root{--hueco:12px}
+    main{padding:20px 13px 32px}
+    .top{align-items:flex-start;margin-bottom:18px;padding-bottom:16px}
+    .top h1{font-size:23px}
+    .top .fila{width:100%;gap:7px}
+    .top .fila .btn{flex:1;justify-content:center;padding:8px}
+    .card{padding:17px;border-radius:13px}
+    .grid{gap:12px}
+    .cols2,.cols3{grid-template-columns:minmax(0,1fr)}
+    .fila{gap:8px}
+    .fila input,.fila select{max-width:100%}
+    table{display:block;max-width:100%;overflow-x:auto;white-space:nowrap}
+    .subtab{padding:9px 11px;font-size:11px}
+    .marca-copy small{display:none}
+  }
+  @media(prefers-reduced-motion:reduce){
+    *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+  }
+</style>
+</head>
+<body>
+<aside>
+  <div class="marca"><span class="logo">SP</span><span class="marca-copy">SERVER PANAS<small>ADMINISTRACION DEL SERVIDOR</small></span></div>
+  <nav id="nav">
+    <div class="nav-heading">GENERAL</div>
+    <button class="navbtn activo" data-tab="inicio" aria-current="page"><span class="ic">&#128202;</span> Inicio</button>
+    <div class="nav-heading">GESTION DEL JUEGO</div>
+    <button class="navbtn" data-tab="recuperar"><span class="ic">&#128230;</span> Recuperar items</button>
+    <button class="navbtn" data-tab="misiones"><span class="ic">&#128220;</span> Misiones Diarias</button>
+    <button class="navbtn" data-tab="tienda"><span class="ic">&#128176;</span> Tienda / Economia</button>
+    <button class="navbtn" data-tab="datapacks"><span class="ic">&#129513;</span> Datapacks</button>
+    <button class="navbtn" data-tab="jefes"><span class="ic">&#128121;</span> Jefes / Spawns</button>
+    <div class="nav-heading">ADMINISTRACION</div>
+    <button class="navbtn" data-tab="consola"><span class="ic">&#9000;</span> Consola</button>
+    <button class="navbtn" data-tab="archivos"><span class="ic">&#128193;</span> Archivos</button>
+    <button class="navbtn" data-tab="logs"><span class="ic">&#128203;</span> Registros</button>
+    <button class="navbtn" data-tab="acceso"><span class="ic">&#128273;</span> Acceso y usuarios</button>
+    <button class="navbtn" data-tab="ajustes"><span class="ic">&#9881;</span> Ajustes</button>
+  </nav>
+  <div class="estadoLat">
+    <div><span class="punto" id="latPunto" style="background:#666"></span><span id="latEstado">Conectando...</span></div>
+    <div class="suave" style="margin-top:6px" id="latJug">&nbsp;</div>
+    <div class="suave" style="margin-top:4px;font-size:12px" id="latCopia">&nbsp;</div>
+  </div>
+  <div class="sesionLat" id="sesionLat" hidden>
+    <span class="quien"><span class="suave">Sesión:</span> <b id="sesionUsuario"></b> <span class="chip gris" id="sesionRol"></span></span>
+    <button class="btn sm" id="btnSalir" type="button" onclick="cerrarSesion()">Salir</button>
+  </div>
+</aside>
+
+<main>
+  <div id="aviso" aria-live="polite"></div>
+
+  <!-- INICIO -->
+  <section id="tab-inicio">
+    <div class="top"><div><h1>Inicio</h1><div class="sub">Resumen del servidor y las copias de seguridad</div></div>
+      <div class="fila"><button class="btn p" onclick="accion('start')">&#9654; Encender</button><button class="btn" onclick="accion('restart')">&#8635; Reiniciar</button><button class="btn r" onclick="accion('stop')">&#9632; Apagar</button></div>
+    </div>
+    <div class="grid cols3">
+      <div class="card"><div class="stat"><span class="ic">&#128421;</span><span class="n" id="kEstado">—</span><span class="l">Estado del servidor</span></div></div>
+      <div class="card"><div class="stat"><span class="ic">&#128100;</span><span class="n" id="kJug">—</span><span class="l">Jugadores conectados</span></div></div>
+      <div class="card"><div class="stat"><span class="ic">&#128190;</span><span class="n" id="kCopia">—</span><span class="l">Ultima copia</span></div></div>
+    </div>
+    <div class="card">
+      <h2>&#128190; Copias de seguridad</h2>
+      <p class="suave">El servidor copia el inventario de todos los jugadores cada <b id="txtInterv">10</b> segundos y guarda los ultimos <b id="txtReten">5</b> minutos. Funciona aunque tu PC este apagado.</p>
+      <div class="fila"><button class="btn p" id="btnCap" onclick="capturar()">&#128190; Copiar ahora</button><button class="btn az" id="btnEsp" onclick="leerHistorial()">&#8681; Leer historial del servidor</button></div>
+      <div id="capProg" class="tarea-prog" style="display:none"></div>
+      <div id="espProg" class="tarea-prog" style="display:none"></div>
+      <div id="infoCopia" class="suave" style="margin-top:12px"></div>
+    </div>
+
+    <div class="card">
+      <h2>&#128295; Mod de respaldo (InvBackup)</h2>
+      <p class="suave">Instala el mod <b>server-side</b> que guarda el inventario de cada jugador al morir o al salir, y permite restaurarlo con <span class="mono">/invrestore</span>. Los jugadores <b>no</b> necesitan instalar nada. La instalacion sube el mod, reinicia el servidor (se cae ~1 minuto) y verifica que cargo. <b>Solo puede ejecutarse una a la vez.</b></p>
+      <div class="fila">
+        <button class="btn p" id="btnMod" onclick="instalarMod()">&#128295; Instalar el mod en el servidor</button>
+        <span id="modChip"></span>
+      </div>
+      <div id="modProgreso" class="salida" style="margin-top:12px;max-height:240px;display:none"></div>
+    </div>
+  </section>
+
+  <!-- RECUPERAR (con el MOD) -->
+  <section id="tab-recuperar" hidden>
+    <div class="top"><div><h1>Recuperar inventario</h1><div class="sub">Restaura con el mod el inventario que se guardo al morir o al salir</div></div>
+      <button class="btn" onclick="cargarModJug()">&#8635; Actualizar</button>
+    </div>
+    <div class="msg info"><span>&#8505;</span><span>El jugador debe estar <b>conectado</b> al servidor para restaurarle el inventario. Al restaurar, su inventario actual se reemplaza por el del respaldo elegido.</span></div>
+    <div class="card">
+      <h3>1. Elige el jugador</h3>
+      <div id="listaModJug" class="grid cols3"></div>
+    </div>
+    <div id="zonaMod" hidden>
+      <div class="card">
+        <div class="card-head">
+          <h2>&#128230; Respaldos de <span id="modTitulo"></span></h2>
+          <span id="modChipRest"></span>
+        </div>
+        <p class="suave">2. Elige el respaldo (el de arriba es el mas reciente) y pulsa <b>Restaurar</b>. El de justo antes de morir suele ser uno de los primeros.</p>
+        <div id="modListaResp"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MISIONES DIARIAS -->
+  <section id="tab-misiones" hidden>
+    <div class="top"><div><h1>Misiones Diarias</h1><div class="sub">Progreso de las misiones del dia de cada jugador (mod DailyQuests)</div></div>
+      <button class="btn" onclick="cargarMisiones()">&#8635; Actualizar</button>
+    </div>
+    <div class="card">
+      <h2>&#10133; Agregar mision personalizada</h2>
+      <p class="suave">Elige un <b>jugador</b> y un <b>nivel</b>. El servidor asigna al azar una mision de ese nivel como <b>personalizada</b> (ejecuta <span class="mono">/misiones dar &lt;jugador&gt; &lt;nivel&gt;</span>). Convive con sus 3 misiones diarias, sube progreso igual y no se borra al rotar el dia hasta que se reclame.</p>
+      <div class="fila">
+        <label>Jugador:</label>
+        <select id="misDarJugador" style="min-width:180px"><option value="">(elige un jugador)</option></select>
+        <label>Nivel:</label>
+        <select id="misDarNivel" style="min-width:130px">
+          <option value="facil">Facil</option>
+          <option value="medio">Medio</option>
+          <option value="dificil">Dificil</option>
+        </select>
+        <button class="btn p" id="btnMisDar" onclick="darMision()">&#10133; Agregar mision</button>
+      </div>
+      <div class="suave" style="font-size:12.5px;margin-top:8px">La lista muestra jugadores conectados y jugadores con misiones guardadas. El jugador debe estar conectado para que el comando funcione.</div>
+    </div>
+    <div class="msg info"><span>&#8505;</span><span>Las misiones se leen de <span class="mono">world/data/dailyquests.dat</span>. Para forzar nuevas misiones diarias a un jugador usa <b>Regenerar</b> (ejecuta <span class="mono">/misiones reset</span>). Las personalizadas se marcan con una etiqueta morada.</span></div>
+    <div id="listaMisiones" class="grid cols2"></div>
+  </section>
+
+  <!-- TIENDA / ECONOMIA -->
+  <section id="tab-tienda" hidden>
+    <div class="top"><div><h1>Tienda / Economia</h1><div class="sub">Gestion de precios y vista de la economia del servidor (mod ServerEco)</div></div>
+      <button class="btn" onclick="cargarTienda()">&#8635; Actualizar</button>
+    </div>
+
+    <div class="subtabs" id="ecoSubtabs">
+      <button class="subtab activo" data-sub="precios"><span class="ic">&#127991;</span> Gestion de precios</button>
+      <button class="subtab" data-sub="economia"><span class="ic">&#128200;</span> Vista de economia</button>
+    </div>
+
+    <!-- SUBPANEL: GESTION DE PRECIOS (categorias + overrides + json) -->
+    <div class="subpanel" id="sub-precios">
+      <div class="card">
+        <div class="card-head">
+          <h2>&#127991; Precios por categoria <span class="etq">(ajuste porcentual)</span></h2>
+          <div class="fila">
+            <button class="btn az" onclick="cargarCategorias()">&#8635; Recargar</button>
+            <button class="btn p" onclick="guardarCategorias()">&#128190; Guardar y aplicar</button>
+          </div>
+        </div>
+        <p class="suave">Ajusta el <b>porcentaje</b> de cada categoria: <b>100 = sin cambio</b>, por debajo abarata (ambar), por encima encarece (verde). La muestra ensena el valor <b>base</b> de items representativos y el <b>final</b> con tu porcentaje. Al guardar se escribe la seccion <span class="mono">categorias</span> de <span class="mono">valores.json</span> y se aplica en vivo con <span class="mono">/tienda reload</span>.</p>
+        <div id="categoriasMsg"></div>
+        <div id="tablaCategorias"><p class="suave">Cargando...</p></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h2>&#128269; Buscador de item y valor personalizado</h2>
+          <button class="btn az" onclick="cargarOverrides()">&#8635; Recargar lista</button>
+        </div>
+        <p class="suave">Escribe el <b>nombre</b> del item (ej. <span class="mono">diamante</span>, <span class="mono">espada</span>, <span class="mono">manzana dorada</span>) y elige uno de la lista. El buscador filtra por <b>nombre legible</b> (sin importar mayusculas ni tildes, por palabras y por relevancia) sobre un catalogo de vanilla + todos los mods. Al elegir, el panel pide al mod su <b>valor calculado actual</b> con <span class="mono">/tienda valor</span> y te deja fijar un <b>valor personalizado</b>. El override <b>manda sobre todo</b>: a un item con valor personalizado NO se le aplica el porcentaje de categoria ni la heuristica. Se guarda en <span class="mono">overrides</span> de <span class="mono">valores.json</span> y se aplica con <span class="mono">/tienda reload</span>.</p>
+        <div class="fila" style="margin-bottom:8px">
+          <input id="buscarItem" style="flex:1;min-width:240px" placeholder="nombre del item (ej. diamante, espada, manzana dorada)" oninput="filtrarItems()" autocomplete="off">
+        </div>
+        <div id="buscarMsg"></div>
+        <div id="buscarLista"></div>
+        <div id="buscarResultado"></div>
+        <h3 style="margin-top:18px">&#127991; Valores personalizados definidos</h3>
+        <div id="overridesMsg"></div>
+        <div id="tablaOverrides"><p class="suave">Cargando...</p></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h2>&#128722; Catalogo base de compra <span class="etq">(/shop)</span></h2>
+          <button class="btn az" onclick="cargarCatalogo()">&#8635; Recargar lista</button>
+        </div>
+        <p class="suave">Controla QUE items se pueden COMPRAR en la tienda y a que precio. Busca un item arriba, eligelo, y aqui podras <b>ponerlo en venta</b> (o cambiar su precio) o <b>quitarlo</b>. Se guarda en <span class="mono">catalogoCompra</span> de <span class="mono">valores.json</span> y se aplica con <span class="mono">/tienda reload</span>. (El catalogo que trae el mod sigue activo salvo que lo quites.)</p>
+        <div id="catalogoSel"><p class="suave">Elige un item con el buscador de arriba para ponerlo en venta.</p></div>
+        <h3 style="margin-top:16px">&#128722; Ajustes de catalogo definidos</h3>
+        <div id="catalogoMsg"></div>
+        <div id="tablaCatalogo"><p class="suave">Cargando...</p></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h2>&#9881; Editor avanzado <span class="mono">config/servereco/valores.json</span></h2>
+          <div class="fila">
+            <button class="btn p" onclick="guardarValores()">&#128190; Guardar</button>
+            <button class="btn az" onclick="recargarValores()">&#8635; Recargar valores</button>
+          </div>
+        </div>
+        <p class="suave">Edicion manual del JSON completo (opcion avanzada). Pulsa <b>Guardar</b> y luego <b>Recargar valores</b> para aplicar en vivo con <span class="mono">/tienda reload</span> (sin reiniciar).</p>
+        <div id="valoresMsg"></div>
+        <textarea id="valoresEditor" rows="22" placeholder="(valores.json)"></textarea>
+      </div>
+    </div>
+
+    <!-- SUBPANEL: VISTA DE ECONOMIA (saldos + mercado + subastas) -->
+    <div class="subpanel" id="sub-economia" hidden>
+      <div class="grid cols2">
+        <div class="card">
+          <div class="card-head">
+            <h2>&#128176; Saldos de creditos</h2>
+            <button class="btn az sm" onclick="cargarSaldos()">&#8635;</button>
+          </div>
+          <div id="tablaSaldos"><p class="suave">Cargando...</p></div>
+
+          <h3 style="margin-top:18px">&#9999; Editar creditos de un jugador</h3>
+          <p class="suave" style="margin-top:0;font-size:12.5px">Fija, suma o resta creditos al saldo (via comando OP del mod). Sirve para devolver lo que un jugador perdio por el bug. Haz clic en un jugador de la tabla para precargarlo.</p>
+          <div id="creditosMsg"></div>
+          <div class="fila" style="flex-wrap:wrap;gap:8px">
+            <input id="credJugador" style="flex:1;min-width:150px" placeholder="jugador (nombre exacto)" autocomplete="off">
+            <select id="credModo" style="min-width:120px">
+              <option value="set">Fijar (=)</option>
+              <option value="add">Sumar (+)</option>
+              <option value="remove">Restar (-)</option>
+            </select>
+            <input id="credCantidad" type="number" min="0" step="1" style="width:130px;text-align:right" placeholder="creditos">
+            <button class="btn p" onclick="ajustarCreditos()">&#128190; Aplicar</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <h2>&#127978; Mercado y subastas</h2>
+            <button class="btn az sm" onclick="cargarMercado()">&#8635;</button>
+          </div>
+          <h3>&#127978; Mercado global</h3>
+          <div id="tablaMercado"><p class="suave">Cargando...</p></div>
+          <h3 style="margin-top:18px">&#128081; Subastas activas</h3>
+          <div id="tablaSubastas"><p class="suave">Cargando...</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DATAPACKS -->
+  <section id="tab-datapacks" hidden>
+    <div class="top"><div><h1>Datapacks</h1><div class="sub">Tus datapacks del mundo, ajuste de vida de mobs y programador de comandos</div></div>
+      <button class="btn" onclick="cargarDatapacks()">&#8635; Actualizar</button>
+    </div>
+
+    <div class="subtabs" id="dpSubtabs">
+      <button class="subtab activo" data-sub="lista"><span class="ic">&#128230;</span> Mis datapacks</button>
+      <button class="subtab" data-sub="vida"><span class="ic">&#10084;</span> Vida de mobs</button>
+      <button class="subtab" data-sub="programador"><span class="ic">&#9201;</span> Programador de comandos</button>
+    </div>
+
+    <!-- SUB: LISTA -->
+    <div class="subpanel" id="dpsub-lista">
+      <div class="card">
+        <h2>&#128230; Datapacks en el servidor <span class="etq">(world/datapacks/)</span></h2>
+        <p class="suave">Lista de los datapacks que tiene cargados el mundo. Los que gestiona el panel aparecen marcados. El datapack de vida de jefes original (<span class="mono">JefesDuros</span>) no se toca; para añadir mas mobs usa la pestana <b>Vida de mobs</b>.</p>
+        <div id="dpLista"><p class="suave">Cargando...</p></div>
+      </div>
+    </div>
+
+    <!-- SUB: VIDA DE MOBS -->
+    <div class="subpanel" id="dpsub-vida" hidden>
+      <div class="msg info"><span>&#8505;</span><span>El panel gestiona un datapack companero <span class="mono">PanelVidaMobs</span> (no toca <span class="mono">JefesDuros</span>). Elige un mob por <b>nombre real</b> y un multiplicador de vida (x2, x3...). Al guardar, el panel escribe el datapack y aplica con <span class="mono">/reload</span> (sin reiniciar). Los mobs ya existentes se refuerzan al aparecer; los que ya estan vivos, cuando reaparezcan.</span></div>
+      <div class="card">
+        <h2>&#10133; Agregar mob al ajuste de vida</h2>
+        <div class="fila" style="margin-bottom:8px">
+          <input id="vidaBuscar" style="flex:1;min-width:240px" placeholder="nombre del mob (ej. dragon, zombi, ignis, naga)" oninput="filtrarMobsVida()" autocomplete="off">
+          <label>Multiplicador:</label>
+          <div class="pctbox" style="padding:3px 10px"><span class="sig">x</span><input id="vidaMult" type="number" min="1" max="100" step="0.5" value="2" style="width:70px;text-align:left"></div>
+        </div>
+        <div id="vidaBuscarMsg"></div>
+        <div id="vidaBuscarLista"></div>
+        <div id="vidaSel" class="suave" style="margin-top:8px"></div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <h2>&#10084; Mobs con vida reforzada por el panel</h2>
+          <button class="btn az sm" onclick="cargarVida()">&#8635;</button>
+        </div>
+        <div id="vidaMsg"></div>
+        <div id="vidaTabla"><p class="suave">Cargando...</p></div>
+      </div>
+    </div>
+
+    <!-- SUB: PROGRAMADOR -->
+    <div class="subpanel" id="dpsub-programador" hidden>
+      <div class="msg info"><span>&#8505;</span><span>Programa un comando para que el <b>servidor</b> lo ejecute dentro de X segundos (una vez) o cada X segundos (repetir). Se implementa con un <b>datapack de functions + schedule</b> (server-side): funciona <b>aunque cierres el panel</b> y sobrevive a reinicios del servidor. Internamente <span class="mono">ticks = segundos &times; 20</span>.</span></div>
+      <div class="card">
+        <h2>&#9201; Programar comando</h2>
+        <div class="fila" style="margin-bottom:8px">
+          <input id="progCmd" style="flex:1;min-width:280px" placeholder="comando (ej: weather clear  /  say Evento en marcha)" autocomplete="off">
+        </div>
+        <div class="fila">
+          <label>Cada / en (segundos):</label>
+          <input id="progSeg" type="number" min="1" step="1" value="60" style="width:110px">
+          <label>Modo:</label>
+          <select id="progModo" style="min-width:150px">
+            <option value="una_vez">Una vez (retardo)</option>
+            <option value="repetir">Repetir cada X s</option>
+          </select>
+          <button class="btn p" id="btnProg" onclick="programarCmd()">&#9201; Programar</button>
+        </div>
+        <div id="progMsg" style="margin-top:10px"></div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <h2>&#128203; Tareas programadas</h2>
+          <button class="btn az sm" onclick="cargarProgramador()">&#8635;</button>
+        </div>
+        <div id="progTabla"><p class="suave">Cargando...</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- JEFES / SPAWNS -->
+  <section id="tab-jefes" hidden>
+    <div class="top"><div><h1>Jefes / Spawns</h1><div class="sub">Invoca cualquier jefe (vanilla o de mods) ya mismo o programado por segundos</div></div>
+      <button class="btn" onclick="cargarJefes()">&#8635; Actualizar</button>
+    </div>
+    <div class="msg info"><span>&#8505;</span><span>Busca el jefe por <b>nombre real</b> (no el id). Marca <b>Solo jefes conocidos</b> para ver la lista curada de jefes vanilla y de mods, o desmarca para buscar <b>cualquier</b> entidad del pack. Por defecto el jefe aparece sobre una <b>plataforma circular</b> en una <b>ubicacion aleatoria</b> de la <b>dimension de su habitat</b> (o la que fuerces) y se <b>anuncia a todo el servidor</b>. El spawn inmediato usa <span class="mono">summon</span>; el programado usa el <b>schedule server-side</b> y el anuncio sale al dispararse (aunque cierres el panel).</span></div>
+
+    <div class="card">
+      <h2>&#128269; Elige el jefe</h2>
+      <div class="fila" style="margin-bottom:8px">
+        <input id="jefeBuscar" style="flex:1;min-width:260px" placeholder="nombre del jefe (ej. dragon, wither, ignis, naga)" oninput="filtrarJefes()" autocomplete="off">
+        <label class="fila"><span class="switch"><input type="checkbox" id="jefeSoloJefes" checked onchange="filtrarJefes(true)"><span class="slider"></span></span> Solo jefes conocidos</label>
+      </div>
+      <div id="jefeBuscarMsg"></div>
+      <div id="jefeBuscarLista"></div>
+    </div>
+
+    <div class="card" id="jefeAccionBox" hidden>
+      <h2 style="margin-top:0">&#128121; <span id="jefeSelNombre"></span> <span class="mono" id="jefeSelId" style="font-size:12px"></span></h2>
+      <h3>1. Destino</h3>
+      <div class="fila" style="margin-bottom:10px">
+        <label class="fila"><input type="radio" name="jefeDest" value="arena" checked onchange="jefeDestino()"> En ubicacion aleatoria (recomendado)</label>
+        <label>Dimension:</label>
+        <select id="jefeDim" style="min-width:230px"><option value="auto">Automatico (habitat del jefe)</option></select>
+      </div>
+      <div class="fila" style="margin-bottom:10px">
+        <label class="fila" title="SI construye una arena circular de radio 8 con muro para contener al mob; NO lo spawnea sin construir nada."><span class="switch"><input type="checkbox" id="jefePlataforma" checked><span class="slider"></span></span> Crear plataforma (arena con muro)</label>
+      </div>
+      <p class="suave" style="font-size:12px;margin:0 0 10px">Con <b>Crear plataforma</b> activado, el jefe aparece en el centro de una <b>arena circular (radio 8)</b> con <b>muro de contencion</b> para que no se escape, en una <b>ubicacion aleatoria</b> de la dimension elegida; al matarlo, la plataforma se <b>borra</b> y suelta <b>loot segun su nivel y dimension</b>. Desactivalo para un spawn normal sin construir nada. Siempre se <b>anuncia a todo el servidor</b>.</p>
+      <div class="fila" style="margin-bottom:10px">
+        <label class="fila"><input type="radio" name="jefeDest" value="jugador" onchange="jefeDestino()"> En un jugador conectado</label>
+        <select id="jefeJugador" style="min-width:180px" disabled><option value="">(elige un jugador)</option></select>
+      </div>
+      <div class="fila" style="margin-bottom:12px">
+        <label class="fila"><input type="radio" name="jefeDest" value="coords" onchange="jefeDestino()"> En coordenadas</label>
+        <input id="jefeX" type="number" placeholder="X" style="width:90px" disabled>
+        <input id="jefeY" type="number" placeholder="Y" style="width:90px" disabled>
+        <input id="jefeZ" type="number" placeholder="Z" style="width:90px" disabled>
+      </div>
+      <h3>2. Nivel</h3>
+      <div class="fila" style="margin-bottom:6px">
+        <label>Nivel del jefe:</label>
+        <select id="jefeNivel" onchange="jefeNivelInfo()" style="width:150px">
+          <option value="1">Nivel 1 (normal)</option>
+          <option value="2">Nivel 2 (reforzado)</option>
+          <option value="3">Nivel 3 (fuerte)</option>
+          <option value="4">Nivel 4 (muy fuerte)</option>
+          <option value="5">Nivel 5 (brutal)</option>
+        </select>
+        <span id="jefeNivelInfo" class="suave" style="font-size:12.5px"></span>
+      </div>
+      <p class="suave" style="font-size:12px;margin:0 0 12px">Nivel 1 = stats normales. Niveles 2-5 escalan vida y dano con modificadores (<span class="mono">multiply_base</span>); el jefe sale con el nombre <span class="mono">&lt;Nombre&gt; [Nv N]</span>.</p>
+      <h3>3. Cuando</h3>
+      <div class="fila">
+        <button class="btn p" id="btnSpawnYa" onclick="spawnJefe(false)">&#9889; Spawnear ahora</button>
+        <span style="margin:0 6px">o programado en</span>
+        <input id="jefeSeg" type="number" min="1" step="1" value="2000" style="width:110px">
+        <span>segundos</span>
+        <button class="btn az" onclick="spawnJefe(true)">&#9201; Programar spawn</button>
+      </div>
+      <div id="jefeMsg" style="margin-top:10px"></div>
+      <div id="jefeProg" class="tarea-prog" style="display:none"></div>
+    </div>
+  </section>
+
+  <!-- CONSOLA -->
+  <section id="tab-consola" hidden>
+    <div class="top"><div><h1>Consola</h1><div class="sub">Ejecuta cualquier comando del servidor, sin restriccion</div></div></div>
+    <div class="card">
+      <div class="fila"><input id="cmd" style="flex:1;min-width:280px" placeholder="ej: give SrBalduR minecraft:diamond 10" onkeydown="if(event.key==='Enter')enviarCmd()"><button class="btn p" onclick="enviarCmd()">Ejecutar</button></div>
+      <h3 style="margin-top:16px">Resultado</h3><div id="salCmd" class="salida">Sin salida todavia.</div>
+    </div>
+    <!-- COMANDOS PREDETERMINADOS (un clic, sin escribir) -->
+    <div class="card">
+      <h3>&#9889; Comandos rapidos</h3>
+      <p class="suave" style="font-size:12.5px">Botones de un clic para lo mas usado. El campo de arriba sigue libre para cualquier otro comando. Pasa el raton por cada boton para ver que hace.</p>
+
+      <div class="cmdgrupo">
+        <div class="gt">&#128100; Un jugador</div>
+        <div class="fila" style="margin-bottom:8px"><label>Para:</label><input id="jugR" value="SrBalduR" style="width:160px"></div>
+        <div class="fila">
+          <button class="btn sm" onclick="rapido('effect give {J} minecraft:regeneration 10 9 true')">&#10084; Curar</button>
+          <button class="btn sm" onclick="rapido('effect give {J} minecraft:saturation 5 9 true')">&#127831; Comida</button>
+          <button class="btn sm" onclick="rapido('effect clear {J}')">&#10024; Quitar efectos</button>
+          <button class="btn sm" onclick="rapido('execute as {J} run tbteleport grave')">&#9904; Ir a tumba</button>
+          <button class="btn sm" onclick="rapido('gamemode survival {J}')">Supervivencia</button>
+          <button class="btn sm" onclick="rapido('ftbquests reload')">Recargar misiones</button>
+          <button class="btn sm" onclick="rapido('save-all')">Guardar mundo</button>
+        </div>
+      </div>
+
+      <div class="cmdgrupo">
+        <div class="gt">&#9728; Tiempo y clima</div>
+        <div class="fila">
+          <button class="btn sm" title="time set day" onclick="enviarCmd('time set day')">&#9728; Dia</button>
+          <button class="btn sm" title="time set night" onclick="enviarCmd('time set night')">&#127769; Noche</button>
+          <button class="btn sm" title="time set noon" onclick="enviarCmd('time set noon')">Mediodia</button>
+          <button class="btn sm" title="weather clear" onclick="enviarCmd('weather clear')">&#9925; Despejar clima</button>
+          <button class="btn sm" title="weather rain" onclick="enviarCmd('weather rain')">&#127782; Lluvia</button>
+          <button class="btn sm" title="weather thunder" onclick="enviarCmd('weather thunder')">&#9928; Tormenta</button>
+        </div>
+      </div>
+
+      <div class="cmdgrupo">
+        <div class="gt">&#9881; Reglas del mundo</div>
+        <div class="fila">
+          <button class="btn sm" title="gamerule keepInventory true" onclick="enviarCmd('gamerule keepInventory true')">Keep inventory ON</button>
+          <button class="btn sm" title="gamerule keepInventory false" onclick="enviarCmd('gamerule keepInventory false')">Keep inventory OFF</button>
+          <button class="btn sm" title="gamerule doDaylightCycle true/false" onclick="enviarCmd('gamerule doDaylightCycle false')">Congelar ciclo dia</button>
+          <button class="btn sm" title="gamerule mobGriefing false" onclick="enviarCmd('gamerule mobGriefing false')">Mob griefing OFF</button>
+          <button class="btn sm" title="difficulty peaceful" onclick="enviarCmd('difficulty peaceful')">Dif. pacifico</button>
+          <button class="btn sm" title="difficulty normal" onclick="enviarCmd('difficulty normal')">Dif. normal</button>
+          <button class="btn sm" title="difficulty hard" onclick="enviarCmd('difficulty hard')">Dif. dificil</button>
+        </div>
+      </div>
+
+      <div class="cmdgrupo">
+        <div class="gt">&#129529; Limpieza y mundo</div>
+        <div class="fila">
+          <button class="btn sm" title="kill @e[type=item] (borra los items tirados en el suelo)" onclick="confirmarCmd('Borrar TODOS los items tirados en el suelo?','kill @e[type=item]')">&#129529; Limpiar items del suelo</button>
+          <button class="btn sm" title="kill @e[type=item,distance=..100] cerca de los jugadores" onclick="enviarCmd('execute as @a at @s run kill @e[type=item,distance=..100]')">Limpiar items cerca</button>
+          <button class="btn sm" title="save-all" onclick="enviarCmd('save-all')">&#128190; Guardar mundo</button>
+          <button class="btn sm" title="save-all flush (fuerza el guardado completo)" onclick="enviarCmd('save-all flush')">Guardar (flush)</button>
+        </div>
+      </div>
+
+      <div class="cmdgrupo">
+        <div class="gt">&#128101; Jugadores (todos)</div>
+        <div class="fila">
+          <button class="btn sm" title="tp @a a la zona de spawn del mundo" onclick="confirmarCmd('Teletransportar a TODOS los jugadores al spawn del mundo?','spreadplayers 0 0 1 10 false @a')">&#9904; TP todos al spawn</button>
+          <button class="btn sm" title="gamemode survival @a" onclick="enviarCmd('gamemode survival @a')">Todos supervivencia</button>
+          <button class="btn sm" title="gamemode creative @a" onclick="confirmarCmd('Poner a TODOS en creativo?','gamemode creative @a')">Todos creativo</button>
+          <button class="btn sm" title="effect clear @a" onclick="enviarCmd('effect clear @a')">Quitar efectos a todos</button>
+          <button class="btn sm" title="xp query / list" onclick="enviarCmd('list')">Ver conectados</button>
+        </div>
+      </div>
+
+      <div class="cmdgrupo">
+        <div class="gt">&#128260; Recargas y rendimiento</div>
+        <div class="fila">
+          <button class="btn sm" title="reload (recarga datapacks y funciones)" onclick="confirmarCmd('Recargar datapacks con /reload?','reload')">&#128260; Recargar datapacks</button>
+          <button class="btn sm" title="ftbquests reload (recarga FTB Quests)" onclick="enviarCmd('ftbquests reload')">Recargar FTB Quests</button>
+          <button class="btn sm" title="tienda reload (recarga valores del mod ServerEco)" onclick="enviarCmd('tienda reload')">Recargar tienda</button>
+          <button class="btn sm" title="forge tps (muestra TPS del servidor)" onclick="enviarCmd('forge tps')">Ver TPS (forge tps)</button>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ARCHIVOS -->
+  <section id="tab-archivos" hidden>
+    <div class="top"><div><h1>Archivos</h1><div class="sub">Edita y sincroniza archivos del servidor</div></div></div>
+    <div class="card">
+      <div class="fila"><input id="ruta" style="flex:1" placeholder="(raiz)" onkeydown="if(event.key==='Enter')listar()"><button class="btn" onclick="listar()">Abrir</button><button class="btn" onclick="subirNivel()">&#8593; Subir</button></div>
+      <div class="fila" style="margin-top:10px"><label>Subir de tu PC:</label><input type="file" id="archLocal"><button class="btn az" onclick="subirArchivo()">&#8679; Enviar al servidor</button></div>
+      <div id="listaArch" style="margin-top:14px"></div>
+    </div>
+    <div class="card" id="editorBox" hidden>
+      <div class="card-head"><b id="editorNom" class="mono"></b><div class="fila"><button class="btn p" onclick="guardarArchivo()">&#128190; Guardar</button><button class="btn" onclick="document.getElementById('editorBox').hidden=true">Cerrar</button></div></div>
+      <textarea id="editor" rows="26"></textarea>
+    </div>
+  </section>
+
+  <!-- LOGS -->
+  <section id="tab-logs" hidden>
+    <div class="top"><div><h1>Registros</h1><div class="sub">Copia permanente del log del servidor (no se borra al reiniciar)</div></div></div>
+    <div class="card">
+      <div class="fila" style="margin-bottom:12px">
+        <select id="fechaLog"></select>
+        <select id="tipoLog"><option value="eventos">Eventos (muertes, conexiones, items...)</option><option value="completo">Todo</option></select>
+        <input id="filtroLog" placeholder="Filtrar (ej: TsubasaDraws)">
+        <button class="btn p" onclick="cargarLogs()">Ver</button>
+        <label class="fila"><span class="switch"><input type="checkbox" id="autoLog"><span class="slider"></span></span> Auto</label>
+      </div>
+      <div id="salLog" class="salida" style="max-height:620px"></div>
+    </div>
+  </section>
+
+  <!-- ACCESO Y USUARIOS -->
+  <section id="tab-acceso" hidden>
+    <div class="top"><div><h1>Acceso y usuarios</h1><div class="sub">Quién puede entrar al panel y el enlace para tus amigos</div></div>
+      <button class="btn" onclick="cargarAcceso()">&#8635; Actualizar</button>
+    </div>
+    <div class="msg info" id="accesoPrimera" hidden><span>&#128075;</span><span><b>Primero crea tu cuenta de administrador.</b> Hasta que exista, el panel solo funciona en este PC y nadie puede entrar desde Internet.</span></div>
+
+    <div class="card">
+      <div class="card-head"><h2>&#127760; Enlace para tus amigos</h2><span id="accesoEstado"></span></div>
+      <div id="accesoEnlace"><p class="suave">Cargando...</p></div>
+      <div id="accesoNgrok" hidden>
+        <p class="suave" id="ngrokAyuda">Pega tu <b>authtoken</b> de ngrok y pulsa Activar. El enlace arranca solo con Windows. Solo se puede hacer desde este PC.</p>
+        <div class="fila">
+          <input id="ngrokToken" type="password" autocomplete="off" style="flex:1;min-width:240px" placeholder="authtoken de ngrok (dashboard.ngrok.com → Your Authtoken)">
+          <input id="ngrokDominio" autocomplete="off" style="flex:1;min-width:220px" placeholder="dominio fijo (opcional), p. ej. algo.ngrok-free.app">
+          <button class="btn p" id="btnNgrok" onclick="activarNgrok()">Activar enlace</button>
+        </div>
+        <p class="suave" style="font-size:12.5px;margin:8px 0 0">Sin dominio fijo, ngrok da un enlace automático que cambia si se reinicia el PC. Para que no cambie nunca: en dashboard.ngrok.com → <b>Domains</b> reclama tu dominio gratuito y pégalo aquí.</p>
+        <div id="ngrokProg" class="tarea-prog" style="display:none"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>&#128101; Usuarios</h2></div>
+      <div id="accesoUsuarios"><p class="suave">Cargando...</p></div>
+      <h3 style="margin-top:18px" id="usrTitulo">Añadir usuario</h3>
+      <div class="fila">
+        <input id="usrNombre" autocomplete="off" style="min-width:160px" placeholder="usuario">
+        <select id="usrRol">
+          <option value="jugador">Jugador: solo ver estado y encender</option>
+          <option value="colaborador">Colaborador: todo menos archivos y ajustes</option>
+          <option value="admin">Administrador: todo</option>
+        </select>
+        <input id="usrClave" type="password" autocomplete="new-password" style="min-width:200px" placeholder="contraseña (mínimo 10)">
+        <button class="btn p" onclick="guardarUsuario()">Guardar</button>
+      </div>
+      <p class="suave" style="font-size:12.5px;margin:8px 0 0">Para cambiar la contraseña o el rol de alguien, escribe su usuario, elige el rol y pon la contraseña nueva (o déjala vacía para cambiar solo el rol).</p>
+    </div>
+  </section>
+
+  <!-- AJUSTES -->
+  <section id="tab-ajustes" hidden>
+    <div class="top"><div><h1>Ajustes</h1><div class="sub">Configuracion de las copias de seguridad</div></div></div>
+    <div class="card" style="max-width:560px">
+      <div class="ajuste"><label>Copiar cada (segundos)</label><input id="cfgInt" type="number" min="5" style="width:100px"></div>
+      <div class="ajuste"><label>Guardar los ultimos (minutos)</label><input id="cfgMin" type="number" min="1" max="120" style="width:100px"></div>
+      <div class="ajuste"><label>Maximo de copias por personaje</label><input id="cfgCop" type="number" min="2" max="200" style="width:100px"></div>
+      <div class="ajuste"><label>Modo silencioso (ocultar comandos en el chat)</label><span class="switch"><input type="checkbox" id="cfgSil"><span class="slider"></span></span></div>
+      <div class="ajuste"><label>Guardar solo si el inventario cambio</label><span class="switch"><input type="checkbox" id="cfgCam"><span class="slider"></span></span></div>
+      <button class="btn p" onclick="guardarCfg()">Guardar ajustes</button>
+    </div>
+  </section>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const ESTADOS={0:'Apagado',1:'Encendido',2:'Encendiendo',3:'Apagandose',4:'Reiniciando',5:'Guardando',6:'Cargando',7:'Error',8:'Preparando',10:'Preparando'};
+let copiaActual=null, selA=null, selB=null, ultimaCmp=null, jugadorSel=null, copiasJug=[];
+let instPoll=null;
+
+async function api(ruta,op={}){op={...op,headers:{...(op.headers||{}),'X-Panel-SP':'1'}};const r=await fetch(ruta,op);if(r.status===401){location.href='/login';throw new Error('Sesion caducada');}const d=await r.json().catch(()=>({error:'Respuesta no valida'}));if(!r.ok||d.error)throw new Error(d.error||('Error '+r.status));return d;}
+// Sesion: muestra el usuario y oculta lo que su rol no puede usar.
+async function cargarSesion(){try{const s=await api('/api/sesion');if(!s.con_login){document.querySelector('.navbtn[data-tab="acceso"]').click();return;}$('sesionUsuario').textContent=s.usuario;$('sesionRol').textContent=s.rol;$('sesionLat').hidden=false;if(s.rol!=='admin'){document.querySelectorAll('.navbtn[data-tab="archivos"],.navbtn[data-tab="ajustes"],.navbtn[data-tab="acceso"]').forEach(b=>b.hidden=true);const m=$('btnMod');if(m)m.hidden=true;}
+if(s.rol==='jugador'){/* Solo el estado y el boton Encender */document.querySelectorAll('.navbtn:not([data-tab="inicio"]),.nav-heading').forEach(b=>b.hidden=true);document.querySelectorAll('#tab-inicio > .card').forEach(c=>c.hidden=true);document.querySelectorAll('#tab-inicio .top button').forEach(b=>{if(!/accion\('start'\)/.test(b.getAttribute('onclick')||''))b.hidden=true;});document.querySelectorAll('.stat .l').forEach(l=>{if(l.textContent.includes('copia'))l.closest('.card').hidden=true;});}}catch(e){}}
+async function cerrarSesion(){try{await api('/api/logout',{method:'POST'});}catch(e){}location.href='/login';}
+function aviso(t,tipo='info'){const ic={ok:'&#9989;',error:'&#9888;',info:'&#8505;'}[tipo];$('aviso').innerHTML='<div class="msg '+tipo+'"><span>'+ic+'</span><span>'+esc(t)+'</span></div>';if(tipo!=='error')setTimeout(()=>$('aviso').innerHTML='',7000);}
+
+// ===================== BARRA DE PROGRESO DE TAREAS =====================
+// Mecanismo comun para las acciones en segundo plano del backend
+// (/api/tareas/<tipo>): spawn, captura, espejo. Pinta una barra con fases
+// ('Enviando...', 'Ejecutando en el servidor...', 'Verificando...', 'Hecho'/
+// 'Error'), deshabilita el/los boton(es) de esa accion mientras corre y los
+// reactiva al terminar. Poll cada ~1 s mientras este activa.
+const FASES_TXT={enviando:'Enviando...',ejecutando:'Ejecutando en el servidor...',verificando:'Verificando...',hecho:'Hecho',error:'Error'};
+const FASES_ORDEN=['enviando','ejecutando','verificando','hecho'];
+const PCT_FASE={enviando:18,ejecutando:62,verificando:88,hecho:100,error:100};
+const _tareaPolls={}; // tipo -> intervalId
+
+// cfg: {boxId, botones:[ids], onFin:(estado)=>{}}
+function pintarTarea(tipo,s,cfg){
+  const box=$(cfg.boxId);if(!box)return;
+  const activa=!!s.activo, res=s.resultado;
+  const fase=s.fase||(activa?'enviando':null);
+  // bloquear / reactivar botones de esta accion
+  (cfg.botones||[]).forEach(id=>{const b=$(id);if(b)b.disabled=activa;});
+  if(!fase&&!activa&&!res){box.style.display='none';box.innerHTML='';return;}
+  box.style.display='block';
+  const pct=PCT_FASE[fase]||(activa?40:100);
+  const err=res==='error';
+  box.className='tarea-prog'+(activa?' activa':'')+(err?' err':'');
+  const idxNow=FASES_ORDEN.indexOf(fase);
+  const pasos=['enviando','ejecutando','verificando','hecho'].map(f=>{
+    let cls='p';
+    if(res==='ok'||res==='error'){cls+=(f==='hecho')?(err?' now':' on'):' on';}
+    else{const i=FASES_ORDEN.indexOf(f);if(i<idxNow)cls+=' on';else if(i===idxNow)cls+=' now';}
+    return '<span class="'+cls+'">'+esc(f==='hecho'?(err?'Error':'Hecho'):FASES_TXT[f])+'</span>';
+  }).join('');
+  const faseTxt=err?'Error':(res==='ok'?'Hecho':(FASES_TXT[fase]||'Trabajando...'));
+  const ic=activa?'<span class="loader"></span>':(err?'&#9888;':'&#9989;');
+  box.innerHTML='<div class="cab"><span>'+ic+'</span>'+
+    '<span class="et">'+esc(s.etiqueta||cfg.etiqueta||'Tarea')+'</span>'+
+    '<span class="ph">'+esc(faseTxt)+'</span></div>'+
+    '<div class="pasos-mini">'+pasos+'</div>'+
+    '<div class="barra"><span style="width:'+pct+'%"></span></div>'+
+    (s.mensaje?'<div class="msg2">'+esc(s.mensaje)+'</div>':'');
+}
+// Arranca el poll de una tarea. Lo llamas tras lanzar la accion (o para
+// re-engancharte si ya estaba corriendo al abrir la pestana).
+function vigilarTarea(tipo,cfg){
+  if(_tareaPolls[tipo])return;
+  const tick=async()=>{
+    try{
+      const s=await api('/api/tareas?tipo='+encodeURIComponent(tipo));
+      pintarTarea(tipo,s,cfg);
+      if(!s.activo){
+        clearInterval(_tareaPolls[tipo]);_tareaPolls[tipo]=null;
+        if(s.resultado&&cfg.onFin)cfg.onFin(s);
+      }
+    }catch(e){clearInterval(_tareaPolls[tipo]);_tareaPolls[tipo]=null;}
+  };
+  _tareaPolls[tipo]=setInterval(tick,1000);
+  tick();
+}
+// Consulta una vez el estado de una tarea y, si esta activa, engancha el poll
+// (para re-mostrar la barra al volver a la pestana con una tarea en curso).
+async function sincronizarTarea(tipo,cfg){
+  try{
+    const s=await api('/api/tareas?tipo='+encodeURIComponent(tipo));
+    pintarTarea(tipo,s,cfg);
+    if(s.activo)vigilarTarea(tipo,cfg);
+  }catch(e){}
+}
+
+document.querySelectorAll('.navbtn').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.navbtn').forEach(x=>{
+    x.classList.toggle('activo',x===b);
+    if(x===b)x.setAttribute('aria-current','page');else x.removeAttribute('aria-current');
+  });
+  document.querySelectorAll('main section').forEach(s=>s.hidden=s.id!=='tab-'+b.dataset.tab);
+  const t=b.dataset.tab;
+  if(t==='recuperar')cargarModJug();
+  if(t==='misiones')cargarMisiones();
+  if(t==='tienda')cargarTienda();
+  if(t==='datapacks')cargarDatapacks();
+  if(t==='jefes')cargarJefes();
+  if(t==='archivos'&&!$('listaArch').innerHTML)listar();
+  if(t==='logs')cargarLogs();
+  if(t==='ajustes')cargarCfg();
+  if(t==='acceso')cargarAcceso();
+});
+
+// ---- acceso y usuarios ----
+const ROL_TXT={admin:'Administrador',colaborador:'Colaborador',jugador:'Jugador'};
+async function cargarAcceso(){
+  try{
+    const [a,u]=await Promise.all([api('/api/acceso'),api('/api/usuarios')]);
+    $('accesoPrimera').hidden=u.usuarios.length>0;
+    if(!u.usuarios.length){$('usrRol').value='admin';$('usrNombre').value=$('usrNombre').value||'admin';}
+    $('accesoEstado').innerHTML=a.tunel_activo?('<span class="chip verde">Activo</span> <span class="chip '+(a.fijo?'azul':'gris')+'">'+(a.fijo?'Enlace fijo':'Enlace automático')+'</span>'):(a.url?'<span class="chip amar">Detenido</span>':'<span class="chip gris">Sin configurar</span>');
+    if(a.url&&a.tunel_activo){
+      $('accesoEnlace').innerHTML='<div class="fila"><span class="mono" style="font-size:15px;color:var(--txt)">'+esc(a.url)+'</span><button class="btn sm az" onclick="copiarEnlace(\''+esc(a.url)+'\')">Copiar</button></div>'
+        +'<p class="suave" style="font-size:12.5px;margin:8px 0 0">Pásales este enlace con su usuario y contraseña. La primera vez ngrok muestra un aviso: pulsa <b>Visit Site</b>. Funciona mientras este PC esté encendido'+(a.fijo?'.':'; si reinicias el PC el enlace cambia y lo verás aquí.')+'</p>';
+    }else{
+      $('accesoEnlace').innerHTML=!a.ngrok_instalado?'<p class="suave">ngrok no está instalado en este PC.</p>':(a.url?'<p class="suave">El enlace no está activo. Pulsa <b>Activar enlace</b> para arrancarlo.</p>':'');
+    }
+    $('accesoEnlace').innerHTML+=a.encendido_url
+      ?'<h3 style="margin-top:16px">&#9889; Encendido 24/7 (funciona con tu PC apagado)</h3><div class="fila"><span class="mono" style="font-size:13px;color:var(--txt)">'+esc(a.encendido_url)+'</span><button class="btn sm az" onclick="copiarEnlace(\''+esc(a.encendido_url)+'\')">Copiar</button></div><p class="suave" style="font-size:12.5px;margin:8px 0 0">Con este enlace tus amigos ven el estado y pulsan Encender, sin usuario ni contraseña. No pueden apagar ni tocar nada más.</p>'
+      :'<p class="suave" style="font-size:12.5px;margin:12px 0 0">&#9889; Para que tus amigos puedan encender el servidor con tu PC apagado, ejecuta <b>comandos\\19 Publicar encendido 24-7.bat</b> (una vez).</p>';
+    $('accesoNgrok').hidden=!a.ngrok_instalado||(a.tunel_activo&&a.fijo);
+    $('ngrokToken').placeholder=a.ngrok_con_token?'authtoken ya guardado (déjalo vacío)':'authtoken de ngrok (dashboard.ngrok.com → Your Authtoken)';
+    $('accesoUsuarios').innerHTML=u.usuarios.length?'<table><thead><tr><th>Usuario</th><th>Rol</th><th></th></tr></thead><tbody>'
+      +u.usuarios.map(x=>'<tr><td><b>'+esc(x.usuario)+'</b>'+(x.usuario===u.yo?' <span class="suave">(tú)</span>':'')+'</td><td><span class="chip '+(x.rol==='admin'?'mora':x.rol==='colaborador'?'azul':'verde')+'">'+ROL_TXT[x.rol]+'</span></td><td style="text-align:right">'
+        +'<button class="btn sm" onclick="editarUsuario(\''+esc(x.usuario)+'\',\''+x.rol+'\')">Cambiar</button> '
+        +(x.usuario===u.yo?'':'<button class="btn sm r" onclick="borrarUsuario(\''+esc(x.usuario)+'\')">Borrar</button>')+'</td></tr>').join('')+'</tbody></table>'
+      :'<p class="suave">Todavía no hay usuarios.</p>';
+  }catch(e){aviso(e.message,'error');}
+}
+function editarUsuario(n,r){$('usrNombre').value=n;$('usrRol').value=r;$('usrClave').value='';$('usrClave').focus();$('usrTitulo').textContent='Cambiar a '+n;}
+async function guardarUsuario(){
+  const usuario=$('usrNombre').value.trim(),rol=$('usrRol').value,clave=$('usrClave').value;
+  try{
+    const r=await api('/api/usuarios',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({usuario,rol,clave})});
+    $('usrClave').value='';$('usrNombre').value='';$('usrTitulo').textContent='Añadir usuario';
+    if(r.primera){aviso('Cuenta de administrador creada. Ahora inicia sesión con ella.','ok');setTimeout(()=>location.href='/login',1500);return;}
+    aviso('Usuario '+usuario+' guardado.','ok');cargarAcceso();
+  }catch(e){aviso(e.message,'error');}
+}
+async function borrarUsuario(n){
+  if(!$('confBorrar_'+n)){aviso('Pulsa otra vez "Borrar" para confirmar que quieres quitar a '+n+'.','info');const m=document.createElement('i');m.id='confBorrar_'+n;m.hidden=true;document.body.appendChild(m);setTimeout(()=>m.remove(),5000);return;}
+  try{await api('/api/usuarios',{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({usuario:n})});aviso('Usuario '+n+' borrado.','ok');cargarAcceso();}catch(e){aviso(e.message,'error');}
+}
+async function copiarEnlace(u){try{await navigator.clipboard.writeText(u);aviso('Enlace copiado.','ok');}catch(e){aviso('Copia el enlace: '+u,'info');}}
+async function activarNgrok(){
+  const token=$('ngrokToken').value.trim(),dominio=$('ngrokDominio').value.trim();
+  $('btnNgrok').disabled=true;
+  try{
+    const r=await api('/api/acceso/ngrok',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({authtoken:token,dominio})});
+    $('ngrokToken').value='';
+    if(!r.ok){aviso(r.mensaje,'error');$('btnNgrok').disabled=false;return;}
+    const prog=$('ngrokProg');prog.style.display='block';
+    const t=setInterval(async()=>{
+      try{const s=await api('/api/tareas?tipo=ngrok');
+        prog.className='tarea-prog'+(s.activo?' activa':'')+(s.resultado==='error'?' err':'');
+        prog.innerHTML='<div class="cab"><span class="et">Activando enlace</span></div><div class="barra"><span style="width:'+(s.activo?60:100)+'%"></span></div><div class="msg2">'+esc(s.mensaje||'')+'</div>';
+        if(!s.activo){clearInterval(t);$('btnNgrok').disabled=false;if(s.resultado==='ok'){aviso(s.mensaje,'ok');cargarAcceso();}else aviso(s.mensaje,'error');}
+      }catch(e){clearInterval(t);$('btnNgrok').disabled=false;}
+    },2000);
+  }catch(e){aviso(e.message,'error');$('btnNgrok').disabled=false;}
+}
+
+async function refrescar(){
+  try{
+    const d=await api('/api/estado');const s=d.servidor,p=d.panel,c=d.config;
+    const lista=(s.players&&s.players.list)||[];
+    const enc=s.status===1;
+    $('latPunto').style.background=enc?'var(--verde)':(s.status===0?'var(--rojo)':'var(--amar)');
+    $('latEstado').textContent=ESTADOS[s.status]||('Estado '+s.status);
+    $('latJug').textContent=lista.length?('&#128100; '+lista.length):'sin jugadores';$('latJug').innerHTML=lista.length?('&#128100; '+lista.join(', ')):'sin jugadores';
+    $('latCopia').textContent=p.ultima_captura?('Ultima copia '+p.ultima_captura.slice(11)):'';
+    $('kEstado').innerHTML='<span class="chip '+(enc?'verde':'rojo')+'">'+esc(ESTADOS[s.status]||s.status)+'</span>';
+    $('kJug').textContent=lista.length+' / '+((s.players&&s.players.max)||'?');
+    $('kCopia').textContent=p.ultima_captura?p.ultima_captura.slice(11):'—';
+    $('txtInterv').textContent=c.intervalo_seg;$('txtReten').textContent=c.minutos_retencion;
+    let h=p.ultimo_resultado?esc(p.ultimo_resultado):'';
+    if(p.ultimo_error)h+='<div class="msg error" style="margin-top:8px"><span>&#9888;</span><span>'+esc(p.ultimo_error)+'</span></div>';
+    $('infoCopia').innerHTML=h;
+    if(d.instalador)pintarInstalador(d.instalador);
+  }catch(e){$('latEstado').textContent='Sin conexion';}
+}
+
+// ---- instalar mod ----
+function pintarInstalador(s){
+  const btn=$('btnMod'),chip=$('modChip'),prog=$('modProgreso');
+  if(s.activo){
+    btn.disabled=true;
+    btn.innerHTML='<span class="loader"></span> Instalando...';
+    chip.innerHTML='<span class="chip amar">Instalacion en curso</span>';
+  }else{
+    btn.disabled=false;
+    btn.innerHTML='&#128295; Instalar el mod en el servidor';
+    if(s.resultado==='ok'){chip.innerHTML='<span class="chip verde">&#9989; Mod instalado</span>';}
+    else if(s.resultado==='error'){chip.innerHTML='<span class="chip rojo">&#9888; Fallo</span>';}
+    else if(s.ya_instalado){chip.innerHTML='<span class="chip verde">Mod presente en mods/</span>';}
+    else{chip.innerHTML='';}
+  }
+  if(s.pasos&&s.pasos.length){
+    prog.style.display='block';
+    let txt=s.pasos.join('\n');
+    if(s.mensaje&&!s.activo)txt+='\n\n'+(s.resultado==='error'?'ERROR: ':'')+s.mensaje;
+    prog.textContent=txt;
+    prog.scrollTop=prog.scrollHeight;
+  }
+  // Mientras hay instalacion activa, refrescamos mas seguido para ver el progreso.
+  if(s.activo&&!instPoll){instPoll=setInterval(refrescar,2500);}
+  if(!s.activo&&instPoll){clearInterval(instPoll);instPoll=null;}
+}
+async function instalarMod(){
+  if(!confirm('Esto instala el mod y REINICIA el servidor (se cae ~1 minuto, los jugadores conectados se desconectan). Continuar?'))return;
+  $('btnMod').disabled=true;
+  $('btnMod').innerHTML='<span class="loader"></span> Iniciando...';
+  try{
+    const r=await api('/api/instalar-mod',{method:'POST'});
+    aviso(r.mensaje,r.ok?'ok':'error');
+    if(r.estado)pintarInstalador(r.estado);
+    refrescar();
+  }catch(e){aviso(e.message,'error');$('btnMod').disabled=false;$('btnMod').innerHTML='&#128295; Instalar el mod en el servidor';}
+}
+
+async function accion(a){const n={start:'encender',restart:'reiniciar',stop:'apagar'};if(a!=='start'&&!confirm('Seguro que quieres '+n[a]+' el servidor?'))return;try{await api('/api/servidor/'+a,{method:'POST'});aviso('Orden enviada: '+n[a],'ok');setTimeout(refrescar,3000);}catch(e){aviso(e.message,'error');}}
+// Captura y lectura de historial: ahora corren en segundo plano con barra de
+// progreso y bloqueo del boton mientras trabajan.
+const CAP_CFG={boxId:'capProg',botones:['btnCap'],etiqueta:'Capturar inventario',onFin:(s)=>{aviso(s.mensaje,s.resultado==='error'?'error':'ok');refrescar();}};
+const ESP_CFG={boxId:'espProg',botones:['btnEsp'],etiqueta:'Leer historial del servidor',onFin:(s)=>{aviso(s.mensaje,s.resultado==='error'?'error':'ok');refrescar();}};
+async function capturar(){
+  try{const r=await api('/api/capturar',{method:'POST'});if(r.ocupado)aviso(r.mensaje,'info');vigilarTarea('captura',CAP_CFG);return r;}
+  catch(e){aviso(e.message,'error');}
+}
+async function leerHistorial(){
+  try{const r=await api('/api/espejo',{method:'POST'});if(r.ocupado)aviso(r.mensaje,'info');vigilarTarea('espejo',ESP_CFG);return r;}
+  catch(e){aviso(e.message,'error');}
+}
+
+// ---- recuperar con el MOD ----
+let modJugSel=null, modRestPoll=null;
+async function cargarModJug(){
+  try{const l=await api('/api/mod/jugadores');
+    $('listaModJug').innerHTML=l.length?l.map(j=>'<div class="jcard'+(j.jugador===modJugSel?' sel':'')+'" onclick="elegirModJug(\''+esc(j.jugador)+'\')"><div class="fila"><div class="av">'+esc(j.jugador[0].toUpperCase())+'</div><div><b>'+esc(j.jugador)+'</b><br><span class="suave">'+j.respaldos+' respaldos</span></div></div></div>').join(''):'<p class="suave">Todavia no hay respaldos del mod. Se crean solos cuando un jugador muere o sale del servidor.</p>';
+  }catch(e){aviso(e.message,'error');}
+}
+async function elegirModJug(j){
+  modJugSel=j;$('zonaMod').hidden=false;$('modTitulo').textContent=j;cargarModJug();
+  await cargarModResp();
+}
+async function cargarModResp(){
+  try{
+    const r=await api('/api/mod/respaldos?jugador='+encodeURIComponent(modJugSel));
+    if(!r.ok||!r.lista.length){$('modListaResp').innerHTML='<p class="suave">'+esc(r.mensaje||'Sin respaldos.')+'</p>';return;}
+    $('modListaResp').innerHTML='<div class="suave" style="margin-bottom:8px">'+r.lista.length+' copias guardadas</div>'+
+      '<table><thead><tr><th>Fecha y hora</th><th>Items</th><th>Motivo</th><th></th></tr></thead><tbody>'+
+      r.lista.map((c,i)=>'<tr><td><b>'+esc(c.fecha)+'</b>'+(i===0?' <span class="chip verde">mas reciente</span>':'')+'</td>'+
+      '<td>'+(c.items||0)+'</td><td class="suave">'+esc(c.motivo||'')+'</td>'+
+      '<td style="text-align:right"><button class="btn p sm btnRest" data-arch="'+esc(c.archivo)+'" onclick="restaurarMod(\''+esc(c.archivo)+'\')">&#8635; Restaurar este</button></td></tr>').join('')+
+      '</tbody></table>';
+  }catch(e){aviso(e.message,'error');}
+}
+async function restaurarMod(archivo){
+  if(!confirm('Restaurar el inventario de '+modJugSel+' al respaldo del '+archivo+'?\n\nSu inventario ACTUAL se reemplaza por completo. Debe estar conectado.'))return;
+  try{
+    const r=await api('/api/mod/restaurar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jugador:modJugSel,archivo:archivo})});
+    aviso(r.mensaje,r.ok?'ok':'error');
+    pintarRestEstado(r.estado||{activo:true});
+    vigilarRest();
+  }catch(e){aviso(e.message,'error');}
+}
+function pintarRestEstado(s){
+  const chip=$('modChipRest');
+  const botones=document.querySelectorAll('.btnRest');
+  if(s.activo){
+    botones.forEach(b=>{b.disabled=true;});
+    chip.innerHTML='<span class="chip amar"><span class="loader"></span> Restaurando '+esc(s.jugador||'')+'...</span>';
+  }else{
+    botones.forEach(b=>{b.disabled=false;});
+    if(s.resultado==='ok')chip.innerHTML='<span class="chip verde">&#9989; '+esc(s.mensaje||'Restaurado')+'</span>';
+    else if(s.resultado==='error')chip.innerHTML='<span class="chip rojo">&#9888; '+esc(s.mensaje||'Fallo')+'</span>';
+    else chip.innerHTML='';
+  }
+}
+function vigilarRest(){
+  if(modRestPoll)return;
+  modRestPoll=setInterval(async()=>{
+    try{
+      const s=await api('/api/mod/restaurar-estado');
+      pintarRestEstado(s);
+      if(!s.activo){clearInterval(modRestPoll);modRestPoll=null;aviso(s.mensaje,s.resultado==='error'?'error':'ok');}
+    }catch(e){clearInterval(modRestPoll);modRestPoll=null;}
+  },2000);
+}
+
+// ---- misiones diarias ----
+// Rellena el desplegable de "Agregar mision" con jugadores conectados y
+// jugadores que ya tienen misiones guardadas, sin perder la seleccion actual.
+async function poblarJugadoresMision(conMisiones){
+  const sel=$('misDarJugador');
+  if(!sel)return;
+  const prev=sel.value;
+  const nombres=new Set();
+  try{
+    const est=await api('/api/estado');
+    ((est.servidor&&est.servidor.players&&est.servidor.players.list)||[]).forEach(n=>nombres.add(n));
+  }catch(e){}
+  (conMisiones||[]).forEach(j=>{if(j.jugador&&j.jugador!=='desconocido')nombres.add(j.jugador);});
+  const orden=[...nombres].sort((a,b)=>a.toLowerCase().localeCompare(b.toLowerCase()));
+  sel.innerHTML='<option value="">(elige un jugador)</option>'+orden.map(n=>'<option value="'+esc(n)+'">'+esc(n)+'</option>').join('');
+  if(prev&&orden.includes(prev))sel.value=prev;
+}
+async function cargarMisiones(){
+  $('listaMisiones').innerHTML='<p class="suave">Cargando...</p>';
+  try{
+    const d=await api('/api/misiones');
+    poblarJugadoresMision(d.jugadores);
+    if(!d.jugadores.length){$('listaMisiones').innerHTML='<p class="suave">'+esc(d.mensaje||'Ningun jugador tiene misiones todavia.')+'</p>';return;}
+    $('listaMisiones').innerHTML=d.jugadores.map(j=>{
+      const mis=(j.misiones||[]).map(m=>{
+        const cant=m.cantidad||0, prog=Math.min(m.progreso,cant||m.progreso);
+        const pct=cant?Math.round(prog*100/cant):(m.reclamada?100:0);
+        const chip=m.reclamada?'<span class="chip verde">Reclamada</span>':(m.completada?'<span class="chip amar">Completada</span>':'<span class="chip gris">En curso</span>');
+        const origen=m.personalizada?'<span class="chip mora" title="Asignada con /misiones dar">Personalizada</span> ':'';
+        const nivel=m.nivel?'<span class="chip azul" style="text-transform:capitalize">'+esc(m.nivel)+'</span> ':'';
+        return '<div style="margin-bottom:12px;padding:10px 12px;border-radius:10px;background:'+(m.personalizada?'rgba(155,109,255,.08)':'rgba(255,255,255,.02)')+';border:1px solid '+(m.personalizada?'rgba(155,109,255,.3)':'var(--borde)')+'">'+
+          '<div class="fila" style="justify-content:space-between;gap:6px"><b>'+esc(m.titulo)+'</b><span class="fila" style="gap:5px">'+nivel+origen+chip+'</span></div>'+
+          '<div class="suave" style="font-size:12.5px;margin:4px 0 6px">'+esc(m.descripcion||m.id)+'</div>'+
+          '<div class="fila" style="gap:8px"><div style="flex:1;height:8px;border-radius:4px;background:#2a3042;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,'+(m.personalizada?'var(--morado),#c3a7ff':'var(--verde2),var(--verde)')+')"></div></div>'+
+          '<span class="mono">'+prog+' / '+(cant||'?')+'</span></div></div>';
+      }).join('')||'<p class="suave">Sin misiones.</p>';
+      const nPers=(j.misiones||[]).filter(m=>m.personalizada).length;
+      const persTxt=nPers?' <span class="chip mora">'+nPers+' personalizada'+(nPers>1?'s':'')+'</span>':'';
+      const diaTxt=j.del_dia?'<span class="chip verde">Misiones de hoy</span>':'<span class="chip amar">De otro dia (se regeneran al jugar)</span>';
+      return '<div class="card"><div class="fila" style="justify-content:space-between;margin-bottom:6px">'+
+        '<div class="fila"><div class="av">'+esc((j.jugador||'?')[0].toUpperCase())+'</div><b style="font-size:15px">'+esc(j.jugador)+'</b></div><span class="fila" style="gap:6px">'+diaTxt+persTxt+'</span></div>'+
+        '<div class="mono" style="margin-bottom:10px">'+esc(j.uuid||'')+'</div>'+mis+
+        '<button class="btn sm az" style="margin-top:6px" onclick="resetMisiones(\''+esc(j.jugador)+'\')">&#8635; Regenerar misiones</button></div>';
+    }).join('');
+  }catch(e){$('listaMisiones').innerHTML='<p class="suave">Error: '+esc(e.message)+'</p>';}
+}
+async function resetMisiones(j){
+  if(!confirm('Regenerar las misiones de '+j+'? (ejecuta /misiones reset '+j+'). El jugador debe estar conectado.'))return;
+  try{const r=await api('/api/misiones/reset',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jugador:j})});
+    aviso('Enviado: '+r.enviado,'ok');setTimeout(cargarMisiones,1500);
+  }catch(e){aviso(e.message,'error');}
+}
+async function darMision(){
+  const j=$('misDarJugador').value, n=$('misDarNivel').value;
+  if(!j){aviso('Elige un jugador.','error');return;}
+  if(!confirm('Asignar una mision personalizada de nivel "'+n+'" a '+j+'?\n(ejecuta /misiones dar '+j+' '+n+'). El jugador debe estar conectado.'))return;
+  const btn=$('btnMisDar');btn.disabled=true;btn.innerHTML='<span class="loader"></span> Asignando...';
+  try{
+    const r=await api('/api/misiones/dar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jugador:j,nivel:n})});
+    aviso('Enviado: '+r.enviado,'ok');
+    setTimeout(cargarMisiones,1500);
+  }catch(e){aviso(e.message,'error');}
+  finally{btn.disabled=false;btn.innerHTML='&#10133; Agregar mision';}
+}
+
+// ---- tienda / economia ----
+// sub-pestanas internas (presentacion; la logica/endpoints no cambian)
+document.querySelectorAll('#ecoSubtabs .subtab').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('#ecoSubtabs .subtab').forEach(x=>x.classList.toggle('activo',x===b));
+  document.querySelectorAll('#tab-tienda .subpanel').forEach(p=>p.hidden=p.id!=='sub-'+b.dataset.sub);
+});
+async function cargarTienda(){
+  cargarSaldos();cargarMercado();cargarCategorias();cargarOverrides();cargarCatalogo();cargarValores();
+}
+async function cargarSaldos(){
+  try{
+    const d=await api('/api/eco/saldos');
+    if(!d.saldos.length){$('tablaSaldos').innerHTML='<p class="suave">'+esc(d.mensaje||'Sin saldos.')+'</p>';return;}
+    const total=d.saldos.reduce((a,s)=>a+(s.saldo||0),0);
+    $('tablaSaldos').innerHTML='<table><thead><tr><th>#</th><th>Jugador</th><th style="text-align:right">Creditos</th></tr></thead><tbody>'+
+      d.saldos.map((s,i)=>'<tr style="cursor:pointer" title="Clic para editar su saldo" onclick="precargarCredito(\''+esc(s.jugador).replace(/\x27/g,"\\x27")+'\')"><td class="suave">'+(i+1)+'</td><td><b>'+esc(s.jugador)+'</b></td><td style="text-align:right"><b class="chip verde" style="font-weight:700">'+s.saldo.toLocaleString('es')+'</b></td></tr>').join('')+
+      '</tbody><tfoot><tr><td></td><td class="suave">Total en circulacion</td><td style="text-align:right"><b>'+total.toLocaleString('es')+'</b></td></tr></tfoot></table>';
+  }catch(e){$('tablaSaldos').innerHTML='<p class="suave">Error: '+esc(e.message)+'</p>';}
+}
+function precargarCredito(nombre){
+  $('credJugador').value=nombre;
+  $('credCantidad').focus();
+}
+async function ajustarCreditos(){
+  const jugador=($('credJugador').value||'').trim();
+  const modo=$('credModo').value;
+  const cantidad=parseInt($('credCantidad').value,10);
+  if(!jugador){aviso('Escribe el nombre del jugador.','error');return;}
+  if(isNaN(cantidad)||cantidad<0){aviso('Cantidad no valida.','error');return;}
+  const etq={set:'fijar a',add:'sumar',remove:'restar'}[modo]||modo;
+  if(!confirm('Vas a '+etq+' '+cantidad+' creditos a '+jugador+'. Continuar?'))return;
+  $('creditosMsg').innerHTML='<div class="msg info"><span class="loader"></span><span>Aplicando...</span></div>';
+  try{
+    const r=await api('/api/eco/creditos',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jugador:jugador,modo:modo,cantidad:cantidad})});
+    $('creditosMsg').innerHTML='<div class="msg ok"><span>&#10003;</span><span>'+esc(r.mensaje||'Aplicado.')+'</span></div>';
+    aviso(r.mensaje||'Saldo ajustado.','ok');
+    cargarSaldos();
+  }catch(e){$('creditosMsg').innerHTML='<div class="msg error"><span>&#9888;</span><span>'+esc(e.message)+'</span></div>';aviso(e.message,'error');}
+}
+function filaLote(l,tipo){
+  return '<tr><td><b>'+esc(l.item)+'</b>'+(l.cantidad>1?' <span class="chip gris">x'+l.cantidad+'</span>':'')+'</td>'+
+    '<td>'+esc(l.vendedor||'—')+'</td><td style="text-align:right"><b class="chip amar" style="font-weight:700">'+l.precio.toLocaleString('es')+'</b></td>'+
+    '<td style="text-align:right"><button class="ox" title="Quitar listado (devuelve el item al buzon del vendedor)" onclick="quitarListado(\''+tipo+'\','+l.id+')">&times;</button></td></tr>';
+}
+async function cargarMercado(){
+  try{
+    const d=await api('/api/eco/mercado');
+    const m=[...d.mercado].sort((a,b)=>(b.precio||0)-(a.precio||0));
+    const s=[...d.subastas].sort((a,b)=>(b.precio||0)-(a.precio||0));
+    $('tablaMercado').innerHTML=m.length?
+      '<table><thead><tr><th>Item</th><th>Vendedor</th><th style="text-align:right">Precio</th><th></th></tr></thead><tbody>'+m.map(l=>filaLote(l,'mercado')).join('')+'</tbody></table>':
+      '<p class="suave">No hay listados en el mercado.</p>';
+    $('tablaSubastas').innerHTML=s.length?
+      '<table><thead><tr><th>Item</th><th>Vendedor</th><th style="text-align:right">Precio</th><th></th></tr></thead><tbody>'+s.map(l=>filaLote(l,'subasta')).join('')+'</tbody></table>':
+      '<p class="suave">No hay subastas activas.</p>';
+  }catch(e){$('tablaMercado').innerHTML='<p class="suave">Error: '+esc(e.message)+'</p>';$('tablaSubastas').innerHTML='';}
+}
+async function quitarListado(tipo,id){
+  if(!confirm('Quitar este listado ('+tipo+' #'+id+')? El item vuelve al buzon del vendedor (lo reclama con /buzon).'))return;
+  try{
+    const r=await api('/api/eco/listado-quitar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tipo:tipo,id:id})});
+    aviso(r.mensaje||'Listado retirado.','ok');
+    cargarMercado();
+  }catch(e){aviso(e.message,'error');}
+}
+async function cargarValores(){
+  try{
+    const d=await api('/api/eco/valores');
+    $('valoresEditor').value=d.texto||'';
+    $('valoresMsg').innerHTML=d.existe?'':'<div class="msg info"><span>&#8505;</span><span>'+esc(d.mensaje||'valores.json aun no existe.')+'</span></div>';
+  }catch(e){$('valoresMsg').innerHTML='<div class="msg error"><span>&#9888;</span><span>'+esc(e.message)+'</span></div>';}
+}
+async function guardarValores(){
+  if(!confirm('Guardar valores.json en el servidor?'))return;
+  try{const r=await api('/api/eco/valores',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({texto:$('valoresEditor').value})});
+    aviso(r.mensaje||'Guardado.','ok');
+  }catch(e){aviso(e.message,'error');}
+}
+async function recargarValores(){
+  try{const r=await api('/api/eco/reload',{method:'POST'});
+    aviso('Enviado: '+r.enviado,'ok');
+  }catch(e){aviso(e.message,'error');}
+}
+// ---- categorias (modulo admin de precios) ----
+let CATS=[];
+async function cargarCategorias(){
+  try{
+    const d=await api('/api/eco/categorias');
+    CATS=d.categorias||[];
+    $('categoriasMsg').innerHTML=d.existe?'':'<div class="msg info"><span>&#8505;</span><span>'+esc(d.mensaje||'valores.json aun no existe.')+'</span></div>';
+    pintarCategorias();
+  }catch(e){$('tablaCategorias').innerHTML='<p class="suave">Error: '+esc(e.message)+'</p>';}
+}
+function pintarCategorias(){
+  if(!CATS.length){$('tablaCategorias').innerHTML='<p class="suave">Sin categorias.</p>';return;}
+  const filas=CATS.map((c,i)=>{
+    const muestras=(c.muestras||[]).map(m=>
+      '<div style="font-size:12px;line-height:1.6"><b>'+esc(m.nombre)+'</b>: '+
+      '<span class="suave">base</span> '+m.base.toLocaleString('es')+' &rarr; '+
+      '<b class="prev-final" data-base="'+m.base+'">'+m.final.toLocaleString('es')+'</b></div>'
+    ).join('')||'<span class="suave" style="font-size:12px">sin muestras</span>';
+    return '<tr data-cat="'+esc(c.categoria)+'">'+
+      '<td><b>'+esc(c.etiqueta)+'</b><br><span class="mono" style="font-size:11px">'+esc(c.categoria)+'</span></td>'+
+      '<td style="text-align:center">'+
+        '<span class="pctbox"><input type="number" min="0" max="100000" step="1" value="'+c.porcentaje+'" oninput="previewCategoria('+i+',this.value)"><span class="sig">%</span></span>'+
+        '<div class="flecha" data-flecha="1" style="margin-top:4px"></div>'+
+      '</td>'+
+      '<td>'+muestras+'</td></tr>';
+  }).join('');
+  $('tablaCategorias').innerHTML='<table><thead><tr><th>Categoria</th><th style="text-align:center">Porcentaje</th><th>Ejemplo (base &rarr; final)</th></tr></thead><tbody>'+filas+'</tbody></table>';
+  CATS.forEach((c,i)=>previewCategoria(i,c.porcentaje));
+}
+function previewCategoria(i,val){
+  const pct=parseFloat(val);
+  const fila=$('tablaCategorias').querySelectorAll('tbody tr')[i];
+  if(!fila)return;
+  // estado del input segun suba/baje de 100
+  const box=fila.querySelector('.pctbox');
+  const flecha=fila.querySelector('[data-flecha]');
+  let estado='igual',txt='= sin cambio';
+  if(!isNaN(pct)){
+    if(pct>100){estado='sube';txt='&#9650; +'+(pct-100)+'% mas caro';}
+    else if(pct<100){estado='baja';txt='&#9660; -'+(100-pct)+'% mas barato';}
+  }
+  if(box){box.classList.remove('sube','baja','igual');box.classList.add(estado);}
+  if(flecha){flecha.className='flecha '+estado;flecha.innerHTML=txt;}
+  fila.querySelectorAll('.prev-final').forEach(el=>{
+    const base=parseFloat(el.getAttribute('data-base'))||0;
+    const f=isNaN(pct)?base:Math.round(base*pct/100);
+    el.textContent=f.toLocaleString('es');
+    el.classList.remove('sube','baja');
+    if(f>base)el.classList.add('sube');else if(f<base)el.classList.add('baja');
+  });
+}
+async function guardarCategorias(){
+  const filas=$('tablaCategorias').querySelectorAll('tbody tr');
+  const porcentajes={};
+  for(const fila of filas){
+    const cat=fila.getAttribute('data-cat');
+    const inp=fila.querySelector('input[type=number]');
+    const v=parseInt(inp.value,10);
+    if(isNaN(v)||v<0){aviso('Porcentaje no valido en '+cat,'error');return;}
+    porcentajes[cat]=v;
+  }
+  if(!confirm('Guardar los porcentajes por categoria y aplicarlos en vivo?'))return;
+  try{
+    const r=await api('/api/eco/categorias',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({porcentajes})});
+    aviso(r.mensaje||'Guardado y aplicado.','ok');
+    cargarCategorias();
+  }catch(e){aviso(e.message,'error');}
+}
+
+// ---- buscador de item + valor personalizado (overrides) ----
+let ULTIMO_ITEM=null;
+let _filtroTimer=null, _filtroSeq=0;
+// Filtro incremental por NOMBRE: a cada tecla pide al panel los items cuyo
+// nombre legible coincide (motor con acentos/palabras/relevancia en el backend)
+// y los muestra como lista clicable. Debounce corto para no saturar.
+function filtrarItems(){
+  const texto=$('buscarItem').value.trim();
+  $('buscarResultado').innerHTML='';
+  clearTimeout(_filtroTimer);
+  if(texto.length<1){$('buscarLista').innerHTML='';$('buscarMsg').innerHTML='';return;}
+  _filtroTimer=setTimeout(()=>ejecutarFiltro(texto),180);
+}
+async function ejecutarFiltro(texto){
+  const seq=++_filtroSeq;
+  $('buscarMsg').innerHTML='';
+  try{
+    const d=await api('/api/eco/buscar-items?q='+encodeURIComponent(texto));
+    if(seq!==_filtroSeq)return; // llego una respuesta vieja: la ignoramos
+    const res=d.resultados||[];
+    if(!res.length){
+      $('buscarLista').innerHTML='';
+      $('buscarMsg').innerHTML='<div class="msg info"><span>&#8505;</span><span>'+esc(d.mensaje||'Sin coincidencias.')+'</span></div>';
+      return;
+    }
+    const extra=(d.total_coincidencias||res.length)>res.length?(' <span class="suave">(mostrando '+res.length+' de '+d.total_coincidencias+')</span>'):'';
+    $('buscarLista').innerHTML='<div class="suave" style="font-size:12.5px;margin:4px 0 8px">'+res.length+' resultado'+(res.length>1?'s':'')+extra+'</div>'+
+      '<div class="ovwrap">'+res.map(it=>'<button class="ovchip" style="cursor:pointer;text-align:left" onclick="seleccionarItem(\''+esc(it.id).replace(/\x27/g,"\\x27")+'\')">'+
+        '<span><span class="oval">'+esc(it.nombre)+'</span><br><span class="oid mono">'+esc(it.id)+'</span></span>'+
+        '</button>').join('')+'</div>';
+  }catch(e){if(seq===_filtroSeq)$('buscarMsg').innerHTML='<div class="msg error"><span>&#9888;</span><span>'+esc(e.message)+'</span></div>';}
+}
+// Elegido un item de la lista: pide su valor actual y muestra el campo para fijar override.
+async function seleccionarItem(id){
+  $('buscarMsg').innerHTML='<div class="msg info"><span class="loader"></span><span>Consultando el valor de '+esc(id)+'...</span></div>';
+  $('buscarResultado').innerHTML='';
+  try{
+    const d=await api('/api/eco/item-valor?item='+encodeURIComponent(id));
+    ULTIMO_ITEM=d.item_id;
+    $('buscarMsg').innerHTML=d.nota?('<div class="msg info"><span>&#8505;</span><span>'+esc(d.nota)+'</span></div>'):'';
+    const valor=(d.valor_actual==null?'?':Number(d.valor_actual).toLocaleString('es'));
+    const origen=d.origen?(' <span class="suave">('+esc(d.origen)+')</span>'):'';
+    const fuente=d.en_vivo?'calculado en vivo por el mod':'leido de valores.json';
+    const yaTiene=(d.override_actual!=null)?('<div class="suave" style="margin-top:4px">Ya tiene valor personalizado: <b>'+Number(d.override_actual).toLocaleString('es')+'</b>. Guardar lo reemplaza.</div>'):'';
+    $('buscarResultado').innerHTML=
+      '<div class="card" style="background:rgba(255,255,255,.03);padding:12px;margin-top:10px">'+
+      '<div><span class="mono">'+esc(d.item_id)+'</span></div>'+
+      '<div style="margin:6px 0">Valor actual: <b>'+valor+'</b>'+origen+' <span class="suave">('+fuente+')</span></div>'+
+      yaTiene+
+      '<div class="fila" style="margin-top:8px">'+
+      '<label>Valor personalizado:</label>'+
+      '<input id="valorPersonalizado" type="number" min="0" max="100000000" step="1" value="'+(d.override_actual!=null?d.override_actual:(d.valor_actual!=null?d.valor_actual:''))+'" style="width:140px;text-align:right">'+
+      '<button class="btn p" onclick="guardarOverride()">&#128190; Asignar y aplicar</button>'+
+      '</div></div>';
+    $('buscarResultado').scrollIntoView({behavior:'smooth',block:'nearest'});
+    // Tambien preparar el control de CATALOGO DE COMPRA para este item.
+    pintarCatalogoSel(d.item_id);
+  }catch(e){$('buscarMsg').innerHTML='<div class="msg error"><span>&#9888;</span><span>'+esc(e.message)+'</span></div>';}
+}
+async function guardarOverride(){
+  if(!ULTIMO_ITEM){aviso('Busca primero un item.','error');return;}
+  const inp=$('valorPersonalizado');
+  const v=parseInt(inp.value,10);
+  if(isNaN(v)||v<0){aviso('Valor personalizado no valido.','error');return;}
+  if(!confirm('Fijar '+ULTIMO_ITEM+' = '+v+' creditos y aplicar en vivo?'))return;
+  try{
+    const r=await api('/api/eco/override',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({item_id:ULTIMO_ITEM,valor:v})});
+    aviso(r.mensaje||'Guardado.','ok');
+    cargarOverrides();
+  }catch(e){aviso(e.message,'error');}
+}
+async function cargarOverrides(){
+  try{
+    const d=await api('/api/eco/overrides');
+    $('overridesMsg').innerHTML=d.existe?'':'<div class="msg info"><span>&#8505;</span><span>'+esc(d.mensaje||'valores.json aun no existe.')+'</span></div>';
+    const ov=[...(d.overrides||[])].sort((a,b)=>String(a.item_id).localeCompare(String(b.item_id)));
+    if(!ov.length){$('tablaOverrides').innerHTML='<p class="suave">Aun no hay valores personalizados. Busca un item arriba y asignale uno.</p>';return;}
+    $('tablaOverrides').innerHTML='<div class="suave" style="font-size:12.5px;margin-bottom:10px">'+ov.length+' item'+(ov.length>1?'s':'')+' con valor fijo (manda sobre categoria y heuristica)</div>'+
+      '<div class="ovwrap">'+ov.map(o=>'<div class="ovchip">'+
+        '<span><span class="oid">'+esc(o.item_id)+'</span><br><span class="oval">'+Number(o.valor).toLocaleString('es')+' cr</span></span>'+
+        '<button class="oe" title="Editar" onclick="editarOverride(\''+esc(o.item_id)+'\')">Editar</button>'+
+        '<button class="ox" title="Eliminar" onclick="eliminarOverride(\''+esc(o.item_id)+'\')">&times;</button>'+
+        '</div>').join('')+'</div>';
+  }catch(e){$('tablaOverrides').innerHTML='<p class="suave">Error: '+esc(e.message)+'</p>';}
+}
+function editarOverride(id){
+  $('buscarItem').value=id;
+  $('buscarLista').innerHTML='';
+  seleccionarItem(id);
+  $('buscarItem').scrollIntoView({behavior:'smooth',block:'center'});
+}
+async function eliminarOverride(id){
+  if(!confirm('Eliminar el valor personalizado de '+id+'? Volvera a la valoracion normal.'))return;
+  try{
+    const r=await api('/api/eco/override',{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({item_id:id})});
+    aviso(r.mensaje||'Eliminado.','ok');
+    cargarOverrides();
+  }catch(e){aviso(e.message,'error');}
+}
+
+// ---- catalogo base de compra (/shop) ----
+let ITEM_CATALOGO=null;
+function pintarCatalogoSel(id){
+  ITEM_CATALOGO=id;
+  const existente=(CATALOGO||[]).find(c=>c.item_id===id);
+  const precioActual=(existente&&existente.precio>0)?existente.precio:'';
+  $('catalogoSel').innerHTML=
+    '<div class="card" style="background:rgba(255,255,255,.03);padding:12px">'+
+    '<div><span class="mono">'+esc(id)+'</span>'+(existente&&existente.precio>0?' <span class="chip verde">en venta a '+Number(existente.precio).toLocaleString('es')+'</span>':'')+'</div>'+
+    '<div class="fila" style="margin-top:8px">'+
+    '<label>Precio de compra:</label>'+
+    '<input id="catalogoPrecio" type="number" min="1" max="100000000" step="1" value="'+precioActual+'" style="width:140px;text-align:right" placeholder="creditos">'+
+    '<button class="btn p" onclick="guardarCatalogo()">&#128722; Poner en venta</button>'+
+    (existente?'<button class="btn" onclick="quitarCatalogo(\''+esc(id).replace(/\x27/g,"\\x27")+'\')">Quitar de la venta</button>':'')+
+    '</div></div>';
+}
+async function guardarCatalogo(){
+  if(!ITEM_CATALOGO){aviso('Busca y elige un item primero.','error');return;}
+  const v=parseInt($('catalogoPrecio').value,10);
+  if(isNaN(v)||v<=0){aviso('Precio de compra no valido (debe ser > 0).','error');return;}
+  if(!confirm('Poner '+ITEM_CATALOGO+' en venta a '+v+' creditos y aplicar en vivo?'))return;
+  try{
+    const r=await api('/api/eco/catalogo',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({item_id:ITEM_CATALOGO,precio:v})});
+    aviso(r.mensaje||'Guardado.','ok');
+    cargarCatalogo();
+  }catch(e){aviso(e.message,'error');}
+}
+async function quitarCatalogo(id){
+  if(!confirm('Quitar '+id+' del catalogo de compra (ya no se podra comprar en /shop)?'))return;
+  try{
+    const r=await api('/api/eco/catalogo',{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({item_id:id})});
+    aviso(r.mensaje||'Quitado.','ok');
+    cargarCatalogo();
+    if(ITEM_CATALOGO===id)pintarCatalogoSel(id);
+  }catch(e){aviso(e.message,'error');}
+}
+let CATALOGO=[];
+async function cargarCatalogo(){
+  try{
+    const d=await api('/api/eco/catalogo');
+    CATALOGO=d.catalogo||[];
+    $('catalogoMsg').innerHTML=d.existe?'':'<div class="msg info"><span>&#8505;</span><span>'+esc(d.mensaje||'valores.json aun no existe.')+'</span></div>';
+    const act=CATALOGO.filter(c=>Number(c.precio)>0).sort((a,b)=>String(a.item_id).localeCompare(String(b.item_id)));
+    const qui=CATALOGO.filter(c=>Number(c.precio)<=0).sort((a,b)=>String(a.item_id).localeCompare(String(b.item_id)));
+    let html='';
+    if(act.length){
+      html+='<div class="suave" style="font-size:12.5px;margin-bottom:8px">'+act.length+' item'+(act.length>1?'s':'')+' en venta (ajuste del admin)</div>'+
+        '<div class="ovwrap">'+act.map(c=>'<div class="ovchip">'+
+          '<span><span class="oid">'+esc(c.item_id)+'</span><br><span class="oval">'+Number(c.precio).toLocaleString('es')+' cr</span></span>'+
+          '<button class="oe" title="Editar" onclick="editarCatalogo(\''+esc(c.item_id).replace(/\x27/g,"\\x27")+'\')">Editar</button>'+
+          '<button class="ox" title="Quitar de la venta" onclick="quitarCatalogo(\''+esc(c.item_id).replace(/\x27/g,"\\x27")+'\')">&times;</button>'+
+          '</div>').join('')+'</div>';
+    }
+    if(qui.length){
+      html+='<div class="suave" style="font-size:12.5px;margin:12px 0 8px">'+qui.length+' item'+(qui.length>1?'s':'')+' DESACTIVADO del catalogo del mod</div>'+
+        '<div class="ovwrap">'+qui.map(c=>'<div class="ovchip">'+
+          '<span><span class="oid">'+esc(c.item_id)+'</span><br><span class="oval" style="color:var(--amar)">quitado de la venta</span></span>'+
+          '<button class="oe" title="Volver a poner en venta" onclick="editarCatalogo(\''+esc(c.item_id).replace(/\x27/g,"\\x27")+'\')">Reactivar</button>'+
+          '</div>').join('')+'</div>';
+    }
+    $('tablaCatalogo').innerHTML=html||'<p class="suave">Sin ajustes de catalogo. El mod usa su catalogo por defecto. Busca un item arriba para anadirlo o cambiar su precio.</p>';
+  }catch(e){$('tablaCatalogo').innerHTML='<p class="suave">Error: '+esc(e.message)+'</p>';}
+}
+function editarCatalogo(id){
+  $('buscarItem').value=id;
+  $('buscarLista').innerHTML='';
+  seleccionarItem(id);
+  $('catalogoSel').scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+// ============ DATAPACKS ============
+document.querySelectorAll('#dpSubtabs .subtab').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('#dpSubtabs .subtab').forEach(x=>x.classList.toggle('activo',x===b));
+  document.querySelectorAll('#tab-datapacks .subpanel').forEach(p=>p.hidden=p.id!=='dpsub-'+b.dataset.sub);
+  if(b.dataset.sub==='vida')cargarVida();
+  if(b.dataset.sub==='programador')cargarProgramador();
+});
+async function cargarDatapacks(){cargarListaDatapacks();cargarVida();cargarProgramador();}
+async function cargarListaDatapacks(){
+  try{
+    const d=await api('/api/datapacks');
+    if(!d.ok){$('dpLista').innerHTML='<p class="suave">'+esc(d.mensaje||'No se pudo leer.')+'</p>';return;}
+    if(!d.datapacks.length){$('dpLista').innerHTML='<p class="suave">No hay datapacks en world/datapacks/.</p>';return;}
+    $('dpLista').innerHTML='<table><thead><tr><th>Datapack</th><th>Tipo</th><th></th></tr></thead><tbody>'+
+      d.datapacks.map(p=>'<tr><td><b>'+esc(p.base)+'</b> <span class="mono" style="font-size:11px">'+esc(p.nombre)+'</span></td>'+
+      '<td><span class="chip gris">'+esc(p.tipo)+'</span></td>'+
+      '<td style="text-align:right">'+(p.gestionable?'<span class="chip mora">gestionado por el panel</span>':(p.es_vida?'<span class="chip azul">vida de jefes</span>':''))+'</td></tr>').join('')+
+      '</tbody></table>';
+  }catch(e){$('dpLista').innerHTML='<p class="suave">Error: '+esc(e.message)+'</p>';}
+}
+
+// ---- vida de mobs ----
+let VIDA_SEL=null, _vidaTimer=null, _vidaSeq=0;
+function filtrarMobsVida(){
+  const texto=$('vidaBuscar').value.trim();
+  clearTimeout(_vidaTimer);
+  if(texto.length<1){$('vidaBuscarLista').innerHTML='';$('vidaBuscarMsg').innerHTML='';return;}
+  _vidaTimer=setTimeout(()=>ejecutarFiltroMob(texto),180);
+}
+async function ejecutarFiltroMob(texto){
+  const seq=++_vidaSeq;
+  try{
+    const d=await api('/api/entidades/buscar?q='+encodeURIComponent(texto));
+    if(seq!==_vidaSeq)return;
+    const res=d.resultados||[];
+    if(!res.length){$('vidaBuscarLista').innerHTML='';$('vidaBuscarMsg').innerHTML='<div class="msg info"><span>&#8505;</span><span>'+esc(d.mensaje||'Sin coincidencias.')+'</span></div>';return;}
+    $('vidaBuscarMsg').innerHTML='';
+    $('vidaBuscarLista').innerHTML='<div class="ovwrap">'+res.map(it=>'<button class="ovchip" style="cursor:pointer;text-align:left" onclick="elegirMobVida(\''+esc(it.id)+'\',\''+esc(it.nombre).replace(/\x27/g,"\\x27")+'\')">'+
+      '<span><span class="oval">'+esc(it.nombre)+'</span>'+(it.jefe?' <span class="chip amar" style="font-size:10px">jefe</span>':'')+'<br><span class="oid mono">'+esc(it.id)+'</span></span></button>').join('')+'</div>';
+  }catch(e){if(seq===_vidaSeq)$('vidaBuscarMsg').innerHTML='<div class="msg error"><span>&#9888;</span><span>'+esc(e.message)+'</span></div>';}
+}
+function elegirMobVida(id,nombre){
+  VIDA_SEL={id,nombre};
+  const mult=$('vidaMult').value||'2';
+  $('vidaSel').innerHTML='Seleccionado: <b>'+esc(nombre)+'</b> <span class="mono">'+esc(id)+'</span> &rarr; vida x'+esc(mult)+' '+
+    '<button class="btn p sm" onclick="agregarVida()">&#128190; Agregar y aplicar</button>';
+}
+async function agregarVida(){
+  if(!VIDA_SEL){aviso('Elige un mob primero.','error');return;}
+  const mult=parseFloat($('vidaMult').value);
+  if(isNaN(mult)||mult<1){aviso('Multiplicador no valido.','error');return;}
+  if(!confirm('Agregar '+VIDA_SEL.nombre+' (x'+mult+' vida) y aplicar con /reload?'))return;
+  try{
+    const r=await api('/api/datapacks/vida',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({item_id:VIDA_SEL.id,nombre:VIDA_SEL.nombre,mult})});
+    aviso(r.mensaje||'Agregado.','ok');
+    $('vidaBuscar').value='';$('vidaBuscarLista').innerHTML='';$('vidaSel').innerHTML='';VIDA_SEL=null;
+    cargarVida();
+  }catch(e){aviso(e.message,'error');}
+}
+async function cargarVida(){
+  try{
+    const d=await api('/api/datapacks/vida');
+    const mobs=d.mobs||[];
+    $('vidaMsg').innerHTML='<div class="suave" style="font-size:12.5px;margin-bottom:8px">'+esc(d.nota_original||'')+'</div>';
+    if(!mobs.length){$('vidaTabla').innerHTML='<p class="suave">Aun no agregaste mobs extra. Busca uno arriba.</p>';return;}
+    $('vidaTabla').innerHTML='<table><thead><tr><th>Mob</th><th>Id</th><th>Vida</th><th></th></tr></thead><tbody>'+
+      mobs.map(m=>'<tr><td><b>'+esc(m.nombre)+'</b></td><td class="mono">'+esc(m.id)+'</td>'+
+      '<td><span class="chip verde">x'+esc(m.mult)+'</span></td>'+
+      '<td style="text-align:right"><button class="btn r sm" onclick="quitarVida(\''+esc(m.id)+'\')">Quitar</button></td></tr>').join('')+
+      '</tbody></table>';
+  }catch(e){$('vidaTabla').innerHTML='<p class="suave">Error: '+esc(e.message)+'</p>';}
+}
+async function quitarVida(id){
+  if(!confirm('Quitar '+id+' del ajuste de vida y recargar?'))return;
+  try{const r=await api('/api/datapacks/vida',{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({item_id:id})});
+    aviso(r.mensaje||'Quitado.','ok');cargarVida();
+  }catch(e){aviso(e.message,'error');}
+}
+
+// ---- programador de comandos ----
+async function programarCmd(){
+  const comando=$('progCmd').value.trim();
+  const segundos=parseInt($('progSeg').value,10);
+  const modo=$('progModo').value;
+  if(!comando){aviso('Escribe un comando.','error');return;}
+  if(isNaN(segundos)||segundos<1){aviso('Segundos no validos.','error');return;}
+  const txt=modo==='repetir'?('repetir cada '+segundos+' s'):('una vez en '+segundos+' s');
+  if(!confirm('Programar "'+comando+'" para '+txt+'?'))return;
+  const btn=$('btnProg');btn.disabled=true;btn.innerHTML='<span class="loader"></span> Programando...';
+  try{
+    const r=await api('/api/datapacks/programador',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({comando,segundos,modo})});
+    $('progMsg').innerHTML='<div class="msg '+(r.ok?'ok':'error')+'"><span>'+(r.ok?'&#9989;':'&#9888;')+'</span><span>'+esc(r.mensaje)+'</span></div>';
+    if(r.ok){$('progCmd').value='';cargarProgramador();}
+  }catch(e){$('progMsg').innerHTML='<div class="msg error"><span>&#9888;</span><span>'+esc(e.message)+'</span></div>';}
+  finally{btn.disabled=false;btn.innerHTML='&#9201; Programar';}
+}
+async function cargarProgramador(){
+  try{
+    const d=await api('/api/datapacks/programador');
+    const t=d.tareas||[];
+    if(!t.length){$('progTabla').innerHTML='<p class="suave">No hay tareas programadas.</p>';return;}
+    $('progTabla').innerHTML='<table><thead><tr><th>Comando</th><th>Cada / en</th><th>Modo</th><th>Creada</th><th></th></tr></thead><tbody>'+
+      t.map(x=>'<tr><td class="mono">'+esc(x.comando)+'</td><td>'+esc(x.segundos)+' s <span class="suave">('+esc(x.ticks)+'t)</span></td>'+
+      '<td>'+(x.modo==='repetir'?'<span class="chip azul">repite</span>':'<span class="chip gris">una vez</span>')+'</td>'+
+      '<td class="suave">'+esc(x.creada||'')+'</td>'+
+      '<td style="text-align:right"><button class="btn r sm" onclick="cancelarTarea(\''+esc(x.id)+'\')">Cancelar</button></td></tr>').join('')+
+      '</tbody></table>';
+  }catch(e){$('progTabla').innerHTML='<p class="suave">Error: '+esc(e.message)+'</p>';}
+}
+async function cancelarTarea(id){
+  if(!confirm('Cancelar esta tarea programada?'))return;
+  try{const r=await api('/api/datapacks/programador',{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({id})});
+    aviso(r.mensaje||'Cancelada.','ok');cargarProgramador();
+  }catch(e){aviso(e.message,'error');}
+}
+
+// ============ JEFES / SPAWNS ============
+let JEFE_SEL=null, _jefeTimer=null, _jefeSeq=0;
+async function cargarJefes(){
+  await poblarJugadoresJefe();
+  await poblarDimensionesJefe();
+  filtrarJefes(true);
+  sincronizarTarea('spawn',SPAWN_CFG); // re-engancha si hay un spawn en curso
+}
+async function poblarDimensionesJefe(){
+  const sel=$('jefeDim');if(!sel)return;const prev=sel.value;
+  try{
+    const d=await api('/api/datapacks/dimensiones');
+    const dims=(d&&d.dimensiones)||[];
+    if(dims.length)sel.innerHTML=dims.map(x=>'<option value="'+esc(x.clave)+'">'+esc(x.nombre)+'</option>').join('');
+    if(prev)sel.value=prev;
+  }catch(e){}
+}
+async function poblarJugadoresJefe(){
+  const sel=$('jefeJugador');if(!sel)return;const prev=sel.value;
+  const nombres=new Set();
+  try{const est=await api('/api/estado');((est.servidor&&est.servidor.players&&est.servidor.players.list)||[]).forEach(n=>nombres.add(n));}catch(e){}
+  const orden=[...nombres].sort((a,b)=>a.toLowerCase().localeCompare(b.toLowerCase()));
+  sel.innerHTML='<option value="">(elige un jugador)</option>'+orden.map(n=>'<option value="'+esc(n)+'">'+esc(n)+'</option>').join('');
+  if(prev&&orden.includes(prev))sel.value=prev;
+}
+function filtrarJefes(inmediato){
+  const texto=$('jefeBuscar').value.trim();
+  clearTimeout(_jefeTimer);
+  _jefeTimer=setTimeout(()=>ejecutarFiltroJefe(texto),inmediato?0:180);
+}
+async function ejecutarFiltroJefe(texto){
+  const seq=++_jefeSeq;
+  const solo=$('jefeSoloJefes').checked?'&jefes=1':'';
+  try{
+    const d=await api('/api/entidades/buscar?q='+encodeURIComponent(texto)+solo);
+    if(seq!==_jefeSeq)return;
+    const res=d.resultados||[];
+    if(!res.length){$('jefeBuscarLista').innerHTML='';$('jefeBuscarMsg').innerHTML='<div class="msg info"><span>&#8505;</span><span>'+esc(d.mensaje||'Sin coincidencias. Prueba a desmarcar "Solo jefes conocidos".')+'</span></div>';return;}
+    $('jefeBuscarMsg').innerHTML='<div class="suave" style="font-size:12.5px;margin:4px 0 8px">'+res.length+' resultado'+(res.length>1?'s':'')+'</div>';
+    $('jefeBuscarLista').innerHTML='<div class="ovwrap">'+res.map(it=>'<button class="ovchip" style="cursor:pointer;text-align:left" onclick="elegirJefe(\''+esc(it.id)+'\',\''+esc(it.nombre).replace(/\x27/g,"\\x27")+'\')">'+
+      '<span><span class="oval">'+esc(it.nombre)+'</span>'+(it.jefe?' <span class="chip amar" style="font-size:10px">jefe</span>':'')+'<br><span class="oid mono">'+esc(it.id)+'</span></span></button>').join('')+'</div>';
+  }catch(e){if(seq===_jefeSeq)$('jefeBuscarMsg').innerHTML='<div class="msg error"><span>&#9888;</span><span>'+esc(e.message)+'</span></div>';}
+}
+function elegirJefe(id,nombre){
+  JEFE_SEL={id,nombre};
+  $('jefeAccionBox').hidden=false;
+  $('jefeSelNombre').textContent=nombre;
+  $('jefeSelId').textContent=id;
+  if($('jefeNivel'))$('jefeNivel').value='1';
+  jefeNivelInfo();
+  poblarJugadoresJefe();
+  jefeDestino();
+  $('jefeAccionBox').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function jefeNivel(){const v=parseInt(($('jefeNivel')||{}).value,10);return (isNaN(v)||v<1||v>5)?1:v;}
+function jefeNivelInfo(){
+  const n=jefeNivel();
+  const vida=(1+(n-1)*0.75), dano=(1+(n-1)*0.40);
+  const f=x=>(Math.round(x*100)/100).toString();
+  $('jefeNivelInfo').textContent=n===1?'Stats normales (sin cambios).':('Vida x'+f(vida)+', dano x'+f(dano)+'.');
+}
+function jefeDestino(){
+  const tipo=document.querySelector('input[name=jefeDest]:checked').value;
+  const coords=tipo==='coords', arena=tipo==='arena';
+  ['jefeX','jefeY','jefeZ'].forEach(k=>$(k).disabled=!coords);
+  $('jefeJugador').disabled=tipo!=='jugador';
+  if($('jefeDim'))$('jefeDim').disabled=!arena;
+  if($('jefePlataforma'))$('jefePlataforma').disabled=!arena;
+}
+function _destinoJefe(){
+  const tipo=document.querySelector('input[name=jefeDest]:checked').value;
+  if(tipo==='arena'){return{tipo:'arena',dimension:($('jefeDim')||{}).value||'auto',plataforma:($('jefePlataforma')?!!$('jefePlataforma').checked:true)};}
+  if(tipo==='jugador'){const j=$('jefeJugador').value;if(!j)throw new Error('Elige un jugador conectado.');return{tipo:'jugador',jugador:j};}
+  const x=$('jefeX').value,y=$('jefeY').value,z=$('jefeZ').value;
+  if(x===''||y===''||z==='')throw new Error('Escribe las coordenadas X Y Z.');
+  return{tipo:'coords',x:+x,y:+y,z:+z};
+}
+async function spawnJefe(programado){
+  if(!JEFE_SEL){aviso('Elige un jefe primero.','error');return;}
+  let destino;try{destino=_destinoJefe();}catch(e){aviso(e.message,'error');return;}
+  const nivel=jefeNivel();
+  const etiqueta=JEFE_SEL.nombre+' [Nv '+nivel+']';
+  const dimTxt=destino.tipo==='arena'?(' en '+(($('jefeDim')&&$('jefeDim').selectedOptions[0])?$('jefeDim').selectedOptions[0].textContent:'la dimension del jefe')+(destino.plataforma?', con plataforma/arena (muro)':', SIN plataforma')+'; se anunciara a todos'):'';
+  try{
+    if(programado){
+      const seg=parseInt($('jefeSeg').value,10);
+      if(isNaN(seg)||seg<1){aviso('Segundos no validos.','error');return;}
+      if(!confirm('Spawn de '+etiqueta+' programado en '+seg+' segundos'+dimTxt+'?'))return;
+      const r=await api('/api/datapacks/spawn-programado',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({entidad:JEFE_SEL.id,nombre:JEFE_SEL.nombre,nivel,destino,segundos:seg})});
+      $('jefeMsg').innerHTML='<div class="msg '+(r.ok?'ok':'error')+'"><span>'+(r.ok?'&#9989;':'&#9888;')+'</span><span>'+esc(r.mensaje)+'</span></div>';
+    }else{
+      if(!confirm('Spawn de '+etiqueta+' AHORA'+dimTxt+'?'))return;
+      // Spawn inmediato = tarea en segundo plano: el backend responde al
+      // instante, el boton se bloquea y la barra sigue el progreso.
+      const r=await api('/api/datapacks/spawn',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({entidad:JEFE_SEL.id,nombre:JEFE_SEL.nombre,nivel,destino})});
+      if(r.ocupado){
+        $('jefeMsg').innerHTML='<div class="msg info"><span>&#8505;</span><span>'+esc(r.mensaje)+'</span></div>';
+      }else{
+        $('jefeMsg').innerHTML='';
+      }
+      vigilarTarea('spawn',SPAWN_CFG);
+    }
+  }catch(e){$('jefeMsg').innerHTML='<div class="msg error"><span>&#9888;</span><span>'+esc(e.message)+'</span></div>';}
+}
+const SPAWN_CFG={boxId:'jefeProg',botones:['btnSpawnYa'],etiqueta:'Spawn de jefe',onFin:(s)=>{aviso(s.mensaje,s.resultado==='error'?'error':'ok');}};
+
+// ---- consola ----
+async function enviarCmd(t){const c=(t??$('cmd').value).trim();if(!c)return;$('salCmd').innerHTML='<span class="loader"></span> Ejecutando...';try{const r=await api('/api/comando',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({comando:c})});$('salCmd').textContent='> '+r.enviado+'\n\n'+(r.salida.join('\n')||'(sin respuesta en el log)');}catch(e){$('salCmd').textContent='Error: '+e.message;}}
+function rapido(p){enviarCmd(p.replaceAll('{J}',$('jugR').value.trim()));}
+// Comandos predeterminados con confirmacion (para los de mayor impacto).
+function confirmarCmd(pregunta,cmd){if(confirm(pregunta))enviarCmd(cmd);}
+
+// ---- archivos ----
+async function listar(){const ruta=($('ruta').value||'').trim().replace(/^\/+|\/+$/g,'');try{const d=await api('/api/archivos?ruta='+encodeURIComponent(ruta));if(!d.isDirectory)return abrirArchivo(ruta);const h=(d.children||[]).sort((a,b)=>(b.isDirectory-a.isDirectory)||a.name.localeCompare(b.name));$('listaArch').innerHTML='<table><tbody>'+h.map(x=>{const r=(ruta?ruta+'/':'')+x.name;return '<tr><td><a style="color:var(--txt);cursor:pointer;text-decoration:none" onclick="'+(x.isDirectory?'entrar':'abrirArchivo')+'(\''+esc(r).replace(/\x27/g,"\\x27")+'\')">'+(x.isDirectory?'&#128193; ':'&#128196; ')+esc(x.name)+'</a></td><td class="suave">'+(x.isDirectory?'':x.size+' B')+'</td></tr>';}).join('')+'</tbody></table>';}catch(e){aviso(e.message,'error');}}
+function entrar(r){$('ruta').value=r;listar();}
+function subirNivel(){const p=($('ruta').value||'').replace(/\/+$/,'').split('/');p.pop();$('ruta').value=p.join('/');listar();}
+async function abrirArchivo(r){try{const d=await api('/api/archivo?ruta='+encodeURIComponent(r));if(d.binario)return aviso('Archivo binario ('+d.tamano+' B). Puedes reemplazarlo subiendo otro.','info');$('editorBox').hidden=false;$('editorNom').textContent=r;$('editor').value=d.texto;$('editorBox').scrollIntoView({behavior:'smooth'});}catch(e){aviso(e.message,'error');}}
+async function guardarArchivo(){const r=$('editorNom').textContent;if(!confirm('Guardar en el servidor: '+r+'?'))return;try{await api('/api/archivo?ruta='+encodeURIComponent(r),{method:'PUT',body:new TextEncoder().encode($('editor').value)});aviso('Guardado: '+r,'ok');}catch(e){aviso(e.message,'error');}}
+async function subirArchivo(){const f=$('archLocal').files[0];if(!f)return aviso('Elige un archivo.','error');const carp=($('ruta').value||'').trim().replace(/^\/+|\/+$/g,'');const dest=(carp?carp+'/':'')+f.name;if(!confirm('Subir '+f.name+' a '+dest+'?'))return;try{await api('/api/archivo?ruta='+encodeURIComponent(dest),{method:'PUT',body:await f.arrayBuffer()});aviso('Subido: '+dest,'ok');listar();}catch(e){aviso(e.message,'error');}}
+
+// ---- logs ----
+async function cargarLogs(){try{const d=await api('/api/logs?tipo='+$('tipoLog').value+'&fecha='+($('fechaLog').value||'')+'&filtro='+encodeURIComponent($('filtroLog').value)+'&n=800');const s=$('fechaLog'),pr=s.value;s.innerHTML=d.fechas.map(x=>'<option>'+x+'</option>').join('');s.value=pr&&d.fechas.includes(pr)?pr:d.fecha;$('salLog').textContent=d.lineas.join('\n')||'(sin lineas)';$('salLog').scrollTop=$('salLog').scrollHeight;}catch(e){aviso(e.message,'error');}}
+setInterval(()=>{if($('autoLog').checked&&!$('tab-logs').hidden)cargarLogs();},5000);
+
+// ---- ajustes ----
+async function cargarCfg(){const d=await api('/api/estado');const c=d.config;$('cfgInt').value=c.intervalo_seg;$('cfgMin').value=c.minutos_retencion;$('cfgCop').value=c.copias_por_jugador;$('cfgSil').checked=c.modo_silencioso;$('cfgCam').checked=c.solo_si_cambia;}
+async function guardarCfg(){try{await api('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({intervalo_seg:+$('cfgInt').value,minutos_retencion:+$('cfgMin').value,copias_por_jugador:+$('cfgCop').value,modo_silencioso:$('cfgSil').checked,solo_si_cambia:$('cfgCam').checked})});aviso('Ajustes guardados.','ok');refrescar();}catch(e){aviso(e.message,'error');}}
+
+cargarSesion();refrescar();setInterval(refrescar,8000);
+// Al cargar, re-enganchar barras de tareas que pudieran estar en curso.
+sincronizarTarea('captura',CAP_CFG);
+sincronizarTarea('espejo',ESP_CFG);
+</script>
+</body>
+</html>

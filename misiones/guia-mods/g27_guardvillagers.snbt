@@ -1,0 +1,77 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "g27_guardvillagers"
+	group: "1000000000000002"
+	icon: "minecraft:iron_sword"
+	id: "700000000000001B"
+	order_index: 26
+	quests: [
+		{
+			description: [
+				"Anade &6Guardias&r que defienden la aldea de zombis y"
+				"raids."
+			]
+			icon: "minecraft:iron_sword"
+			id: "91B0000000000000"
+			size: 1.5d
+			subtitle: "Aldeas protegidas"
+			tasks: [{ id: "A1B0000000000000", title: "Empezar", type: "checkmark" }]
+			title: "&6&lGUARD VILLAGERS"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["91B0000000000000"]
+			description: [
+				"&6PASO 1."
+				"Dale una &eespada o armadura&r a un aldeano desempleado"
+				"(o usa el bloque de contratacion segun version)."
+				""
+				"&aDesbloquea:&r patrullas."
+			]
+			icon: "minecraft:iron_sword"
+			id: "91B0000000000001"
+			subtitle: "Arma a un aldeano"
+			tasks: [{ id: "A1B0000000000001", title: "Entendido", type: "checkmark" }]
+			title: "&61. Crea un guardia"
+			x: 2.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["91B0000000000001"]
+			description: [
+				"&6PASO 2."
+				"Los guardias patrullan y pelean contra zombis y raids."
+				"Dales buena armadura para que aguanten."
+				""
+				"&aDesbloquea:&r proteger tu granja."
+			]
+			icon: "minecraft:shield"
+			id: "91B0000000000002"
+			subtitle: "Defienden la aldea"
+			tasks: [{ id: "A1B0000000000002", title: "Entendido", type: "checkmark" }]
+			title: "&62. Patrullan y pelean"
+			x: 4.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["91B0000000000002"]
+			description: [
+				"&6PASO 3 (FINAL)."
+				"Mantener guardias vivos conserva tu economia de aldeanos"
+				"(tratos baratos) y tu granja de aldeanos."
+				""
+				"&6Ya dominas Guard Villagers.&r"
+			]
+			icon: "minecraft:emerald"
+			id: "91B0000000000003"
+			subtitle: "Aldeanos vivos"
+			tasks: [{ id: "A1B0000000000003", title: "Entendido", type: "checkmark" }]
+			title: "&63. Protege tu economia"
+			x: 6.0d
+			y: 0.0d
+		}
+	]
+	title: "&627. Guard Villagers"
+}

@@ -1,0 +1,11 @@
+{
+	// Un solo kit, asi que no hace falta aleatorizar ni elegir.
+	"randomizeMultipleKitsToggle": true,
+	// Conserva los objetos que otros mods dan al entrar (libros de guia, etc.)
+	"addExistingItemsAfterKitSet": true,
+	"usePotionEffectsInStarterKit": false,
+	"formatKitNames": true,
+	"chooseKitText": "%s, puedes elegir un kit inicial.",
+	"announcePlayerKitChoiceInDedicatedServer": false,
+	"enableFTBIslandCreateCompatibility": true
+}

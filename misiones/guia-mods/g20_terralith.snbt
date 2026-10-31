@@ -1,0 +1,79 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "g20_terralith"
+	group: "1000000000000002"
+	icon: "minecraft:grass_block"
+	id: "7000000000000014"
+	order_index: 19
+	quests: [
+		{
+			description: [
+				"Rehace la generacion del mundo con biomas espectaculares,"
+				"cuevas y paisajes nuevos."
+			]
+			icon: "minecraft:grass_block"
+			id: "9140000000000000"
+			size: 1.5d
+			subtitle: "Mundo mas bonito"
+			tasks: [{ id: "A140000000000000", title: "Empezar", type: "checkmark" }]
+			title: "&a&lTERRALITH"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9140000000000000"]
+			description: [
+				"&6PASO 1."
+				"No tienes que hacer nada: el mundo ya se genera con estos"
+				"biomas (montanas enormes, cuevas de cristal, valles de"
+				"lava, desiertos rojos...)."
+				""
+				"&aDesbloquea:&r buscar biomas raros."
+			]
+			icon: "minecraft:jungle_sapling"
+			id: "9140000000000001"
+			subtitle: "Nada que craftear"
+			tasks: [{ id: "A140000000000001", title: "Entendido", type: "checkmark" }]
+			title: "&a1. Ya esta activo"
+			x: 2.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9140000000000001"]
+			description: [
+				"&6PASO 2."
+				"Explora para encontrar los biomas raros: dan bloques y"
+				"vistas unicas para construir."
+				""
+				"&aDesbloquea:&r materiales de decoracion."
+			]
+			icon: "minecraft:amethyst_cluster"
+			id: "9140000000000002"
+			subtitle: "Vistas unicas"
+			tasks: [{ id: "A140000000000002", title: "Entendido", type: "checkmark" }]
+			title: "&a2. Biomas raros"
+			x: 4.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["9140000000000002"]
+			description: [
+				"&6PASO 3 (FINAL)."
+				"Busca los biomas de Terralith para madera y flores"
+				"exclusivas de decoracion. Combina con Structory y"
+				"Explorify para ruinas pequenas extra."
+				""
+				"&6Ya conoces Terralith.&r"
+			]
+			icon: "minecraft:flowering_azalea"
+			id: "9140000000000003"
+			subtitle: "Madera y flores"
+			tasks: [{ id: "A140000000000003", title: "Entendido", type: "checkmark" }]
+			title: "&a3. Deco exclusiva"
+			x: 6.0d
+			y: 0.0d
+		}
+	]
+	title: "&a20. Terralith"
+}
