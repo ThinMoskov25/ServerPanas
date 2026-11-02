@@ -1,0 +1,26 @@
+# Despliegue del panel SERVER PANAS en Render (plan gratuito).
+# Render lee este archivo al usar "New > Blueprint" o el boton del README.
+services:
+  - type: web
+    name: serverpanas-panel
+    runtime: python
+    plan: free
+    rootDir: panel
+    buildCommand: python -c "print('Sin dependencias: solo biblioteca estandar')"
+    startCommand: python -u app.py
+    healthCheckPath: /salud
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: PANEL_HOST
+        value: 0.0.0.0
+      # Usuarios y roles se guardan en el servidor de exaroton (Render borra el disco)
+      - key: PANEL_ALMACEN
+        value: exaroton
+      # Secretos: Render los pide al desplegar (no estan en el repositorio)
+      - key: EXAROTON_TOKEN
+        sync: false
+      - key: EXAROTON_SERVER_ID
+        sync: false
+      # La URL publica (https://<nombre>.onrender.com) la pone Render en RENDER_EXTERNAL_URL

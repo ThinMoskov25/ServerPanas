@@ -118,6 +118,20 @@ El rol define forma, tamaño y color, así que todos los capítulos tienen el mi
 
 ---
 
+### Panel 24/7 en Render (sin depender de tu PC)
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/ThinMoskov25/ServerPanas)
+
+1. Pulsa el botón e inicia sesión en Render con tu cuenta de GitHub (plan gratuito, sin tarjeta).
+2. Render lee `render.yaml` y te pide dos valores:
+   - `EXAROTON_TOKEN`: tu API token de exaroton (exaroton.com → *Account* → *API*).
+   - `EXAROTON_SERVER_ID`: el ID de tu servidor (aparece en la URL del servidor en exaroton).
+3. Pulsa **Apply**. En 2-3 minutos el panel queda en `https://serverpanas-panel.onrender.com` (o el nombre que Render asigne).
+
+Usuarios y roles son los mismos que en el PC: el panel en la nube los guarda en tu servidor de exaroton (`serverpanas-panel/usuarios.json`), porque Render borra el disco al reiniciar. En el plan gratuito el panel se duerme tras 15 minutos sin uso y tarda unos 50 segundos en despertar al abrir el enlace. Las copias de inventario automáticas solo se hacen mientras está despierto.
+
+Cuando funcione en Render, desactiva el panel del PC (tarea `ServerPanas-Panel`) para no duplicar las copias de inventario.
+
 ### Dar acceso al panel a un compañero
 
 Todo se hace desde el panel, en la pestaña **Acceso y usuarios** (solo administradores):

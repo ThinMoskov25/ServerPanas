@@ -42,8 +42,36 @@ _candado = threading.Lock()
 _sesiones = {}   # token -> {'usuario', 'rol', 'expira'}
 _fallos = {}     # ip -> [num_fallos, bloqueado_hasta]
 
+# Donde viven los usuarios:
+#  - 'archivo' (por defecto, en el PC): datos/usuarios.json
+#  - 'exaroton' (en la nube): un archivo en el propio servidor de exaroton, porque
+#    plataformas como Render borran el disco al reiniciar. Se lee con cache corta.
+ALMACEN = os.environ.get('PANEL_ALMACEN', 'archivo')
+REMOTO_USUARIOS = os.environ.get('PANEL_USUARIOS_REMOTO', 'serverpanas-panel/usuarios.json')
+_exa = None
+_cache = {'usuarios': None, 'ts': 0.0}
+
+
+def configurar_almacen(cliente_exaroton):
+    """El panel pasa aqui su cliente de exaroton (necesario si ALMACEN == 'exaroton')."""
+    global _exa
+    _exa = cliente_exaroton
+
 
 def _cargar():
+    if ALMACEN == 'exaroton':
+        with _candado:
+            if _cache['usuarios'] is None or time.time() - _cache['ts'] > 30:
+                try:
+                    crudo = _exa.leer_archivo(REMOTO_USUARIOS)
+                    _cache['usuarios'] = json.loads(crudo.decode('utf-8')).get('usuarios', {})
+                except Exception:
+                    # Si no se puede leer, se conserva lo ultimo conocido. Sin usuarios el
+                    # panel rechaza todo lo que llega de Internet, asi que nunca queda abierto.
+                    if _cache['usuarios'] is None:
+                        _cache['usuarios'] = {}
+                _cache['ts'] = time.time()
+            return json.loads(json.dumps(_cache['usuarios']))
     try:
         with open(ARCH_USUARIOS, 'r', encoding='utf-8') as f:
             return json.load(f).get('usuarios', {})
@@ -52,6 +80,11 @@ def _cargar():
 
 
 def _guardar(usuarios):
+    if ALMACEN == 'exaroton':
+        _exa.escribir_archivo(REMOTO_USUARIOS, json.dumps({'usuarios': usuarios}, indent=2).encode('utf-8'))
+        with _candado:
+            _cache.update(usuarios=json.loads(json.dumps(usuarios)), ts=time.time())
+        return
     os.makedirs(os.path.dirname(ARCH_USUARIOS), exist_ok=True)
     tmp = ARCH_USUARIOS + '.tmp'
     with open(tmp, 'w', encoding='utf-8') as f:

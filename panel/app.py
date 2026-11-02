@@ -83,7 +83,8 @@ def registrar_error(msg):
 
 CONFIG = cargar_config()
 EXA = exaroton.Exaroton()
-ESTADO_PANEL = {'ultima_captura': None, 'ultimo_resultado': None, 'ultimo_error': None, 'silencio_aplicado': None}
+auth.configurar_almacen(EXA)  # en la nube los usuarios se guardan en el servidor de exaroton
+ESTADO_PANEL ={'ultima_captura': None, 'ultimo_resultado': None, 'ultimo_error': None, 'silencio_aplicado': None}
 
 
 # ====================== Tareas en segundo plano (generico) ======================
@@ -2069,9 +2070,11 @@ def _url_ngrok_viva():
 
 
 def tunel_info():
-    # En la nube el enlace publico lo fija el servicio (ngrok con dominio fijo)
-    if os.environ.get('PANEL_URL_PUBLICA'):
-        url = os.environ['PANEL_URL_PUBLICA'].rstrip('/')
+    # En la nube el enlace publico lo fija el servicio (ngrok con dominio fijo, o
+    # la URL que Render pone sola en RENDER_EXTERNAL_URL)
+    publica = os.environ.get('PANEL_URL_PUBLICA') or os.environ.get('RENDER_EXTERNAL_URL')
+    if publica:
+        url = publica.rstrip('/')
         return {'tipo': 'nube', 'fijo': True, 'dominio': urllib.parse.urlparse(url).hostname, 'url': url}
     try:
         with open(ARCH_TUNEL, 'r', encoding='utf-8-sig') as f:
@@ -2252,6 +2255,9 @@ class Manejador(BaseHTTPRequestHandler):
         return True
 
     def _despachar(self, metodo):
+        # Comprobacion de salud de la plataforma (no revela nada ni exige sesion)
+        if metodo == 'GET' and self.path == '/salud':
+            return self._json({'ok': True})
         if not self._peticion_permitida(metodo):
             return self._json({'error': 'Peticion rechazada: solo se acepta desde el propio panel.'}, 403)
         url = urllib.parse.urlparse(self.path)
@@ -2547,9 +2553,14 @@ class Manejador(BaseHTTPRequestHandler):
 def main():
     threading.Thread(target=CAPTURADOR.bucle, daemon=True).start()
     threading.Thread(target=GUARDA_LOGS.bucle, daemon=True).start()
+    # En la nube (Render) el puerto lo asigna la plataforma y hay que escuchar
+    # en todas las interfaces; en el PC sigue siendo solo 127.0.0.1.
+    if os.environ.get('PORT'):
+        CONFIG['puerto'] = int(os.environ['PORT'])
     puerto = int(CONFIG.get('puerto', 8765))
-    servidor = ThreadingHTTPServer(('127.0.0.1', puerto), Manejador)
-    print('Panel SERVER PANAS en http://127.0.0.1:%d' % puerto)
+    host = os.environ.get('PANEL_HOST', '127.0.0.1')
+    servidor = ThreadingHTTPServer((host, puerto), Manejador)
+    print('Panel SERVER PANAS en http://%s:%d' % (host, puerto), flush=True)
     servidor.serve_forever()
 
 
