@@ -6,7 +6,8 @@ services:
     runtime: python
     plan: free
     rootDir: panel
-    buildCommand: python -c "print('Sin dependencias: solo biblioteca estandar')"
+    # El panel solo usa la biblioteca estandar de Python: no hay nada que instalar
+    buildCommand: "echo sin-dependencias"
     startCommand: python -u app.py
     healthCheckPath: /salud
     autoDeploy: true
