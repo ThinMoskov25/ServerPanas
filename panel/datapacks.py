@@ -84,7 +84,7 @@ NS_VIDA = 'panelvidamobs'
 NS_PROG = 'panelprog'
 NS_JEFES = 'paneljefes'
 NS_NIVELES = 'panelniveles'
-NIVELES_VERSION = '3'
+NIVELES_VERSION = '4'
 
 # Indice interno de tareas/mobs que mantiene el panel DENTRO del datapack, como
 # un .json de datos propios (no es leido por Minecraft, solo por el panel). Asi
@@ -119,7 +119,7 @@ NIVELES = {
         'veloc': 0.30, 'empuje': 1.0, 'resist': 3, 'fuerza': 3, 'regen': 2, 'escoltas': 4},
 }
 # Probabilidad de que un monstruo nocturno se convierta en elite de cada color.
-ELITE_PROB = {5: 0.001, 4: 0.004, 3: 0.01, 2: 0.02, 1: 0.04}
+ELITE_PROB = {5: 0.0001, 4: 0.0001, 3: 0.005, 2: 0.01, 1: 0.02}
 ELITE_NOMBRE = {1: 'Verde', 2: 'Azul', 3: 'Morada', 4: 'Naranja', 5: 'Roja'}
 # Solo elites: la vida extra de nivel 1 (a los jefes nivel 1 no se les toca).
 ELITE_VIDA_NV1 = 0.5
