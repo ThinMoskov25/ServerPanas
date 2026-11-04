@@ -872,8 +872,16 @@ def ejecutar_comando(texto):
         raise ValueError('Comando vacio')
     antes = set(EXA.logs().splitlines())
     EXA.comando(texto)
-    time.sleep(1.8)
-    despues = [l for l in EXA.logs().splitlines() if l not in antes]
+    despues = []
+    # El log de exaroton tarda un poco en reflejar la respuesta
+    for espera in (1.8, 2.5, 3):
+        time.sleep(espera)
+        try:
+            despues = [l for l in EXA.logs().splitlines() if l not in antes]
+        except exaroton.ErrorApi:
+            continue
+        if despues:
+            break
     return {'enviado': texto, 'salida': despues[-40:]}
 
 
@@ -989,6 +997,127 @@ def _mapa_uuid_nombre():
     except Exception:
         pass
     return mapa
+
+
+# ---- Consola: jugadores, waystones y teletransporte ----
+_cache_consola = {}
+RUTA_WAYSTONES = ['ForgeData', 'PlayerPersisted', 'BalmData', 'WaystonesData', 'Waystones']
+MODOS_JUEGO = {0: 'Supervivencia', 1: 'Creativo', 2: 'Aventura', 3: 'Espectador'}
+
+
+def _cacheado(clave, segundos, leer):
+    guardado = _cache_consola.get(clave)
+    if guardado and time.time() - guardado[0] < segundos:
+        return guardado[1]
+    valor = leer()
+    _cache_consola[clave] = (time.time(), valor)
+    return valor
+
+
+def _leer_jugadores_guardados():
+    """Lee world/playerdata: posicion, dimension y waystones descubiertas de cada jugador."""
+    mapa = _mapa_uuid_nombre()
+    lista = []
+    for h in EXA.info_archivo('world/playerdata').get('children') or []:
+        archivo = h.get('name', '')
+        nombre = mapa.get(archivo[:-4].lower())
+        if not archivo.endswith('.dat') or not nombre:
+            continue
+        try:
+            raiz = nbt.load(EXA.leer_archivo('world/playerdata/' + archivo))
+        except (exaroton.ErrorApi, ValueError, OSError):
+            continue
+        pos = nbt.get(raiz, ['Pos'])
+        dim = nbt.get(raiz, ['Dimension'])
+        vida = nbt.get(raiz, ['Health'])
+        modo = nbt.get(raiz, ['playerGameType'])
+        ids = nbt.get(raiz, RUTA_WAYSTONES)
+        lista.append({
+            'nombre': nombre,
+            'pos': [round(v) for _, v in pos[1][1]] if pos else None,
+            'dim': dim[1] if dim else None,
+            'vida': round(vida[1], 1) if vida else None,
+            'modo': MODOS_JUEGO.get(modo[1]) if modo else None,
+            'waystones': [v for _, v in ids[1][1]] if ids else [],
+        })
+    return lista
+
+
+def consola_jugadores():
+    """Todos los jugadores conocidos, marcando los conectados (dato en vivo)."""
+    conectados = (EXA.estado().get('players') or {}).get('list') or []
+    guardados = _cacheado('jugadores', 20, _leer_jugadores_guardados)
+    lista = [dict(j, conectado=j['nombre'] in conectados) for j in guardados]
+    conocidos = {j['nombre'] for j in lista}
+    lista += [{'nombre': n, 'conectado': True, 'pos': None, 'dim': None, 'vida': None, 'modo': None, 'waystones': []}
+              for n in conectados if n not in conocidos]
+    lista.sort(key=lambda j: (not j['conectado'], j['nombre'].lower()))
+    return {'jugadores': [{k: v for k, v in j.items() if k != 'waystones'} for j in lista]}
+
+
+def _leer_waystones():
+    data = _leer_saveddata('world/data/waystones.dat')
+    nodos = nbt.get(data, ['Waystones'])
+    mapa = _mapa_uuid_nombre()
+    lista = []
+    for nodo in (nodos[1][1] if nodos else []):
+        pos = nbt.get(nodo, ['BlockPos'])
+        uid = nbt.get(nodo, ['WaystoneUid'])
+        if not pos or not uid:
+            continue
+        dueno = nbt.get(nodo, ['OwnerUid'])
+        lista.append({
+            'id': uuid_texto(uid[1]),
+            'nombre': (nbt.get(nodo, ['Name']) or (8, ''))[1],
+            'dim': (nbt.get(nodo, ['World']) or (8, 'minecraft:overworld'))[1],
+            'x': nbt.get(pos, ['X'])[1], 'y': nbt.get(pos, ['Y'])[1], 'z': nbt.get(pos, ['Z'])[1],
+            'global': bool((nbt.get(nodo, ['IsGlobal']) or (1, 0))[1]),
+            'dueno': mapa.get(uuid_texto(dueno[1])) if dueno else None,
+        })
+    return lista
+
+
+def consola_waystones(jugador=None):
+    """Todas las waystones; con jugador, marca las que el tiene descubiertas."""
+    lista = _cacheado('waystones', 30, _leer_waystones)
+    if not jugador:
+        return {'waystones': lista}
+    if not NOMBRE_OK.match(jugador):
+        raise ValueError('Jugador no valido')
+    guardados = _cacheado('jugadores', 20, _leer_jugadores_guardados)
+    ids = next((set(j['waystones']) for j in guardados if j['nombre'] == jugador), set())
+    return {'waystones': [dict(w, descubierta=w['global'] or w['id'] in ids) for w in lista]}
+
+
+def consola_tp(jugador, destino):
+    """Teletransporta a un jugador conectado a otro jugador, una waystone o unas coordenadas."""
+    if not NOMBRE_OK.match(jugador or ''):
+        raise ValueError('Jugador no valido')
+    conectados = (EXA.estado(forzar=True).get('players') or {}).get('list') or []
+    if jugador not in conectados:
+        raise ValueError('%s no esta conectado: solo se puede teletransportar a jugadores dentro del juego.' % jugador)
+    destino = destino or {}
+    tipo = destino.get('tipo')
+    if tipo == 'jugador':
+        otro = destino.get('nombre') or ''
+        if otro == jugador:
+            raise ValueError('Elige un jugador distinto.')
+        if otro not in conectados:
+            raise ValueError('%s no esta conectado.' % (otro or 'El destino'))
+        return ejecutar_comando('tp %s %s' % (jugador, otro))
+    if tipo == 'waystone':
+        w = next((x for x in _cacheado('waystones', 30, _leer_waystones) if x['id'] == destino.get('id')), None)
+        if not w:
+            raise ValueError('Esa waystone ya no existe.')
+        # La piedra ocupa dos bloques: se aparece encima, centrado
+        return ejecutar_comando('execute in %s run tp %s %s %s %s' % (w['dim'], jugador, w['x'] + 0.5, w['y'] + 2, w['z'] + 0.5))
+    if tipo == 'coords':
+        x, y, z = float(destino['x']), float(destino['y']), float(destino['z'])
+        dim = destino.get('dim') or 'minecraft:overworld'
+        if not ID_OK.match(dim):
+            raise ValueError('Dimension no valida')
+        return ejecutar_comando('execute in %s run tp %s %s %s %s' % (dim, jugador, x, y, z))
+    raise ValueError('Destino no valido')
 
 
 def _leer_saveddata(ruta):
@@ -2348,6 +2477,13 @@ class Manejador(BaseHTTPRequestHandler):
                 return self._json(EXA.accion(ruta.rsplit('/', 1)[-1]))
             if metodo == 'POST' and ruta == '/api/comando':
                 return self._json(ejecutar_comando(self._cuerpo_json().get('comando')))
+            if metodo == 'GET' and ruta == '/api/consola/jugadores':
+                return self._json(consola_jugadores())
+            if metodo == 'GET' and ruta == '/api/consola/waystones':
+                return self._json(consola_waystones(q.get('jugador')))
+            if metodo == 'POST' and ruta == '/api/consola/tp':
+                d = self._cuerpo_json()
+                return self._json(consola_tp(d.get('jugador'), d.get('destino')))
             if metodo == 'GET' and ruta == '/api/jugadores':
                 return self._json(jugadores_con_copias())
             if metodo == 'GET' and ruta == '/api/copias':
