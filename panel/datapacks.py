@@ -84,7 +84,7 @@ NS_VIDA = 'panelvidamobs'
 NS_PROG = 'panelprog'
 NS_JEFES = 'paneljefes'
 NS_NIVELES = 'panelniveles'
-NIVELES_VERSION = '1'
+NIVELES_VERSION = '2'
 
 # Indice interno de tareas/mobs que mantiene el panel DENTRO del datapack, como
 # un .json de datos propios (no es leido por Minecraft, solo por el panel). Asi
@@ -125,11 +125,15 @@ ELITE_NOMBRE = {1: 'Verde', 2: 'Azul', 3: 'Morada', 4: 'Naranja', 5: 'Roja'}
 ELITE_VIDA_NV1 = 0.5
 # Botin de los elites: (item, min, max, probabilidad)
 ELITE_BOTIN = {
-    1: [('minecraft:iron_ingot', 1, 3, 1.0), ('minecraft:emerald', 1, 2, 0.5)],
-    2: [('minecraft:gold_ingot', 2, 4, 1.0), ('minecraft:emerald', 2, 4, 1.0)],
-    3: [('minecraft:diamond', 1, 2, 1.0), ('minecraft:golden_apple', 1, 1, 0.5)],
-    4: [('minecraft:diamond', 2, 4, 1.0), ('minecraft:enchanted_golden_apple', 1, 1, 0.25), ('minecraft:netherite_scrap', 1, 1, 0.25)],
-    5: [('minecraft:diamond_block', 1, 2, 1.0), ('minecraft:netherite_scrap', 1, 2, 1.0), ('minecraft:totem_of_undying', 1, 1, 0.5)],
+    1: [('minecraft:iron_ingot', 2, 4, 1.0), ('minecraft:emerald', 1, 3, 0.75)],
+    2: [('minecraft:gold_ingot', 3, 6, 1.0), ('minecraft:emerald', 3, 6, 1.0), ('apotheosis:gem_dust', 1, 3, 0.5)],
+    3: [('minecraft:diamond', 2, 3, 1.0), ('minecraft:golden_apple', 1, 2, 0.75), ('apotheosis:uncommon_material', 1, 3, 1.0),
+        ('apotheosis:gem_dust', 2, 5, 1.0)],
+    4: [('minecraft:diamond', 4, 8, 1.0), ('minecraft:enchanted_golden_apple', 1, 1, 0.5), ('minecraft:netherite_scrap', 1, 2, 0.5),
+        ('apotheosis:rare_material', 2, 4, 1.0), ('relics:relic_experience_bottle', 1, 2, 1.0)],
+    5: [('minecraft:diamond_block', 2, 4, 1.0), ('minecraft:netherite_scrap', 2, 4, 1.0), ('minecraft:totem_of_undying', 1, 1, 1.0),
+        ('minecraft:enchanted_golden_apple', 1, 2, 1.0), ('apotheosis:epic_material', 3, 5, 1.0),
+        ('apotheosis:mythic_material', 1, 1, 0.5)],
 }
 # Monstruos que pueden volverse elite de noche. Los de mods son opcionales: si el
 # mod falta, el datapack sigue cargando (required: false).
@@ -268,59 +272,82 @@ ARENA_MURO_ALTO = 4  # alto del muro/borde de contencion alrededor del circulo
 # la plataforma (summon item ... en el centro) + una recompensa de XP escalada.
 #
 # Diseno por dimension:
-#   OVERWORLD -> hierro, oro, diamante, esmeralda, lapis, carbon (escala por Nv)
-#   NETHER    -> quartz, oro, blaze_rod, magma, glowstone; ancient_debris/
-#                netherite_scrap SOLO en niveles altos (4-5)
-#   END       -> ender_pearl, chorus_fruit, shulker_shell, dragon_breath;
-#                elytra SOLO en nivel 5 (raro)
+#   OVERWORLD -> hierro, oro, esmeralda, lapis; diamante desde nivel 3
+#   NETHER    -> quartz, oro, blaze_rod, glowstone; netherita desde nivel 3
+#   END       -> ender_pearl, chorus_fruit, dragon_breath; shulker desde nivel 3,
+#                elytra desde nivel 4 y huevo de dragon en nivel 5
 #   OTRAS     -> loot neutro estilo overworld (sin items de nether/end)
 #
 # Formato: LOOT[dimkey][nivel] = [(item, cantidad), ...]
 def _loot_overworld(n):
     tabla = [
-        ('minecraft:coal', 4 + n * 4),
-        ('minecraft:iron_ingot', n * 3),
-        ('minecraft:gold_ingot', max(0, (n - 1) * 2)),
-        ('minecraft:lapis_lazuli', max(0, (n - 1) * 3)),
+        ('minecraft:iron_ingot', n * 6),
+        ('minecraft:gold_ingot', (n - 1) * 5),
+        ('minecraft:lapis_lazuli', (n - 1) * 6),
+        ('minecraft:emerald', n * n * 2),                 # N1:2 ... N5:50
     ]
     if n >= 3:
-        tabla.append(('minecraft:diamond', n - 2))        # N3:1, N4:2, N5:3
-        tabla.append(('minecraft:emerald', n - 2))
-    if n >= 5:
-        tabla.append(('minecraft:diamond', 3))            # extra en N5 (total 6)
-        tabla.append(('minecraft:emerald', 4))
+        tabla.append(('minecraft:diamond', {3: 4, 4: 12, 5: 24}[n]))
+    if n >= 4:
+        tabla.append(('minecraft:diamond_block', n - 3))  # N4:1, N5:2
     return tabla
 
 
 def _loot_nether(n):
     tabla = [
-        ('minecraft:quartz', 4 + n * 3),
-        ('minecraft:gold_ingot', n * 2),
-        ('minecraft:glowstone', n * 2),
-        ('minecraft:magma_block', n),
+        ('minecraft:quartz', n * 8),
+        ('minecraft:gold_ingot', n * 5),
+        ('minecraft:glowstone', n * 4),
+        ('minecraft:blaze_rod', n * 3),
     ]
-    if n >= 2:
-        tabla.append(('minecraft:blaze_rod', n - 1))      # N2:1 ... N5:4
+    if n >= 3:
+        tabla.append(('minecraft:netherite_scrap', {3: 1, 4: 4, 5: 8}[n]))
     if n >= 4:
-        # Recursos de netherita SOLO en niveles altos (4-5).
-        tabla.append(('minecraft:netherite_scrap', n - 3))  # N4:1, N5:2
+        tabla.append(('minecraft:ancient_debris', {4: 2, 5: 6}[n]))
     if n >= 5:
-        tabla.append(('minecraft:ancient_debris', 1))
+        tabla.append(('minecraft:netherite_ingot', 3))
     return tabla
 
 
 def _loot_end(n):
     tabla = [
-        ('minecraft:ender_pearl', n),
-        ('minecraft:chorus_fruit', 2 + n * 2),
+        ('minecraft:ender_pearl', n * 3),
+        ('minecraft:chorus_fruit', n * 4),
+        ('minecraft:dragon_breath', (n - 1) * 2),
     ]
-    if n >= 2:
-        tabla.append(('minecraft:dragon_breath', n - 1))
     if n >= 3:
-        tabla.append(('minecraft:shulker_shell', n - 2))   # N3:1, N4:2, N5:3
+        tabla.append(('minecraft:shulker_shell', (n - 2) * 4))  # N3:4, N4:8, N5:12
+    if n >= 4:
+        tabla.append(('minecraft:elytra', n - 3))               # N4:1, N5:2
     if n >= 5:
-        tabla.append(('minecraft:elytra', 1))              # raro, solo N5
+        tabla.append(('minecraft:dragon_egg', 1))
     return tabla
+
+
+# Premio por nivel que se suma al de la dimension. Son materiales de los mods y
+# objetos que no pertenecen a ninguna dimension, asi que no rompen la regla de oro.
+LOOT_NIVEL = {
+    1: [],
+    2: [('apotheosis:uncommon_material', 4), ('apotheosis:gem_dust', 6), ('irons_spellbooks:arcane_essence', 8),
+        ('minecraft:golden_apple', 2)],
+    3: [('apotheosis:rare_material', 4), ('apotheosis:gem_dust', 12), ('irons_spellbooks:rare_ink', 1),
+        ('relics:relic_experience_bottle', 3), ('minecraft:golden_apple', 4)],
+    4: [('apotheosis:epic_material', 4), ('apotheosis:gem_dust', 24), ('irons_spellbooks:epic_ink', 1),
+        ('relics:relic_experience_bottle', 6), ('minecraft:enchanted_golden_apple', 2),
+        ('minecraft:totem_of_undying', 1)],
+    5: [('apotheosis:mythic_material', 4), ('apotheosis:epic_material', 8), ('apotheosis:gem_dust', 48),
+        ('irons_spellbooks:legendary_ink', 1), ('relics:relic_experience_bottle', 12),
+        ('minecraft:enchanted_golden_apple', 5), ('minecraft:totem_of_undying', 3)],
+}
+NO_APILABLES = {'minecraft:totem_of_undying', 'minecraft:elytra'}
+# Resumen para el panel (lo mejor de cada nivel).
+RECOMPENSA_TEXTO = {
+    1: 'Básica',
+    2: 'Materiales poco comunes',
+    3: 'Diamantes y materiales raros',
+    4: 'Materiales épicos, tótem y manzana encantada',
+    5: 'Materiales míticos, 3 tótems y tinta legendaria',
+}
 
 
 def tabla_loot(dim_key, nivel):
@@ -333,6 +360,7 @@ def tabla_loot(dim_key, nivel):
         items = _loot_end(n)
     else:
         items = _loot_overworld(n)  # overworld + otras dimensiones (neutro)
+    items = items + LOOT_NIVEL[n]
     # Compactar cantidades repetidas del mismo item en una sola entrada.
     acum = {}
     orden = []
@@ -347,7 +375,7 @@ def tabla_loot(dim_key, nivel):
 
 def xp_por_nivel(n):
     """XP (orbes) que suelta el jefe al morir, escalada por nivel."""
-    return 20 * int(max(NIVEL_MIN, min(NIVEL_MAX, n))) ** 2  # N1:20 ... N5:500
+    return 40 * int(max(NIVEL_MIN, min(NIVEL_MAX, n))) ** 3  # N1:40 ... N5:5000
 
 
 def _dim_de_jefe(eid, override='auto'):
@@ -904,7 +932,7 @@ class Datapacks:
         return {'activo': bool(cfg.get('activo')), 'online': self._online(),
                 'niveles': [{'nivel': n, 'nombre': c['nombre'], 'color': c['color'], 'prob': ELITE_PROB[n] * 100,
                              'vida': c['vida'], 'dano': c['dano'], 'resist': c['resist'] * 20,
-                             'escoltas': c['escoltas']} for n, c in NIVELES.items()]}
+                             'escoltas': c['escoltas'], 'recompensa': RECOMPENSA_TEXTO[n]} for n, c in NIVELES.items()]}
 
     def elites_cambiar(self, activo):
         if not self._online():
@@ -989,10 +1017,13 @@ class Datapacks:
         # Loot por (dimension x nivel): se suelta en el centro de la plataforma.
         items = tabla_loot(info.get('dim_key', 'overworld'), nivel)
         for it, cant in items:
-            # summon del item como entidad en la posicion exacta del centro.
-            lineas.append(
-                'execute in %s positioned %d %d %d run summon item ~ ~1 ~ {Item:{id:"%s",Count:%db}}\n'
-                % (dim_id, cx, cy, cz, it, min(int(cant), 64)))
+            # summon del item como entidad en la posicion exacta del centro. Los
+            # objetos que no se apilan se sueltan de uno en uno.
+            pilas = [1] * int(cant) if it in NO_APILABLES else [min(int(cant), 64)]
+            for pila in pilas:
+                lineas.append(
+                    'execute in %s positioned %d %d %d run summon item ~ ~1 ~ {Item:{id:"%s",Count:%db}}\n'
+                    % (dim_id, cx, cy, cz, it, pila))
         # XP escalada.
         lineas.append('execute in %s positioned %d %d %d run summon experience_orb ~ ~1 ~ {Value:%d}\n'
                       % (dim_id, cx, cy, cz, xp_por_nivel(nivel)))

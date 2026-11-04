@@ -1659,8 +1659,8 @@ async function cargarElites(){
   try{
     const d=await api('/api/datapacks/elites');NIVELES_INFO=d.niveles;
     $('eliteActivo').checked=d.activo;$('eliteEstado').textContent=d.activo?'Activados':'Desactivados';
-    $('eliteTabla').innerHTML='<table><thead><tr><th>Color</th><th>Vida</th><th>Daño</th><th>Reducción de daño</th><th>Jefes: escoltas</th><th>De noche</th></tr></thead><tbody>'
-      +d.niveles.map(n=>'<tr><td><b style="color:'+COLOR_MC[n.color]+'">&#9679; '+esc(n.nombre)+'</b></td><td>x'+n.vida+'</td><td>x'+n.dano+'</td><td>'+n.resist+'%</td><td>'+n.escoltas+'</td><td>'+n.prob+'%</td></tr>').join('')+'</tbody></table>';
+    $('eliteTabla').innerHTML='<table><thead><tr><th>Color</th><th>Vida</th><th>Daño</th><th>Reducción de daño</th><th>Jefes: escoltas</th><th>Recompensa</th><th>De noche</th></tr></thead><tbody>'
+      +d.niveles.map(n=>'<tr><td><b style="color:'+COLOR_MC[n.color]+'">&#9679; '+esc(n.nombre)+'</b></td><td>x'+n.vida+'</td><td>x'+n.dano+'</td><td>'+n.resist+'%</td><td>'+n.escoltas+'</td><td>'+esc(n.recompensa)+'</td><td>'+n.prob+'%</td></tr>').join('')+'</tbody></table>';
     jefeNivelInfo();
   }catch(e){$('eliteTabla').innerHTML='<p class="suave">'+esc(e.message)+'</p>';}
 }
