@@ -219,6 +219,11 @@
   .cmdgrupo:last-child{margin-bottom:0}
   .cmdgrupo > .gt{font-size:12.5px;color:var(--suave);font-weight:600;text-transform:uppercase;letter-spacing:.3px;margin:0 0 7px}
   .cmdgrupo .fila{gap:8px}
+  .lista-jug{display:flex;flex-wrap:wrap;gap:6px;max-height:132px;overflow-y:auto}
+  .pjug{display:inline-flex;align-items:center;padding:6px 11px;background:#14232d;border:1px solid var(--linea);border-radius:8px;color:var(--txt);font-size:13px;cursor:pointer;transition:.15s}
+  .pjug:hover{border-color:rgba(66,211,160,.55)}
+  .pjug.off{color:var(--suave)}
+  .pjug.sel{border-color:var(--verde);background:#1b3037}
   .sugerencias{position:absolute;top:100%;left:0;z-index:15;margin-top:4px;min-width:260px;background:var(--panel2);border:1px solid var(--borde);border-radius:9px;box-shadow:var(--sombra);overflow:hidden}
   .sugerencias .sug{padding:7px 12px;font-family:Consolas,monospace;font-size:13px;cursor:pointer}
   .sugerencias .sug:hover,.sugerencias .sug.on{background:#1b3037;color:var(--verde)}
@@ -626,10 +631,13 @@
     </div>
 
     <div class="card">
-      <div class="card-head"><h2>&#128101; Jugadores</h2><span class="suave" style="font-size:12.5px">Pulsa uno para ver sus acciones y waystones</span></div>
-      <div id="conJugadores" class="grid cols3"><p class="suave">Cargando...</p></div>
+      <div class="card-head"><h2>&#128101; Jugadores <span class="etq" id="conResumen"></span></h2>
+        <input id="conFiltro" placeholder="Buscar jugador..." style="width:200px;padding:7px 10px" oninput="pintarJugadores()" autocomplete="off">
+      </div>
+      <div id="conJugadores" class="lista-jug"><p class="suave">Cargando...</p></div>
       <div id="conAcciones" hidden style="margin-top:16px">
         <h3 id="conTitulo"></h3>
+        <div class="suave" id="conDetalle" style="font-size:12.5px;margin:-4px 0 10px"></div>
         <div class="fila" style="margin-bottom:10px">
           <button class="btn sm" onclick="rapido('effect give {J} minecraft:regeneration 10 9 true')">&#10084; Curar</button>
           <button class="btn sm" onclick="rapido('effect give {J} minecraft:saturation 5 9 true')">&#127831; Comida</button>
@@ -1749,19 +1757,22 @@ async function cargarConsola(forzar){
   TIMER_CONSOLA=setInterval(()=>{if($('tab-consola').hidden){clearInterval(TIMER_CONSOLA);return;}api('/api/consola/jugadores').then(d=>{JUGADORES=d.jugadores;pintarJugadores();}).catch(()=>{});},20000);
 }
 function pintarJugadores(){
-  $('conJugadores').innerHTML=JUGADORES.length?JUGADORES.map(j=>'<div class="jcard'+(j.nombre===JUG_SEL?' sel':'')+'" data-j="'+esc(j.nombre)+'">'
-    +'<div class="fila" style="justify-content:space-between"><b>'+esc(j.nombre)+'</b><span class="chip '+(j.conectado?'verde':'gris')+'">'+(j.conectado?'Conectado':'Desconectado')+'</span></div>'
-    +'<div class="suave" style="font-size:12.5px;margin-top:6px">'+nombreDim(j.dim)+(j.pos?' · '+j.pos.join(', '):'')+'</div>'
-    +'<div class="suave" style="font-size:12px;margin-top:2px">'+(j.vida!=null?'&#10084; '+j.vida+' · ':'')+esc(j.modo||'')+'</div></div>').join(''):'<p class="suave">No hay jugadores registrados.</p>';
-  document.querySelectorAll('#conJugadores .jcard').forEach(c=>c.onclick=()=>elegirJugador(c.dataset.j));
-  if(JUG_SEL)pintarTpJugador();
+  const f=$('conFiltro').value.trim().toLowerCase(),lista=JUGADORES.filter(j=>!f||j.nombre.toLowerCase().includes(f));
+  $('conResumen').textContent=conectados().length+' conectados de '+JUGADORES.length;
+  $('conJugadores').innerHTML=lista.length?lista.map(j=>'<button type="button" class="pjug'+(j.nombre===JUG_SEL?' sel':'')+(j.conectado?'':' off')+'" data-j="'+esc(j.nombre)+'"><span class="punto" style="background:'+(j.conectado?'var(--verde)':'var(--tenue)')+'"></span>'+esc(j.nombre)+'</button>').join(''):'<p class="suave">'+(f?'Ningún jugador con ese nombre.':'No hay jugadores registrados.')+'</p>';
+  document.querySelectorAll('#conJugadores .pjug').forEach(c=>c.onclick=()=>elegirJugador(c.dataset.j));
+  if(JUG_SEL){pintarTpJugador();pintarDetalle();}
+}
+function pintarDetalle(){
+  const j=JUGADORES.find(x=>x.nombre===JUG_SEL);if(!j)return;
+  $('conTitulo').textContent='Acciones sobre '+j.nombre;
+  $('conDetalle').innerHTML=(j.conectado?'Conectado':'Desconectado: las acciones no le llegarán hasta que entre')+' · '+nombreDim(j.dim)+(j.pos?' · '+j.pos.join(', '):'')+(j.vida!=null?' · &#10084; '+j.vida:'')+(j.modo?' · '+esc(j.modo):'');
 }
 function pintarTpJugador(){const v=$('tpJugador').value,o=conectados().filter(n=>n!==JUG_SEL);$('tpJugador').innerHTML=o.length?o.map(n=>'<option>'+esc(n)+'</option>').join(''):'<option value="">(nadie más conectado)</option>';if(o.includes(v))$('tpJugador').value=v;}
 async function elegirJugador(n){
   JUG_SEL=n;pintarJugadores();
   const j=JUGADORES.find(x=>x.nombre===n);
   $('conAcciones').hidden=false;$('conWaystones').hidden=false;
-  $('conTitulo').textContent='Acciones sobre '+n+(j&&j.conectado?'':' (desconectado: las acciones no le llegarán hasta que entre)');
   $('wpTitulo').textContent=n;$('wpLista').innerHTML='<p class="suave">Cargando...</p>';
   if(j&&j.pos){$('tpX').value=j.pos[0];$('tpY').value=j.pos[1];$('tpZ').value=j.pos[2];if(j.dim&&DIMS[j.dim])$('tpDim').value=j.dim;}
   try{WAYSTONES=(await api('/api/consola/waystones?jugador='+encodeURIComponent(n))).waystones;pintarWaystones();}
