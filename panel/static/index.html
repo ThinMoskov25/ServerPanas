@@ -564,12 +564,21 @@
     <div class="top"><div><h1>Jefes / Spawns</h1><div class="sub">Invoca cualquier jefe (vanilla o de mods) ya mismo o programado por segundos</div></div>
       <button class="btn" onclick="cargarJefes()">&#8635; Actualizar</button>
     </div>
-    <div class="msg info"><span>&#8505;</span><span>Busca el jefe por <b>nombre real</b> (no el id). Marca <b>Solo jefes conocidos</b> para ver la lista curada de jefes vanilla y de mods, o desmarca para buscar <b>cualquier</b> entidad del pack. Por defecto el jefe aparece sobre una <b>plataforma circular</b> en una <b>ubicacion aleatoria</b> de la <b>dimension de su habitat</b> (o la que fuerces) y se <b>anuncia a todo el servidor</b>. El spawn inmediato usa <span class="mono">summon</span>; el programado usa el <b>schedule server-side</b> y el anuncio sale al dispararse (aunque cierres el panel).</span></div>
+    <div class="msg info"><span>&#8505;</span><span>Elige un <b>mod</b> para ver todas sus criaturas, o busca por <b>nombre real</b>. Sin mod, <b>Solo jefes conocidos</b> muestra la lista de jefes. Por defecto el jefe aparece sobre una <b>plataforma circular</b> en una <b>ubicacion aleatoria</b> de la <b>dimension de su habitat</b> (o la que fuerces) y se <b>anuncia a todo el servidor</b>. El spawn inmediato usa <span class="mono">summon</span>; el programado usa el <b>schedule server-side</b> y el anuncio sale al dispararse (aunque cierres el panel).</span></div>
 
     <div class="card">
-      <h2>&#128269; Elige el jefe</h2>
+      <div class="card-head"><h2>&#127769; Élites nocturnos</h2>
+        <label class="fila"><span class="switch"><input type="checkbox" id="eliteActivo" onchange="cambiarElites()"><span class="slider"></span></span> <span id="eliteEstado">Desactivados</span></label>
+      </div>
+      <p class="suave" style="font-size:13px">De noche, algunos monstruos cerca de los jugadores se vuelven élites: brillan con su color, son más fuertes y sueltan mejor botín. El color indica el peligro y es el mismo que el nivel de los jefes.</p>
+      <div id="eliteTabla"><p class="suave">Cargando...</p></div>
+    </div>
+
+    <div class="card">
+      <h2>&#128269; Elige la criatura</h2>
       <div class="fila" style="margin-bottom:8px">
-        <input id="jefeBuscar" style="flex:1;min-width:260px" placeholder="nombre del jefe (ej. dragon, wither, ignis, naga)" oninput="filtrarJefes()" autocomplete="off">
+        <select id="jefeMod" onchange="filtrarJefes(true)" style="min-width:210px"><option value="">Todos los mods</option></select>
+        <input id="jefeBuscar" style="flex:1;min-width:240px" placeholder="nombre (ej. dragon, wither, ignis, naga)" oninput="filtrarJefes()" autocomplete="off">
         <label class="fila"><span class="switch"><input type="checkbox" id="jefeSoloJefes" checked onchange="filtrarJefes(true)"><span class="slider"></span></span> Solo jefes conocidos</label>
       </div>
       <div id="jefeBuscarMsg"></div>
@@ -601,16 +610,16 @@
       <h3>2. Nivel</h3>
       <div class="fila" style="margin-bottom:6px">
         <label>Nivel del jefe:</label>
-        <select id="jefeNivel" onchange="jefeNivelInfo()" style="width:150px">
-          <option value="1">Nivel 1 (normal)</option>
-          <option value="2">Nivel 2 (reforzado)</option>
-          <option value="3">Nivel 3 (fuerte)</option>
-          <option value="4">Nivel 4 (muy fuerte)</option>
-          <option value="5">Nivel 5 (brutal)</option>
+        <select id="jefeNivel" onchange="jefeNivelInfo()" style="width:170px">
+          <option value="1">1 · Verde (normal)</option>
+          <option value="2">2 · Azul (difícil)</option>
+          <option value="3">3 · Morado (muy difícil)</option>
+          <option value="4">4 · Naranja (extremo)</option>
+          <option value="5">5 · Rojo (pesadilla)</option>
         </select>
         <span id="jefeNivelInfo" class="suave" style="font-size:12.5px"></span>
       </div>
-      <p class="suave" style="font-size:12px;margin:0 0 12px">Nivel 1 = stats normales. Niveles 2-5 escalan vida y dano con modificadores (<span class="mono">multiply_base</span>); el jefe sale con el nombre <span class="mono">&lt;Nombre&gt; [Nv N]</span>.</p>
+      <p class="suave" style="font-size:12px;margin:0 0 12px">El color marca la dificultad. Además de vida y daño sube armadura, velocidad y resistencia; desde Naranja, los jefes llegan con escoltas.</p>
       <h3>3. Cuando</h3>
       <div class="fila">
         <button class="btn p" id="btnSpawnYa" onclick="spawnJefe(false)">&#9889; Spawnear ahora</button>
@@ -1635,8 +1644,31 @@ let JEFE_SEL=null, _jefeTimer=null, _jefeSeq=0;
 async function cargarJefes(){
   await poblarJugadoresJefe();
   await poblarDimensionesJefe();
+  poblarModsJefe();
+  cargarElites();
   filtrarJefes(true);
   sincronizarTarea('spawn',SPAWN_CFG); // re-engancha si hay un spawn en curso
+}
+async function poblarModsJefe(){
+  const sel=$('jefeMod');if(sel.options.length>1)return;
+  try{const d=await api('/api/entidades/mods');sel.innerHTML='<option value="">Todos los mods</option>'+d.mods.map(m=>'<option value="'+esc(m.id)+'">'+esc(m.nombre)+' ('+m.total+')</option>').join('');}catch(e){}
+}
+let NIVELES_INFO=[];
+const COLOR_MC={green:'#55ff55',aqua:'#55ffff',light_purple:'#ff55ff',gold:'#ffaa00',red:'#ff5555'};
+async function cargarElites(){
+  try{
+    const d=await api('/api/datapacks/elites');NIVELES_INFO=d.niveles;
+    $('eliteActivo').checked=d.activo;$('eliteEstado').textContent=d.activo?'Activados':'Desactivados';
+    $('eliteTabla').innerHTML='<table><thead><tr><th>Color</th><th>Vida</th><th>Daño</th><th>Reducción de daño</th><th>Jefes: escoltas</th><th>De noche</th></tr></thead><tbody>'
+      +d.niveles.map(n=>'<tr><td><b style="color:'+COLOR_MC[n.color]+'">&#9679; '+esc(n.nombre)+'</b></td><td>x'+n.vida+'</td><td>x'+n.dano+'</td><td>'+n.resist+'%</td><td>'+n.escoltas+'</td><td>'+n.prob+'%</td></tr>').join('')+'</tbody></table>';
+    jefeNivelInfo();
+  }catch(e){$('eliteTabla').innerHTML='<p class="suave">'+esc(e.message)+'</p>';}
+}
+async function cambiarElites(){
+  const activo=$('eliteActivo').checked;$('eliteActivo').disabled=true;$('eliteEstado').textContent='Aplicando...';
+  try{await api('/api/datapacks/elites',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({activo})});$('eliteEstado').textContent=activo?'Activados':'Desactivados';aviso('Élites nocturnos '+(activo?'activados.':'desactivados.'),'ok');}
+  catch(e){$('eliteActivo').checked=!activo;$('eliteEstado').textContent=activo?'Desactivados':'Activados';aviso(e.message,'error');}
+  $('eliteActivo').disabled=false;
 }
 async function poblarDimensionesJefe(){
   const sel=$('jefeDim');if(!sel)return;const prev=sel.value;
@@ -1662,9 +1694,10 @@ function filtrarJefes(inmediato){
 }
 async function ejecutarFiltroJefe(texto){
   const seq=++_jefeSeq;
-  const solo=$('jefeSoloJefes').checked?'&jefes=1':'';
+  const mod=$('jefeMod').value;
+  const solo=$('jefeSoloJefes').checked&&!mod?'&jefes=1':'';
   try{
-    const d=await api('/api/entidades/buscar?q='+encodeURIComponent(texto)+solo);
+    const d=await api('/api/entidades/buscar?q='+encodeURIComponent(texto)+solo+(mod?'&mod='+encodeURIComponent(mod):''));
     if(seq!==_jefeSeq)return;
     const res=d.resultados||[];
     if(!res.length){$('jefeBuscarLista').innerHTML='';$('jefeBuscarMsg').innerHTML='<div class="msg info"><span>&#8505;</span><span>'+esc(d.mensaje||'Sin coincidencias. Prueba a desmarcar "Solo jefes conocidos".')+'</span></div>';return;}
@@ -1686,10 +1719,9 @@ function elegirJefe(id,nombre){
 }
 function jefeNivel(){const v=parseInt(($('jefeNivel')||{}).value,10);return (isNaN(v)||v<1||v>5)?1:v;}
 function jefeNivelInfo(){
-  const n=jefeNivel();
-  const vida=(1+(n-1)*0.75), dano=(1+(n-1)*0.40);
-  const f=x=>(Math.round(x*100)/100).toString();
-  $('jefeNivelInfo').textContent=n===1?'Stats normales (sin cambios).':('Vida x'+f(vida)+', dano x'+f(dano)+'.');
+  const i=NIVELES_INFO.find(x=>x.nivel===jefeNivel());
+  if(!i){$('jefeNivelInfo').textContent='';return;}
+  $('jefeNivelInfo').textContent=i.nivel===1?'Stats normales.':('Vida x'+i.vida+', daño x'+i.dano+(i.resist?', recibe '+i.resist+'% menos daño':'')+(i.escoltas?', '+i.escoltas+' escoltas':'')+'.');
 }
 function jefeDestino(){
   const tipo=document.querySelector('input[name=jefeDest]:checked').value;
@@ -1737,8 +1769,19 @@ async function spawnJefe(programado){
 const SPAWN_CFG={boxId:'jefeProg',botones:['btnSpawnYa'],etiqueta:'Spawn de jefe',onFin:(s)=>{aviso(s.mensaje,s.resultado==='error'?'error':'ok');}};
 
 // ---- consola ----
-function pintarSalida(r){$('salCmd').textContent='> '+r.enviado+'\n\n'+(r.salida.join('\n')||'(enviado; el log no mostró respuesta)');$('salCmd').scrollIntoView({block:'nearest'});}
-async function enviarCmd(t){const c=(t??$('cmd').value).trim();if(!c)return;guardarHistorial(c);$('salCmd').innerHTML='<span class="loader"></span> Ejecutando...';try{pintarSalida(await api('/api/comando',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({comando:c})}));}catch(e){$('salCmd').textContent='Error: '+e.message;}}
+// El servidor ejecuta el comando unos segundos despues: se envia y la respuesta llega sola.
+let SALIDA_ACTUAL=null;
+async function seguirSalida(r){
+  SALIDA_ACTUAL=r.id;
+  $('salCmd').textContent='> '+r.enviado+'\n\nEnviado. Esperando respuesta del servidor...';
+  for(let i=0;i<20&&SALIDA_ACTUAL===r.id;i++){
+    await new Promise(f=>setTimeout(f,1000));
+    if(SALIDA_ACTUAL!==r.id)return;
+    let s;try{s=await api('/api/comando/salida?id='+r.id);}catch(e){continue;}
+    if(s.listo){$('salCmd').textContent='> '+r.enviado+'\n\n'+(s.error?'Error: '+s.error:((s.salida||[]).join('\n')||'(enviado; el log no mostró respuesta)'));return;}
+  }
+}
+async function enviarCmd(t){const c=(t??$('cmd').value).trim();if(!c)return;guardarHistorial(c);try{seguirSalida(await api('/api/comando',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({comando:c})}));}catch(e){$('salCmd').textContent='Error: '+e.message;}}
 function rapido(p){if(!JUG_SEL){aviso('Elige primero un jugador.','error');return;}enviarCmd(p.replaceAll('{J}',JUG_SEL));}
 // Comandos predeterminados con confirmacion (para los de mayor impacto).
 function confirmarCmd(pregunta,cmd){if(confirm(pregunta))enviarCmd(cmd);}
@@ -1790,8 +1833,7 @@ function pintarWaystones(){
 }
 async function teletransportar(jugador,destino){
   if(!jugador){aviso('Elige primero un jugador.','error');return;}
-  $('salCmd').innerHTML='<span class="loader"></span> Teletransportando...';
-  try{const r=await api('/api/consola/tp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jugador,destino})});pintarSalida(r);aviso(jugador+' teletransportado.','ok');}
+  try{const r=await api('/api/consola/tp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jugador,destino})});seguirSalida(r);aviso('Teletransporte de '+jugador+' enviado.','ok');}
   catch(e){$('salCmd').textContent='Error: '+e.message;aviso(e.message,'error');}
 }
 function tpAJugador(){teletransportar(JUG_SEL,{tipo:'jugador',nombre:$('tpJugador').value});}

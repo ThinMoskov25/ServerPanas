@@ -20,8 +20,10 @@ import subprocess
 import threading
 import time
 import traceback
+import uuid
 import urllib.parse
 import urllib.request
+from concurrent.futures import ThreadPoolExecutor
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 import auth
@@ -859,7 +861,7 @@ class GuardaLogs:
                 self.vuelta()
             except Exception:
                 registrar_error('logs: %s' % traceback.format_exc())
-            time.sleep(5)
+            time.sleep(30)  # exaroton limita la lectura del log: no gastarla aqui
 
 
 GUARDA_LOGS = GuardaLogs()
@@ -883,6 +885,30 @@ def ejecutar_comando(texto):
         if despues:
             break
     return {'enviado': texto, 'salida': despues[-40:]}
+
+
+# Exaroton ejecuta cada comando varios segundos despues de recibirlo. Para no dejar
+# el panel esperando, se envia en segundo plano y la pagina recoge la respuesta luego.
+SALIDAS = {}
+
+
+def comando_en_fondo(texto):
+    texto = (texto or '').strip().lstrip('/')
+    if not texto:
+        raise ValueError('Comando vacio')
+    ident = uuid.uuid4().hex
+    SALIDAS[ident] = {'enviado': texto, 'salida': [], 'listo': False}
+    while len(SALIDAS) > 50:
+        del SALIDAS[next(iter(SALIDAS))]
+
+    def _trabajo():
+        try:
+            SALIDAS[ident].update(ejecutar_comando(texto))
+        except Exception as ex:
+            SALIDAS[ident]['error'] = str(ex)
+        SALIDAS[ident]['listo'] = True
+    threading.Thread(target=_trabajo, daemon=True).start()
+    return {'id': ident, 'enviado': texto}
 
 
 def reponer(jugador, lista):
@@ -1017,15 +1043,19 @@ def _cacheado(clave, segundos, leer):
 def _leer_jugadores_guardados():
     """Lee world/playerdata: posicion, dimension y waystones descubiertas de cada jugador."""
     mapa = _mapa_uuid_nombre()
-    lista = []
-    for h in EXA.info_archivo('world/playerdata').get('children') or []:
-        archivo = h.get('name', '')
-        nombre = mapa.get(archivo[:-4].lower())
-        if not archivo.endswith('.dat') or not nombre:
-            continue
+    archivos = [h.get('name', '') for h in EXA.info_archivo('world/playerdata').get('children') or []]
+    archivos = [(a, mapa[a[:-4].lower()]) for a in archivos if a.endswith('.dat') and a[:-4].lower() in mapa]
+
+    def _leer(a):
         try:
-            raiz = nbt.load(EXA.leer_archivo('world/playerdata/' + archivo))
+            return nbt.load(EXA.leer_archivo('world/playerdata/' + a))
         except (exaroton.ErrorApi, ValueError, OSError):
+            return None
+    with ThreadPoolExecutor(max_workers=6) as hilos:
+        raices = list(hilos.map(_leer, [a for a, _ in archivos]))
+    lista = []
+    for (_, nombre), raiz in zip(archivos, raices):
+        if raiz is None:
             continue
         pos = nbt.get(raiz, ['Pos'])
         dim = nbt.get(raiz, ['Dimension'])
@@ -1104,19 +1134,19 @@ def consola_tp(jugador, destino):
             raise ValueError('Elige un jugador distinto.')
         if otro not in conectados:
             raise ValueError('%s no esta conectado.' % (otro or 'El destino'))
-        return ejecutar_comando('tp %s %s' % (jugador, otro))
+        return comando_en_fondo('tp %s %s' % (jugador, otro))
     if tipo == 'waystone':
         w = next((x for x in _cacheado('waystones', 30, _leer_waystones) if x['id'] == destino.get('id')), None)
         if not w:
             raise ValueError('Esa waystone ya no existe.')
         # La piedra ocupa dos bloques: se aparece encima, centrado
-        return ejecutar_comando('execute in %s run tp %s %s %s %s' % (w['dim'], jugador, w['x'] + 0.5, w['y'] + 2, w['z'] + 0.5))
+        return comando_en_fondo('execute in %s run tp %s %s %s %s' % (w['dim'], jugador, w['x'] + 0.5, w['y'] + 2, w['z'] + 0.5))
     if tipo == 'coords':
         x, y, z = float(destino['x']), float(destino['y']), float(destino['z'])
         dim = destino.get('dim') or 'minecraft:overworld'
         if not ID_OK.match(dim):
             raise ValueError('Dimension no valida')
-        return ejecutar_comando('execute in %s run tp %s %s %s %s' % (dim, jugador, x, y, z))
+        return comando_en_fondo('execute in %s run tp %s %s %s %s' % (dim, jugador, x, y, z))
     raise ValueError('Destino no valido')
 
 
@@ -2125,10 +2155,48 @@ def _cargar_indice_entidades():
     return ents
 
 
-def buscar_entidades(texto, limite=40, solo_jefes=False):
+NOMBRES_MOD = {
+    'minecraft': 'Minecraft', 'alexsmobs': "Alex's Mobs", 'cataclysm': "L_Ender's Cataclysm",
+    'twilightforest': 'Bosque Crepuscular', 'iceandfire': 'Ice and Fire', 'mowziesmobs': "Mowzie's Mobs",
+    'irons_spellbooks': "Iron's Spellbooks", 'naturalist': 'Naturalist', 'creeperoverhaul': 'Creeper Overhaul',
+    'deeperdarker': 'Deeper Darker', 'quark': 'Quark', 'goblintraders': 'Goblin Traders',
+    'guardvillagers': 'Guard Villagers', 'chococraft': 'Chococraft', 'apotheosis': 'Apotheosis',
+}
+_MOBS_CON_HUEVO = {}
+
+
+def _es_criatura(ent):
+    """El indice tambien trae proyectiles y efectos. Una criatura real es la que
+    tiene huevo de spawn o es un jefe conocido."""
+    if not _MOBS_CON_HUEVO:
+        try:
+            with open(os.path.join(DATOS, 'items_index.json'), 'r', encoding='utf-8') as f:
+                ids = [i['id'] for i in json.load(f).get('items', [])]
+        except (OSError, ValueError):
+            ids = []
+        for iid in ids:
+            mod, _, n = iid.partition(':')
+            if 'spawn' in n and 'egg' in n:
+                _MOBS_CON_HUEVO['%s:%s' % (mod, re.sub(r'_?spawn_?egg_?', '', n))] = True
+        _MOBS_CON_HUEVO.setdefault('', True)
+    return ent['jefe'] or ent['id'] in _MOBS_CON_HUEVO
+
+
+def entidades_por_mod():
+    """Mods con criaturas, para el filtro del catalogo."""
+    cuenta = {}
+    for e in _cargar_indice_entidades():
+        mod = e['id'].split(':')[0]
+        if _es_criatura(e) and mod != 'geckolib':
+            cuenta[mod] = cuenta.get(mod, 0) + 1
+    mods = [{'id': m, 'nombre': NOMBRES_MOD.get(m, m), 'total': n} for m, n in cuenta.items()]
+    return {'mods': sorted(mods, key=lambda m: (m['id'] != 'minecraft', m['nombre'].lower()))}
+
+
+def buscar_entidades(texto, limite=40, solo_jefes=False, mod=None):
     """Filtro por NOMBRE legible sobre el catalogo de entidades (mismo motor que
-    los items). Si solo_jefes, limita a los jefes conocidos. Si no hay texto y
-    solo_jefes, devuelve TODOS los jefes conocidos ordenados por nombre."""
+    los items). Si solo_jefes, limita a los jefes conocidos; con mod, a las
+    criaturas de ese mod. Sin texto lista todas las del filtro elegido."""
     ents = _cargar_indice_entidades()
     if not ents:
         return {
@@ -2137,9 +2205,12 @@ def buscar_entidades(texto, limite=40, solo_jefes=False):
                        'cd panel && python generar_indice_entidades.py',
         }
     universo = [e for e in ents if e['jefe']] if solo_jefes else ents
+    if mod:
+        universo = [e for e in universo if e['id'].startswith(mod + ':') and _es_criatura(e)]
+        limite = 200
     q = (texto or '').strip()
     if not q:
-        if solo_jefes:
+        if solo_jefes or mod:
             lista = sorted(universo, key=lambda e: e['n_norm'])
             resultados = [{'id': e['id'], 'nombre': e['nombre'], 'jefe': e['jefe']} for e in lista[:limite]]
             return {'ok': True, 'resultados': resultados, 'total_coincidencias': len(universo),
@@ -2476,7 +2547,9 @@ class Manejador(BaseHTTPRequestHandler):
             if metodo == 'POST' and ruta.startswith('/api/servidor/'):
                 return self._json(EXA.accion(ruta.rsplit('/', 1)[-1]))
             if metodo == 'POST' and ruta == '/api/comando':
-                return self._json(ejecutar_comando(self._cuerpo_json().get('comando')))
+                return self._json(comando_en_fondo(self._cuerpo_json().get('comando')))
+            if metodo == 'GET' and ruta == '/api/comando/salida':
+                return self._json(SALIDAS.get(q.get('id'), {'listo': True, 'error': 'Comando desconocido'}))
             if metodo == 'GET' and ruta == '/api/consola/jugadores':
                 return self._json(consola_jugadores())
             if metodo == 'GET' and ruta == '/api/consola/waystones':
@@ -2575,7 +2648,13 @@ class Manejador(BaseHTTPRequestHandler):
                 return self._json(DATAPACKS.listar())
             if metodo == 'GET' and ruta == '/api/entidades/buscar':
                 solo = q.get('jefes') in ('1', 'true', 'si')
-                return self._json(buscar_entidades(q.get('q', ''), solo_jefes=solo))
+                return self._json(buscar_entidades(q.get('q', ''), solo_jefes=solo, mod=q.get('mod') or None))
+            if metodo == 'GET' and ruta == '/api/entidades/mods':
+                return self._json(entidades_por_mod())
+            if metodo == 'GET' and ruta == '/api/datapacks/elites':
+                return self._json(DATAPACKS.elites_estado())
+            if metodo == 'POST' and ruta == '/api/datapacks/elites':
+                return self._json(DATAPACKS.elites_cambiar(bool(self._cuerpo_json().get('activo'))))
             if metodo == 'GET' and ruta == '/api/datapacks/vida':
                 return self._json(DATAPACKS.vida_listar())
             if metodo == 'POST' and ruta == '/api/datapacks/vida':

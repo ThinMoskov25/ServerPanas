@@ -58,6 +58,12 @@ async function estado(env) {
 }
 
 export default {
+  // Cada 10 minutos: mantiene despierto el panel de Render (el plan gratis se
+  // duerme a los 15 min sin visitas y tarda unos 50 s en despertar).
+  async scheduled(evento, env, ctx) {
+    ctx.waitUntil(fetch('https://serverpanas-panel.onrender.com/salud').catch(() => {}));
+  },
+
   async fetch(req, env) {
     const url = new URL(req.url);
     const partes = url.pathname.split('/').filter(Boolean);

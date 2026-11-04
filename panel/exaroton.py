@@ -7,6 +7,7 @@ Usa las credenciales que ya existen en ServerPanas\\automatizacion:
 El token se descifra en memoria y nunca se escribe ni se muestra.
 """
 import ctypes
+import http.client
 import json
 import os
 import re
@@ -78,6 +79,8 @@ class Exaroton:
         self.server_id = cargar_server_id()
         self._base = 'https://api.exaroton.com/v1/servers/' + self.server_id
         self._candado = threading.Lock()
+        self._pool = []
+        self._pool_candado = threading.Lock()
         # Cache corta del estado del servidor. estado() hace un round-trip a la
         # API de Exaroton (~1 s); como el panel lo consulta muy seguido (refresco
         # cada pocos segundos + varios endpoints internos), cachearlo unos
@@ -86,6 +89,24 @@ class Exaroton:
         self._estado_cache_ts = 0.0
         self._estado_ttl = 2.5
         self._estado_candado = threading.Lock()
+
+    def _tomar_conexion(self, host, timeout):
+        """Reutiliza una conexion abierta: abrir TLS cada vez cuesta casi 1 s por llamada."""
+        with self._pool_candado:
+            conn = self._pool.pop() if self._pool else None
+        if conn is None:
+            return http.client.HTTPSConnection(host, timeout=timeout), False
+        conn.timeout = timeout
+        if conn.sock is not None:
+            conn.sock.settimeout(timeout)
+        return conn, True
+
+    def _devolver_conexion(self, conn, respuesta):
+        with self._pool_candado:
+            if respuesta.will_close or len(self._pool) >= 6:
+                conn.close()
+            else:
+                self._pool.append(conn)
 
     def _peticion(self, metodo, ruta, cuerpo=None, crudo=False, timeout=20, content_type=None):
         cabeceras = {'Authorization': 'Bearer ' + self._token, 'User-Agent': 'ServerPanas-Panel/1.0'}
@@ -102,15 +123,23 @@ class Exaroton:
             else:
                 datos = json.dumps(cuerpo).encode('utf-8')
                 cabeceras['Content-Type'] = 'application/json'
-        req = urllib.request.Request(self._base + ruta, data=datos, headers=cabeceras, method=metodo)
-        try:
-            with urllib.request.urlopen(req, timeout=timeout) as r:
+        partes = urllib.parse.urlsplit(self._base + ruta)
+        destino = partes.path + ('?' + partes.query if partes.query else '')
+        for intento in (1, 2):
+            conn, reutilizada = self._tomar_conexion(partes.netloc, timeout)
+            try:
+                conn.request(metodo, destino, body=datos, headers=cabeceras)
+                r = conn.getresponse()
                 contenido = r.read()
-        except urllib.error.HTTPError as e:
-            detalle = e.read().decode('utf-8', errors='replace')[:300]
-            raise ErrorApi('Exaroton respondio %s: %s' % (e.code, detalle))
-        except urllib.error.URLError as e:
-            raise ErrorApi('Sin conexion con Exaroton: %s' % e.reason)
+                break
+            except (http.client.HTTPException, OSError) as e:
+                conn.close()
+                # Una conexion guardada puede haber caducado: se reintenta una vez con otra nueva
+                if not (reutilizada and intento == 1):
+                    raise ErrorApi('Sin conexion con Exaroton: %s' % e)
+        self._devolver_conexion(conn, r)
+        if r.status >= 400:
+            raise ErrorApi('Exaroton respondio %s: %s' % (r.status, contenido.decode('utf-8', errors='replace')[:300]))
         if crudo:
             return contenido
         return json.loads(contenido.decode('utf-8')) if contenido else {}

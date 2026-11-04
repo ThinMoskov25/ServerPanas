@@ -77,11 +77,14 @@ DP_BASE = 'world/datapacks'
 DP_VIDA = DP_BASE + '/PanelVidaMobs'
 DP_PROG = DP_BASE + '/PanelProgramador'
 DP_JEFES = DP_BASE + '/PanelJefes'
+DP_NIVELES = DP_BASE + '/PanelNiveles'
 
 # Namespaces de las funciones.
 NS_VIDA = 'panelvidamobs'
 NS_PROG = 'panelprog'
 NS_JEFES = 'paneljefes'
+NS_NIVELES = 'panelniveles'
+NIVELES_VERSION = '1'
 
 # Indice interno de tareas/mobs que mantiene el panel DENTRO del datapack, como
 # un .json de datos propios (no es leido por Minecraft, solo por el panel). Asi
@@ -95,20 +98,54 @@ ID_ENTIDAD_OK = re.compile(r'^[a-z0-9_.\-]+:[a-z0-9_./\-]+$')
 NOMBRE_OK = re.compile(r'^[A-Za-z0-9_]{1,16}$')
 
 # ---- Niveles de jefe (1 a 5) ----
-# Multiplicador sobre la base del jefe por NIVEL. Nivel 1 = normal (x1, sin
-# cambios). multiply_base suma k*base con k = mult - 1, por eso no hace falta
-# conocer la vida/dano base de cada jefe: funciona sobre cualquier entidad.
-#   vida = 1 + (N-1)*0.75  -> 1, 1.75, 2.5, 3.25, 4
-#   dano = 1 + (N-1)*0.40  -> 1, 1.4,  1.8, 2.2,  2.6
+# Los multiplicadores son sobre la base de cada mob: multiply_base suma k*base
+# con k = mult - 1, asi que funciona sobre cualquier entidad.
 NIVEL_MIN, NIVEL_MAX = 1, 5
+
+# Cada nivel tiene un color (el mismo para jefes y para elites nocturnos). Ademas
+# de vida y dano sube armadura, velocidad y efectos: casi todos los jefes de mods
+# hacen dano con habilidades que no dependen de attack_damage, y la vida maxima
+# tiene tope, asi que la resistencia es lo que de verdad los hace duros.
+NIVELES = {
+    1: {'color': 'green', 'nombre': 'Verde', 'vida': 1.0, 'dano': 1.0, 'armadura': 0, 'dureza': 0,
+        'veloc': 0.0, 'empuje': 0.0, 'resist': 0, 'fuerza': 0, 'regen': 0, 'escoltas': 0},
+    2: {'color': 'aqua', 'nombre': 'Azul', 'vida': 2.5, 'dano': 1.5, 'armadura': 6, 'dureza': 2,
+        'veloc': 0.10, 'empuje': 0.25, 'resist': 0, 'fuerza': 0, 'regen': 0, 'escoltas': 0},
+    3: {'color': 'light_purple', 'nombre': 'Morado', 'vida': 5.0, 'dano': 2.0, 'armadura': 12, 'dureza': 6,
+        'veloc': 0.15, 'empuje': 0.5, 'resist': 1, 'fuerza': 1, 'regen': 1, 'escoltas': 0},
+    4: {'color': 'gold', 'nombre': 'Naranja', 'vida': 9.0, 'dano': 3.0, 'armadura': 18, 'dureza': 10,
+        'veloc': 0.20, 'empuje': 0.75, 'resist': 2, 'fuerza': 2, 'regen': 1, 'escoltas': 2},
+    5: {'color': 'red', 'nombre': 'Rojo', 'vida': 15.0, 'dano': 4.0, 'armadura': 24, 'dureza': 14,
+        'veloc': 0.30, 'empuje': 1.0, 'resist': 3, 'fuerza': 3, 'regen': 2, 'escoltas': 4},
+}
+# Probabilidad de que un monstruo nocturno se convierta en elite de cada color.
+ELITE_PROB = {5: 0.004, 4: 0.015, 3: 0.04, 2: 0.09, 1: 0.18}
+ELITE_NOMBRE = {1: 'Verde', 2: 'Azul', 3: 'Morada', 4: 'Naranja', 5: 'Roja'}
+# Solo elites: la vida extra de nivel 1 (a los jefes nivel 1 no se les toca).
+ELITE_VIDA_NV1 = 0.5
+# Botin de los elites: (item, min, max, probabilidad)
+ELITE_BOTIN = {
+    1: [('minecraft:iron_ingot', 1, 3, 1.0), ('minecraft:emerald', 1, 2, 0.5)],
+    2: [('minecraft:gold_ingot', 2, 4, 1.0), ('minecraft:emerald', 2, 4, 1.0)],
+    3: [('minecraft:diamond', 1, 2, 1.0), ('minecraft:golden_apple', 1, 1, 0.5)],
+    4: [('minecraft:diamond', 2, 4, 1.0), ('minecraft:enchanted_golden_apple', 1, 1, 0.25), ('minecraft:netherite_scrap', 1, 1, 0.25)],
+    5: [('minecraft:diamond_block', 1, 2, 1.0), ('minecraft:netherite_scrap', 1, 2, 1.0), ('minecraft:totem_of_undying', 1, 1, 0.5)],
+}
+# Monstruos que pueden volverse elite de noche. Los de mods son opcionales: si el
+# mod falta, el datapack sigue cargando (required: false).
+ELITE_VANILLA = ['zombie', 'husk', 'drowned', 'skeleton', 'stray', 'spider', 'cave_spider', 'creeper',
+                 'witch', 'pillager', 'vindicator', 'zombie_villager', 'enderman', 'phantom']
+ELITE_MODS = ['mowziesmobs:foliaath', 'mowziesmobs:umvuthana_raptor', 'alexsmobs:soul_vulture',
+              'alexsmobs:underminer', 'cataclysm:ender_golem', 'twilightforest:skeleton_druid',
+              'twilightforest:wraith', 'twilightforest:redcap', 'deeperdarker:shattered']
 
 
 def nivel_vida_mult(n):
-    return 1.0 + (int(n) - 1) * 0.75
+    return NIVELES[int(n)]['vida']
 
 
 def nivel_dano_mult(n):
-    return 1.0 + (int(n) - 1) * 0.40
+    return NIVELES[int(n)]['dano']
 
 
 # ==========================================================================
@@ -700,6 +737,7 @@ class Datapacks:
         nivel = self._nivel_valido(nivel)
         if not self._online():
             raise ValueError('El servidor esta apagado; enciendelo para spawnear.')
+        self.asegurar_niveles()
         cmds, info = self._cmds_summon(eid, destino, nivel, nombre)
         if info.get('arena'):
             # Modo arena: la secuencia puede tener ~100 comandos (plataforma +
@@ -733,6 +771,7 @@ class Datapacks:
         al programar)."""
         eid = self._entidad_valida(entidad)
         nivel = self._nivel_valido(nivel)
+        self.asegurar_niveles()
         cmds, info = self._cmds_summon(eid, destino, nivel, nombre)
         desc = 'spawn_%s_nv%d' % (_slug(eid.split(':')[-1]), nivel)
         r = self.prog_programar(cmds, segundos, 'una_vez', descripcion=desc)
@@ -748,6 +787,132 @@ class Datapacks:
                 r['mensaje'] = 'Spawn de %s [Nv %d] programado en %s s. Ocurrira aunque cierres el panel.' % (
                     eid, nivel, _fmt(float(segundos)))
         return r
+
+    # ==================================================================
+    #  NIVELES POR COLOR Y ELITES NOCTURNOS  -- datapack PanelNiveles
+    # ==================================================================
+    # Un solo punto aplica los niveles: cualquier entidad con la etiqueta pn_nv<N>
+    # recibe sus atributos, efectos y color en el siguiente segundo. Asi un spawn
+    # es UN comando (exaroton separa cada comando varios segundos) y jefes y
+    # elites comparten las mismas reglas.
+    def _archivos_niveles(self):
+        fn = 'data/%s/functions' % NS_NIVELES
+        a = {'pack.mcmeta': _pack_mcmeta('Server Panas - Panel: niveles por color y elites nocturnos.'),
+             'data/minecraft/tags/functions/load.json': _tag_funcion(['%s:init' % NS_NIVELES])}
+        a['data/%s/tags/entity_types/hostiles.json' % NS_NIVELES] = json.dumps({
+            'replace': False,
+            'values': ['minecraft:' + m for m in ELITE_VANILLA] + [{'id': m, 'required': False} for m in ELITE_MODS],
+        }, indent=2)
+        init = ['scoreboard objectives add pn dummy', 'scoreboard players add #elites pn 0']
+        bucle = []
+        for n, c in NIVELES.items():
+            init += ['team add pn_nv%d' % n, 'team modify pn_nv%d color %s' % (n, c['color']),
+                     'team modify pn_nv%d friendlyFire false' % n]
+            bucle.append('execute as @e[tag=pn_nv%d] run function %s:aplicar/%d' % (n, NS_NIVELES, n))
+            a['%s/aplicar/%d.mcfunction' % (fn, n)] = self._funcion_aplicar(n, c)
+            a['data/%s/predicates/prob_%d.json' % (NS_NIVELES, n)] = json.dumps(
+                {'condition': 'minecraft:random_chance', 'chance': ELITE_PROB[n]})
+            a['data/%s/loot_tables/elite/%d.json' % (NS_NIVELES, n)] = json.dumps({
+                'type': 'minecraft:entity',
+                'pools': [{'rolls': 1, 'conditions': [{'condition': 'minecraft:random_chance', 'chance': p}],
+                           'entries': [{'type': 'minecraft:item', 'name': i, 'functions': [
+                               {'function': 'minecraft:set_count', 'count': {'min': lo, 'max': hi}}]}]}
+                          for i, lo, hi, p in ELITE_BOTIN[n]],
+            }, indent=2)
+            if c['escoltas']:
+                a['%s/escolta/%d.mcfunction' % (fn, n)] = ''.join(
+                    'summon minecraft:wither_skeleton ~%d ~ ~%d {Tags:["pn_nv3","pn_visto"],PersistenceRequired:1b}\n' % dd
+                    for dd in [(2, 0), (-2, 0), (0, 2), (0, -2)][:c['escoltas']])
+        init.append('function %s:bucle' % NS_NIVELES)
+        bucle += ['scoreboard players add #t pn 1',
+                  'execute if score #elites pn matches 1 if score #t pn matches 10.. run function %s:noche/comprobar' % NS_NIVELES,
+                  'execute if score #t pn matches 10.. run scoreboard players set #t pn 0',
+                  'schedule function %s:bucle 1s replace' % NS_NIVELES]
+        a[fn + '/init.mcfunction'] = '\n'.join(init) + '\n'
+        a[fn + '/bucle.mcfunction'] = '\n'.join(bucle) + '\n'
+        a[fn + '/noche/comprobar.mcfunction'] = (
+            'execute store result score #dia pn run time query daytime\n'
+            'execute if score #dia pn matches 13000..23000 as @a at @s as @e[type=#%s:hostiles,distance=..40,tag=!pn_visto,tag=!panelboss,limit=6,sort=random] run function %s:noche/mob\n'
+            % (NS_NIVELES, NS_NIVELES))
+        mob = ['tag @s add pn_visto', 'scoreboard players set #n pn 0']
+        for n in sorted(NIVELES, reverse=True):
+            mob.append('execute if score #n pn matches 0 if predicate %s:prob_%d run scoreboard players set #n pn %d' % (NS_NIVELES, n, n))
+        mob.append('execute unless score #n pn matches 0 run tag @s add pn_elite')
+        for n in NIVELES:
+            mob.append('execute if score #n pn matches %d run tag @s add pn_nv%d' % (n, n))
+        mob.append('execute if score #n pn matches 4.. at @s run tellraw @a[distance=..48] {"text":"Sientes una presencia peligrosa cerca...","color":"gold","italic":true}')
+        a[fn + '/noche/mob.mcfunction'] = '\n'.join(mob) + '\n'
+        return a
+
+    @staticmethod
+    def _funcion_aplicar(n, c):
+        L = ['tag @s remove pn_nv%d' % n, 'team join pn_nv%d @s' % n]
+
+        def attr(nombre, sufijo, valor, op):
+            return 'attribute @s minecraft:generic.%s modifier add 7a5e0000-0000-4000-8000-0000000%d%s panel_nv %s %s' % (
+                nombre, n, sufijo, _fmt(valor), op)
+        if c['vida'] > 1:
+            L.append(attr('max_health', '0001', c['vida'] - 1, 'multiply_base'))
+        else:
+            L.append('execute if entity @s[tag=pn_elite] run ' + attr('max_health', '0001', ELITE_VIDA_NV1, 'multiply_base'))
+        if c['dano'] > 1:
+            L.append(attr('attack_damage', '0002', c['dano'] - 1, 'multiply_base'))
+        if c['armadura']:
+            L.append(attr('armor', '0003', c['armadura'], 'add'))
+            L.append(attr('armor_toughness', '0004', c['dureza'], 'add'))
+        if c['veloc']:
+            L.append(attr('movement_speed', '0005', c['veloc'], 'multiply_base'))
+        if c['empuje']:
+            L.append(attr('knockback_resistance', '0006', c['empuje'], 'add'))
+        for efecto, nv in (('resistance', c['resist']), ('strength', c['fuerza']), ('regeneration', c['regen'])):
+            if nv:
+                L.append('effect give @s minecraft:%s infinite %d true' % (efecto, nv - 1))
+        if n == NIVEL_MAX:
+            L.append('effect give @s minecraft:fire_resistance infinite 0 true')
+        L.append('effect give @s minecraft:glowing infinite 0 true')
+        nombre = '\'{"text":"Élite %s","color":"%s"}\'' % (ELITE_NOMBRE[n], c['color'])
+        L.append('execute if entity @s[tag=pn_elite] run data merge entity @s {CustomName:%s,CustomNameVisible:1b,DeathLootTable:"%s:elite/%d"}' % (nombre, NS_NIVELES, n))
+        # Con la vida maxima ya subida, llenarla. No usar instant_health: a los no
+        # muertos les hace dano y deja al jefe casi sin vida.
+        L.append('data merge entity @s {Health:100000f}')
+        if c['escoltas']:
+            L.append('execute if entity @s[tag=panelboss] at @s run function %s:escolta/%d' % (NS_NIVELES, n))
+        return '\n'.join(L) + '\n'
+
+    def asegurar_niveles(self):
+        """Instala o actualiza PanelNiveles. Devuelve True si hizo falta /reload."""
+        if getattr(self, '_niveles_ok', False):
+            return False
+        marca = DP_NIVELES + '/panel_version.txt'
+        try:
+            if self.EXA.leer_archivo(marca).decode('utf-8').strip() == NIVELES_VERSION:
+                self._niveles_ok = True
+                return False
+        except self.ErrorApi:
+            pass
+        archivos = self._archivos_niveles()
+        self._crear_dirs(*sorted({(DP_NIVELES + '/' + r).rsplit('/', 1)[0] for r in archivos}))
+        for ruta, texto in archivos.items():
+            self.EXA.escribir_archivo(DP_NIVELES + '/' + ruta, texto if isinstance(texto, bytes) else texto.encode('utf-8'))
+        self.EXA.escribir_archivo(marca, NIVELES_VERSION.encode('utf-8'))
+        self._reload()
+        self._niveles_ok = True
+        return True
+
+    def elites_estado(self):
+        cfg = self._leer_json(DP_NIVELES + '/panel_config.json', {'activo': False})
+        return {'activo': bool(cfg.get('activo')), 'online': self._online(),
+                'niveles': [{'nivel': n, 'nombre': c['nombre'], 'color': c['color'], 'prob': ELITE_PROB[n] * 100,
+                             'vida': c['vida'], 'dano': c['dano'], 'resist': c['resist'] * 20,
+                             'escoltas': c['escoltas']} for n, c in NIVELES.items()]}
+
+    def elites_cambiar(self, activo):
+        if not self._online():
+            raise ValueError('El servidor esta apagado; enciendelo para cambiar esto.')
+        self.asegurar_niveles()
+        self.EXA.comando('scoreboard players set #elites pn %d' % (1 if activo else 0))
+        self._escribir_json(DP_NIVELES + '/panel_config.json', {'activo': bool(activo)})
+        return {'ok': True, 'activo': bool(activo)}
 
     def _nivel_valido(self, nivel):
         try:
@@ -855,12 +1020,12 @@ class Datapacks:
         return 'schedule function %s:watch_%s 40t replace' % (NS_JEFES, token)
 
     @staticmethod
-    def _custom_name_json(texto):
+    def _custom_name_json(texto, color='white'):
         """CustomName de Minecraft: un JSON-texto, escapado para meterlo dentro
         del NBT del summon (que a su vez es un string JSON entre comillas)."""
         limpio = re.sub(r'[\\"\n\r]', ' ', texto or '').strip()
-        # CustomName:'{"text":"<...>"}'  (comillas simples externas en el NBT)
-        return "'{\"text\":\"%s\"}'" % limpio
+        # CustomName:'{"text":"<...>","color":"<...>"}'  (comillas simples externas en el NBT)
+        return "'{\"text\":\"%s\",\"color\":\"%s\"}'" % (limpio, color)
 
     # -- Construccion de la PLATAFORMA CIRCULAR (arena) con MURO ------------
     @staticmethod
@@ -924,8 +1089,8 @@ class Datapacks:
     def _cmds_summon(self, eid, destino, nivel, nombre):
         """Construye la secuencia de comandos para spawnear al jefe en el nivel
         dado. El summon marca al jefe con un Tag unico + CustomName "<Nombre>
-        [Nv N]". Para nivel >= 2 se anaden modificadores multiply_base de vida y
-        dano (metodo general, no necesita la base del jefe) y se cura a tope.
+        [Nv N]" del color del nivel. Vida, dano, armadura y efectos los aplica el
+        datapack PanelNiveles al ver la etiqueta pn_nv<N>.
 
         Soporta tres modos de destino:
           - 'arena'   (NUEVO, por defecto): plataforma circular en ubicacion
@@ -951,8 +1116,10 @@ class Datapacks:
         token = _slug('%s_%d_%d' % (eid.split(':')[-1], nivel, int(time.time() * 1000) % 100000000))
         tag = 'spawnnv_%s' % token          # tag de nivel (se quita tras aplicar)
         sys_tag = 'pj_%s' % token           # tag del SISTEMA (persistente, lo vigila PanelJefes)
-        nbt = '{Tags:["%s","panelboss","%s"],CustomName:%s,CustomNameVisible:1b}' % (
-            tag, sys_tag, self._custom_name_json(etiqueta))
+        # pn_nv<N> hace que el datapack PanelNiveles aplique el nivel en menos de 1 s.
+        # PersistenceRequired: sin el, un mob lejos de los jugadores desaparece.
+        nbt = '{Tags:["%s","panelboss","%s","pn_nv%d"],CustomName:%s,CustomNameVisible:1b,PersistenceRequired:1b}' % (
+            tag, sys_tag, nivel, self._custom_name_json(etiqueta, NIVELES[nivel]['color']))
 
         info = {'arena': False, 'nombre_jefe': nombre_vis, 'token': token,
                 'plataforma': False, 'nivel': nivel}
@@ -995,21 +1162,6 @@ class Datapacks:
             raise ValueError('Destino no valido (arena | coords | jugador).')
 
         cmds.append(summon)
-        if nivel >= 2:
-            kv = _fmt(nivel_vida_mult(nivel) - 1.0)  # multiply_base suma k*base
-            kd = _fmt(nivel_dano_mult(nivel) - 1.0)
-            uuid_vida = str(uuidlib.uuid4())
-            uuid_dano = str(uuidlib.uuid4())
-            sel = '@e[tag=%s,limit=1]' % tag
-            cmds.append('attribute %s minecraft:generic.max_health modifier add %s nivel_vida %s multiply_base'
-                        % (sel, uuid_vida, kv))
-            cmds.append('attribute %s minecraft:generic.attack_damage modifier add %s nivel_dano %s multiply_base'
-                        % (sel, uuid_dano, kd))
-            # Curar a tope para que nazca con la vida maxima ya escalada.
-            cmds.append('effect give %s minecraft:instant_health 1 255 true' % sel)
-            # Quitar el tag para no confundir futuros spawns con este selector.
-            cmds.append('tag %s remove %s' % (sel, tag))
-
         # ANUNCIO GLOBAL a todo el servidor. En modo arena incluye dimension y
         # coords; en los otros modos un aviso mas simple. En el caso PROGRAMADO,
         # este tellraw va DENTRO de la funcion de la tarea (se ejecuta junto al
