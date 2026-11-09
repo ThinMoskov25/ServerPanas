@@ -184,6 +184,22 @@ public class EcoEvents {
                 .then(Commands.literal("cancel").executes(ctx -> cancelar(ctx.getSource()))));
 
         d.register(Commands.literal("buzon").executes(ctx -> reclamarBuzon(ctx.getSource())));
+
+        // Poderes: menu directo y respuesta a las solicitudes de teletransporte.
+        d.register(Commands.literal("poderes").executes(ctx -> {
+            ServerPlayer p = jugador(ctx.getSource());
+            if (p == null) return 0;
+            com.serverpanas.servereco.shop.Menus.abrirPoderes(p, null);
+            return 1;
+        }));
+        d.register(Commands.literal("tpaceptar").executes(ctx -> {
+            ServerPlayer p = jugador(ctx.getSource());
+            return p == null ? 0 : com.serverpanas.servereco.shop.Powers.aceptar(p);
+        }));
+        d.register(Commands.literal("tprechazar").executes(ctx -> {
+            ServerPlayer p = jugador(ctx.getSource());
+            return p == null ? 0 : com.serverpanas.servereco.shop.Powers.rechazar(p);
+        }));
     }
 
     // ---------------- Admin: ajuste de creditos (saldo) ----------------

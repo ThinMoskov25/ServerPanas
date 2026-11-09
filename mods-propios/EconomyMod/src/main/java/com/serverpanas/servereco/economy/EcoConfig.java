@@ -131,6 +131,27 @@ public final class EcoConfig {
     public Map<String, Integer> catalogoCompra = new LinkedHashMap<>();
 
     /**
+     * PODERES que se compran en /tienda -> PODERES (id -> precio en creditos).
+     * 0 o menos = desactivado (no aparece). Los que falten se rellenan con el
+     * precio por defecto. Se recarga en caliente con /tienda reload.
+     */
+    public Map<String, Integer> poderes = poderesPorDefecto();
+
+    public static Map<String, Integer> poderesPorDefecto() {
+        Map<String, Integer> m = new LinkedHashMap<>();
+        m.put("tp_ir", 300);
+        m.put("tp_traer", 300);
+        m.put("tp_cama", 200);
+        m.put("curar", 100);
+        m.put("vision_nocturna", 80);
+        m.put("prisa", 150);
+        m.put("velocidad", 100);
+        m.put("resistencia_fuego", 120);
+        m.put("respirar_agua", 80);
+        return m;
+    }
+
+    /**
      * TABLA ANCLA de materias primas  (modid:item -> creditos). Fondo coherente
      * de la recursion de recetas y patron oro de la economia.
      */
@@ -275,6 +296,10 @@ public final class EcoConfig {
         if (categorias == null) categorias = new LinkedHashMap<>();
         for (Map.Entry<String, Integer> e : def.categorias.entrySet()) {
             categorias.putIfAbsent(e.getKey(), e.getValue());
+        }
+        if (poderes == null) poderes = new LinkedHashMap<>();
+        for (Map.Entry<String, Integer> e : poderesPorDefecto().entrySet()) {
+            poderes.putIfAbsent(e.getKey(), e.getValue());
         }
     }
 

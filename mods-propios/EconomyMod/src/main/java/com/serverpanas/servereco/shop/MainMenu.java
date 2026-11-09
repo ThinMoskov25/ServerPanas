@@ -37,6 +37,7 @@ public class MainMenu extends ChestMenu {
     private static final int SLOT_COMPRAR = 21;
     private static final int SLOT_VENDER = 23;
     private static final int SLOT_SUBASTAR = 25;
+    private static final int SLOT_PODERES = 31;
 
     // Item-info fijo con el saldo (fila inferior, centrado).
     private static final int SLOT_SALDO = 49;
@@ -111,6 +112,17 @@ public class MainMenu extends ChestMenu {
                 "&eClic para abrir"));
         muestra.setItem(SLOT_SUBASTAR, subastar);
 
+        ItemStack poderes = new ItemStack(Items.NETHER_STAR);
+        MenuUtil.nombre(poderes, "&5&lPODERES");
+        MenuUtil.lore(poderes, List.of(
+                "&7Compra ayudas con tu saldo:",
+                "&7- Ir con un compañero o traerlo",
+                "&7- Volver a tu cama",
+                "&7- Curación y efectos",
+                "",
+                "&eClic para abrir"));
+        muestra.setItem(SLOT_PODERES, poderes);
+
         long saldo = BalanceData.get(dueno.server).saldo(dueno);
         ItemStack saldoIcon = new ItemStack(Items.GOLD_NUGGET);
         MenuUtil.nombre(saldoIcon, "&6&lCreditos: &e" + saldo);
@@ -138,6 +150,7 @@ public class MainMenu extends ChestMenu {
             case SLOT_COMPRAR -> Menus.abrirComprar(dueno);
             case SLOT_VENDER -> Menus.abrirVender(dueno);
             case SLOT_SUBASTAR -> Menus.abrirSubastar(dueno);
+            case SLOT_PODERES -> Menus.abrirPoderes(dueno, null);
             default -> { /* clic cancelado: ni botones ni items se mueven */ }
         }
     }

@@ -81,6 +81,20 @@ public final class Menus {
         });
     }
 
+    /** Menu de PODERES. poder != null -> elegir a que compañero aplicarlo. */
+    public static void abrirPoderes(ServerPlayer p, String poder) {
+        Container cont = PowersMenu.nuevoContenedor();
+        p.openMenu(new MenuProvider() {
+            @Override public Component getDisplayName() {
+                return Component.literal(poder == null ? "Poderes" : "Elige un compañero")
+                        .withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.BOLD);
+            }
+            @Override public AbstractContainerMenu createMenu(int id, Inventory inv, Player pl) {
+                return new PowersMenu(id, inv, p, cont, poder);
+            }
+        });
+    }
+
     /** Abre la vista interactiva (por arrastre) para PONER EN SUBASTA. */
     public static void abrirSubastarPublicar(ServerPlayer p) {
         Container cont = AuctionSellMenu.nuevoContenedor();
