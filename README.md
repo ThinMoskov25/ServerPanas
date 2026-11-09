@@ -118,6 +118,16 @@ El rol define forma, tamaño y color, así que todos los capítulos tienen el mi
 
 ---
 
+### Bot de avisos (Datapacks → Bot de avisos)
+
+Habla con cada jugador por el chat. Se configura y se instala desde el panel con **Guardar y aplicar** (servidor encendido).
+
+- **Datapack `PanelBot`** (corre en el servidor, no depende del panel): bienvenida al entrar, guía la primera vez, consejos rotativos con el reloj de cada jugador, aviso al anochecer y aviso al morir con las coordenadas de la tumba.
+- **Avisos de misiones** (los manda el panel cada 90 s si hay gente): lee el progreso de FTB Quests (`world/ftbquests/`) y le dice a cada jugador **su** siguiente misión y si tiene recompensas sin reclamar. También anuncia a todos cuando alguien completa una misión. Los capítulos de "Guia Mods" van al final.
+- Código: `panel/bot.py`. Configuración: `world/datapacks/PanelBot/panel_config.json`.
+
+En **Consola**, al elegir un jugador se ve su nivel de XP y hay controles para dar, quitar o fijar experiencia (niveles o puntos).
+
 ### Panel 24/7 en Render (sin depender de tu PC)
 
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/ThinMoskov25/ServerPanas)

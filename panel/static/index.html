@@ -494,6 +494,7 @@
       <button class="subtab activo" data-sub="lista"><span class="ic">&#128230;</span> Mis datapacks</button>
       <button class="subtab" data-sub="vida"><span class="ic">&#10084;</span> Vida de mobs</button>
       <button class="subtab" data-sub="programador"><span class="ic">&#9201;</span> Programador de comandos</button>
+      <button class="subtab" data-sub="bot"><span class="ic">&#129302;</span> Bot de avisos</button>
     </div>
 
     <!-- SUB: LISTA -->
@@ -555,6 +556,43 @@
           <button class="btn az sm" onclick="cargarProgramador()">&#8635;</button>
         </div>
         <div id="progTabla"><p class="suave">Cargando...</p></div>
+      </div>
+    </div>
+
+    <!-- SUB: BOT -->
+    <div class="subpanel" id="dpsub-bot" hidden>
+      <div class="card">
+        <div class="card-head"><h2>&#129302; Bot de avisos</h2>
+          <label class="fila"><span class="switch"><input type="checkbox" id="botActivo"><span class="slider"></span></span> <span>Activo</span></label>
+        </div>
+        <p class="suave" style="font-size:13px">Habla con cada jugador por el chat. Escribe <span class="mono">{jugador}</span> donde quieras su nombre. Los cambios se aplican al pulsar <b>Guardar y aplicar</b> (el servidor debe estar encendido).</p>
+        <div class="fila" style="margin-bottom:10px"><label>Nombre del bot:</label><input id="botNombre" style="width:180px" maxlength="24"></div>
+        <h3>&#128220; Misiones (personalizado por jugador)</h3>
+        <div class="fila" style="margin-bottom:6px">
+          <label class="fila"><input type="checkbox" id="botMisiones"> Avisar a cada jugador de su siguiente misión y recompensas sin reclamar cada</label>
+          <input id="botMisionesMin" type="number" min="1" max="240" style="width:70px"> min
+        </div>
+        <div class="fila" style="margin-bottom:6px"><label class="fila"><input type="checkbox" id="botCompletadas"> Anunciar a todos cuando alguien completa una misión</label></div>
+        <div class="fila" style="margin-bottom:14px">
+          <label>Probar con:</label><select id="botJugador" style="min-width:160px"></select>
+          <button class="btn sm az" onclick="botAvisar()">Enviar aviso de misiones ahora</button>
+          <span id="botPrueba" class="suave" style="font-size:12.5px"></span>
+        </div>
+        <h3>&#128075; Bienvenida</h3>
+        <label class="suave" style="font-size:12.5px">Al volver a entrar:</label>
+        <input id="botBienvenida" style="width:100%;margin-bottom:8px">
+        <label class="suave" style="font-size:12.5px">La primera vez que entra (una línea por mensaje):</label>
+        <textarea id="botPrimera" rows="3" style="width:100%;margin-bottom:14px"></textarea>
+        <h3>&#128161; Consejos rotativos</h3>
+        <div class="fila" style="margin-bottom:6px"><label class="fila"><input type="checkbox" id="botConsejos"> A cada jugador, uno cada</label>
+          <input id="botConsejosMin" type="number" min="1" max="240" style="width:70px"> min de juego</div>
+        <textarea id="botConsejosTxt" rows="6" style="width:100%;margin-bottom:14px" placeholder="Un consejo por línea"></textarea>
+        <h3>&#127769; Noche y muerte</h3>
+        <div class="fila" style="margin-bottom:6px"><label class="fila"><input type="checkbox" id="botNoche"> Avisar a todos al anochecer:</label></div>
+        <input id="botNocheTxt" style="width:100%;margin-bottom:8px">
+        <div class="fila" style="margin-bottom:6px"><label class="fila"><input type="checkbox" id="botMuerte"> Al morir, decirle dónde quedó su tumba:</label></div>
+        <input id="botMuerteTxt" style="width:100%;margin-bottom:14px">
+        <div class="fila"><button class="btn p" id="btnBot" onclick="guardarBot()">Guardar y aplicar</button><span id="botEstado" class="suave" style="font-size:12.5px"></span></div>
       </div>
     </div>
   </section>
@@ -655,6 +693,17 @@
           <button class="btn sm" onclick="rapido('gamemode survival {J}')">Supervivencia</button>
           <button class="btn sm" onclick="rapido('gamemode spectator {J}')">Espectador</button>
           <button class="btn sm r" onclick="confirmarCmd('Expulsar a '+JUG_SEL+' del servidor?','kick '+JUG_SEL)">Expulsar</button>
+        </div>
+        <div class="fila" style="margin-bottom:10px">
+          <label>Experiencia:</label>
+          <input id="xpCant" type="number" min="1" value="10" style="width:80px">
+          <select id="xpTipo"><option value="levels">niveles</option><option value="points">puntos</option></select>
+          <button class="btn sm az" onclick="darXp(1)">+ Dar</button>
+          <button class="btn sm" onclick="darXp(-1)">&minus; Quitar</button>
+          <button class="btn sm" onclick="fijarXp()">Fijar en</button>
+          <button class="btn sm" onclick="rapido('xp add {J} 5 levels')">+5</button>
+          <button class="btn sm" onclick="rapido('xp add {J} 30 levels')">+30</button>
+          <button class="btn sm" onclick="rapido('xp query {J} levels')">Ver nivel</button>
         </div>
         <div class="fila" style="margin-bottom:8px">
           <label>Llevar a:</label>
@@ -1529,7 +1578,36 @@ document.querySelectorAll('#dpSubtabs .subtab').forEach(b=>b.onclick=()=>{
   document.querySelectorAll('#tab-datapacks .subpanel').forEach(p=>p.hidden=p.id!=='dpsub-'+b.dataset.sub);
   if(b.dataset.sub==='vida')cargarVida();
   if(b.dataset.sub==='programador')cargarProgramador();
+  if(b.dataset.sub==='bot')cargarBot();
 });
+async function cargarBot(){
+  try{
+    const c=await api('/api/bot');
+    $('botActivo').checked=c.instalado?c.activo:true;$('botNombre').value=c.nombre;
+    $('botMisiones').checked=c.misiones_activo;$('botMisionesMin').value=c.misiones_min;$('botCompletadas').checked=c.anunciar_completadas;
+    $('botBienvenida').value=c.bienvenida;$('botPrimera').value=c.primera_vez.join(String.fromCharCode(10));
+    $('botConsejos').checked=c.consejos_activo;$('botConsejosMin').value=c.consejos_min;$('botConsejosTxt').value=c.consejos.join(String.fromCharCode(10));
+    $('botNoche').checked=c.noche_activo;$('botNocheTxt').value=c.noche;$('botMuerte').checked=c.muerte_activo;$('botMuerteTxt').value=c.muerte;
+    $('botEstado').textContent=c.instalado?(c.activo?' Instalado y activo.':' Instalado, desactivado.'):' Aún no instalado: revisa los textos y pulsa Guardar y aplicar.';
+    const j=await api('/api/consola/jugadores');$('botJugador').innerHTML=j.jugadores.map(x=>'<option>'+esc(x.nombre)+'</option>').join('');
+  }catch(e){$('botEstado').textContent=' '+e.message;}
+}
+async function guardarBot(){
+  const cfg={activo:$('botActivo').checked,nombre:$('botNombre').value,misiones_activo:$('botMisiones').checked,misiones_min:+$('botMisionesMin').value,
+    anunciar_completadas:$('botCompletadas').checked,bienvenida:$('botBienvenida').value,primera_vez:$('botPrimera').value,
+    consejos_activo:$('botConsejos').checked,consejos_min:+$('botConsejosMin').value,consejos:$('botConsejosTxt').value,
+    noche_activo:$('botNoche').checked,noche:$('botNocheTxt').value,muerte_activo:$('botMuerte').checked,muerte:$('botMuerteTxt').value};
+  $('btnBot').disabled=true;$('botEstado').textContent=' Aplicando...';
+  try{await api('/api/bot',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(cfg)});aviso('Bot guardado y aplicado.','ok');cargarBot();}
+  catch(e){$('botEstado').textContent=' '+e.message;aviso(e.message,'error');}
+  $('btnBot').disabled=false;
+}
+async function botAvisar(){
+  const j=$('botJugador').value;if(!j)return;$('botPrueba').textContent='Enviando...';
+  try{const r=await api('/api/bot/avisar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jugador:j})});
+    $('botPrueba').textContent=r.completadas+'/'+r.total+' misiones · siguiente: '+(r.siguientes[0]||'ninguna')+' · '+r.sin_reclamar+' sin reclamar';}
+  catch(e){$('botPrueba').textContent=e.message;}
+}
 async function cargarDatapacks(){cargarListaDatapacks();cargarVida();cargarProgramador();}
 async function cargarListaDatapacks(){
   try{
@@ -1809,7 +1887,7 @@ function pintarJugadores(){
 function pintarDetalle(){
   const j=JUGADORES.find(x=>x.nombre===JUG_SEL);if(!j)return;
   $('conTitulo').textContent='Acciones sobre '+j.nombre;
-  $('conDetalle').innerHTML=(j.conectado?'Conectado':'Desconectado: las acciones no le llegarán hasta que entre')+' · '+nombreDim(j.dim)+(j.pos?' · '+j.pos.join(', '):'')+(j.vida!=null?' · &#10084; '+j.vida:'')+(j.modo?' · '+esc(j.modo):'');
+  $('conDetalle').innerHTML=(j.conectado?'Conectado':'Desconectado: las acciones no le llegarán hasta que entre')+' · '+nombreDim(j.dim)+(j.pos?' · '+j.pos.join(', '):'')+(j.vida!=null?' · &#10084; '+j.vida:'')+(j.modo?' · '+esc(j.modo):'')+(j.xp!=null?' · XP nivel '+j.xp:'');
 }
 function pintarTpJugador(){const v=$('tpJugador').value,o=conectados().filter(n=>n!==JUG_SEL);$('tpJugador').innerHTML=o.length?o.map(n=>'<option>'+esc(n)+'</option>').join(''):'<option value="">(nadie más conectado)</option>';if(o.includes(v))$('tpJugador').value=v;}
 async function elegirJugador(n){
@@ -1836,6 +1914,9 @@ async function teletransportar(jugador,destino){
   try{const r=await api('/api/consola/tp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jugador,destino})});seguirSalida(r);aviso('Teletransporte de '+jugador+' enviado.','ok');}
   catch(e){$('salCmd').textContent='Error: '+e.message;aviso(e.message,'error');}
 }
+function cantXp(){const n=Math.floor(+$('xpCant').value);if(!(n>0)){aviso('Escribe una cantidad mayor que 0.','error');return 0;}return n;}
+function darXp(signo){const n=cantXp();if(n)rapido('xp add {J} '+(signo*n)+' '+$('xpTipo').value);}
+function fijarXp(){const n=Math.floor(+$('xpCant').value);if(!(n>=0)){aviso('Cantidad no válida.','error');return;}rapido('xp set {J} '+n+' '+$('xpTipo').value);}
 function tpAJugador(){teletransportar(JUG_SEL,{tipo:'jugador',nombre:$('tpJugador').value});}
 function tpTraer(){teletransportar($('tpJugador').value,{tipo:'jugador',nombre:JUG_SEL});}
 function tpACoords(){const x=$('tpX').value,y=$('tpY').value,z=$('tpZ').value;if(x===''||y===''||z===''){aviso('Escribe X, Y y Z.','error');return;}teletransportar(JUG_SEL,{tipo:'coords',x,y,z,dim:$('tpDim').value});}
@@ -1848,6 +1929,9 @@ const ASISTENTE=[
   {t:'Aplicar un efecto',c:'effect give {j} {efecto} {seg} {nivel}',f:{j:'jugador',efecto:'efecto',seg:['Segundos',60],nivel:['Nivel (0 = I)',0]}},
   {t:'Cambiar modo de juego',c:'gamemode {modo} {j}',f:{j:'jugador',modo:'modo'}},
   {t:'Dar experiencia (niveles)',c:'xp add {j} {n} levels',f:{j:'jugador',n:['Niveles',5]}},
+  {t:'Dar experiencia (puntos)',c:'xp add {j} {n} points',f:{j:'jugador',n:['Puntos',100]}},
+  {t:'Fijar nivel de experiencia',c:'xp set {j} {n} levels',f:{j:'jugador',n:['Nivel',30]}},
+  {t:'Dar experiencia a todos',c:'xp add @a {n} levels',f:{n:['Niveles',5]}},
   {t:'Mensaje privado',c:'tell {j} {texto}',f:{j:'jugador',texto:'texto'}},
   {t:'Mensaje a todos',c:'say {texto}',f:{texto:'texto'}},
   {t:'Fijar punto de aparición aquí',c:'execute as {j} at @s run spawnpoint @s ~ ~ ~',f:{j:'jugador'}},

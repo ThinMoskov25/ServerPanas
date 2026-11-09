@@ -31,6 +31,7 @@ import exaroton
 import items
 import nbt
 import datapacks as dp
+import bot as botmod
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 DATOS = os.path.join(BASE, 'datos')
@@ -1061,6 +1062,7 @@ def _leer_jugadores_guardados():
         dim = nbt.get(raiz, ['Dimension'])
         vida = nbt.get(raiz, ['Health'])
         modo = nbt.get(raiz, ['playerGameType'])
+        xp = nbt.get(raiz, ['XpLevel'])
         ids = nbt.get(raiz, RUTA_WAYSTONES)
         lista.append({
             'nombre': nombre,
@@ -1068,6 +1070,7 @@ def _leer_jugadores_guardados():
             'dim': dim[1] if dim else None,
             'vida': round(vida[1], 1) if vida else None,
             'modo': MODOS_JUEGO.get(modo[1]) if modo else None,
+            'xp': xp[1] if xp else None,
             'waystones': [v for _, v in ids[1][1]] if ids else [],
         })
     return lista
@@ -1079,7 +1082,7 @@ def consola_jugadores():
     guardados = _cacheado('jugadores', 20, _leer_jugadores_guardados)
     lista = [dict(j, conectado=j['nombre'] in conectados) for j in guardados]
     conocidos = {j['nombre'] for j in lista}
-    lista += [{'nombre': n, 'conectado': True, 'pos': None, 'dim': None, 'vida': None, 'modo': None, 'waystones': []}
+    lista += [{'nombre': n, 'conectado': True, 'pos': None, 'dim': None, 'vida': None, 'modo': None, 'xp': None, 'waystones': []}
               for n in conectados if n not in conocidos]
     lista.sort(key=lambda j: (not j['conectado'], j['nombre'].lower()))
     return {'jugadores': [{k: v for k, v in j.items() if k != 'waystones'} for j in lista]}
@@ -2242,6 +2245,7 @@ def buscar_entidades(texto, limite=40, solo_jefes=False, mod=None):
 
 # Instancia del modulo de datapacks (vida de mobs, programador, spawns).
 DATAPACKS = dp.Datapacks(EXA, exaroton.ErrorApi, registrar_error)
+BOT = botmod.Bot(EXA, exaroton.ErrorApi, registrar_error, _mapa_uuid_nombre)
 
 
 # ====================== Acceso remoto (enlace de ngrok) ======================
@@ -2651,6 +2655,12 @@ class Manejador(BaseHTTPRequestHandler):
                 return self._json(buscar_entidades(q.get('q', ''), solo_jefes=solo, mod=q.get('mod') or None))
             if metodo == 'GET' and ruta == '/api/entidades/mods':
                 return self._json(entidades_por_mod())
+            if metodo == 'GET' and ruta == '/api/bot':
+                return self._json(dict(BOT.config(forzar=True), online=EXA.estado().get('status') == 1))
+            if metodo == 'POST' and ruta == '/api/bot':
+                return self._json(BOT.guardar(self._cuerpo_json()))
+            if metodo == 'POST' and ruta == '/api/bot/avisar':
+                return self._json(BOT.avisar_ahora((self._cuerpo_json().get('jugador') or '').strip()))
             if metodo == 'GET' and ruta == '/api/datapacks/elites':
                 return self._json(DATAPACKS.elites_estado())
             if metodo == 'POST' and ruta == '/api/datapacks/elites':
@@ -2768,6 +2778,7 @@ class Manejador(BaseHTTPRequestHandler):
 def main():
     threading.Thread(target=CAPTURADOR.bucle, daemon=True).start()
     threading.Thread(target=GUARDA_LOGS.bucle, daemon=True).start()
+    threading.Thread(target=BOT.bucle, daemon=True).start()
     # En la nube (Render) el puerto lo asigna la plataforma y hay que escuchar
     # en todas las interfaces; en el PC sigue siendo solo 127.0.0.1.
     if os.environ.get('PORT'):
