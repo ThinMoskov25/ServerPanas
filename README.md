@@ -130,7 +130,7 @@ En **Consola**, al elegir un jugador se ve su nivel de XP y hay controles para d
 
 ### Poderes de la tienda (/tienda → PODERES, o /poderes)
 
-Se compran con el saldo de créditos: ir con un compañero, traer a un compañero, volver a la cama, curación y efectos de 10 minutos. El teletransporte con un compañero le pide permiso con **[Aceptar]/[Rechazar]** en el chat (`/tpaceptar`, `/tprechazar`), y solo se cobra si acepta. La solicitud caduca en 60 s y hay que esperar 30 s entre solicitudes. Los precios están en `config/servereco/valores.json` → `"poderes"` (0 = desactivado) y se aplican con `/tienda reload`. Código: `mods-propios/EconomyMod/.../shop/Powers.java` y `PowersMenu.java`.
+Se compran con el saldo de créditos: ir con un compañero, traer a un compañero, volver a la cama, curación y efectos de 10 minutos. El teletransporte con un compañero le pide permiso con **[Aceptar]/[Rechazar]** en el chat (`/tpaceptar`, `/tprechazar`), y solo se cobra si acepta. La solicitud caduca en 60 s y hay que esperar 30 s entre solicitudes. Los precios están en `config/servereco/valores.json` → `"poderes"` (0 = desactivado; por defecto entre 800 y 3000 créditos, el diamante vale 100) y se aplican con `/tienda reload`. Código: `mods-propios/EconomyMod/.../shop/Powers.java` y `PowersMenu.java`.
 
 ### Panel 24/7 en Render (sin depender de tu PC)
 

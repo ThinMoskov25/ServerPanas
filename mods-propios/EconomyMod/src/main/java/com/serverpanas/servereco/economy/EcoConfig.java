@@ -139,15 +139,15 @@ public final class EcoConfig {
 
     public static Map<String, Integer> poderesPorDefecto() {
         Map<String, Integer> m = new LinkedHashMap<>();
-        m.put("tp_ir", 300);
-        m.put("tp_traer", 300);
-        m.put("tp_cama", 200);
-        m.put("curar", 100);
-        m.put("vision_nocturna", 80);
-        m.put("prisa", 150);
-        m.put("velocidad", 100);
-        m.put("resistencia_fuego", 120);
-        m.put("respirar_agua", 80);
+        m.put("tp_ir", 3000);
+        m.put("tp_traer", 3000);
+        m.put("tp_cama", 2000);
+        m.put("curar", 1000);
+        m.put("vision_nocturna", 800);
+        m.put("prisa", 1500);
+        m.put("velocidad", 1200);
+        m.put("resistencia_fuego", 1500);
+        m.put("respirar_agua", 800);
         return m;
     }
 
