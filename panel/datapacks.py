@@ -258,7 +258,7 @@ JEFE_DIMENSION = {
 }
 
 ARENA_RADIO = 8  # radio de la plataforma circular (bloques); diametro ~17
-ARENA_MURO_ALTO = 4  # alto del muro/borde de contencion alrededor del circulo
+ARENA_MURO_ALTO = 0  # sin muro: la plataforma es solo un disco de 1 bloque
 
 
 # ==========================================================================
@@ -1013,15 +1013,11 @@ class Datapacks:
             _tag_funcion([]))
 
     @staticmethod
-    def _cmds_borrar_plataforma(dim_id, cx, cy, cz, radio=ARENA_RADIO, alto=ARENA_MURO_ALTO):
-        """Rellena de AIRE todo el volumen que ocupo la plataforma (suelo + muro
-        + base de soporte) para no dejar basura. Usa un cubo que cubre con margen
-        el disco de radio dado, desde una Y por debajo del suelo hasta la cima
-        del muro. Se ejecuta en la dimension correcta."""
-        r = int(radio) + 2
+    def _cmds_borrar_plataforma(dim_id, cx, cy, cz, radio=ARENA_RADIO, suelo='minecraft:stone_bricks'):
+        """Quita el disco de la plataforma: solo sus bloques, en su capa."""
+        r = int(radio)
         pre = 'execute in %s positioned %d %d %d run ' % (dim_id, cx, cy, cz)
-        # Suelo esta en ~-1..~0; el muro sube hasta ~alto. Limpiamos ~-2..~alto+1.
-        return [pre + 'fill ~%d ~-2 ~%d ~%d ~%d ~%d air replace' % (-r, -r, r, int(alto) + 1, r)]
+        return [pre + 'fill ~%d ~-1 ~%d ~%d ~-1 ~%d air replace %s' % (-r, -r, r, r, suelo)]
 
     def _cmds_arena_relativa(self, sys_tag, token):
         """Arena (suelo + muro + interior libre) construida donde haya quedado el
@@ -1038,7 +1034,7 @@ class Datapacks:
                 cmds.append(en_marca + 'forceload add ~ ~')
             else:
                 cmds.append(c.replace(pre_abs, en_marca))
-        cmds.append(en_marca + 'tp @e[tag=%s,limit=1] ~ ~2 ~' % sys_tag)
+        cmds.append(en_marca + 'tp @e[tag=%s,limit=1] ~ ~ ~' % sys_tag)
         return cmds
 
     def _escribir_vigilante(self, token, info, nivel):
@@ -1099,7 +1095,8 @@ class Datapacks:
                       % (dim_id, cx, cy, cz, xp_por_nivel(nivel)))
         # Borrar plataforma (solo si se construyo).
         if plataforma:
-            for c in self._cmds_borrar_plataforma(dim_id, cx, cy, cz):
+            suelo = (DIMENSIONES.get(info.get('dim_key')) or DIMENSIONES['overworld'])['suelo']
+            for c in self._cmds_borrar_plataforma(dim_id, cx, cy, cz, suelo=suelo):
                 lineas.append(c + '\n')
         # Quitar forceload del chunk de la plataforma (ya no hace falta vigilar).
         lineas.append('execute in %s run forceload remove %d %d\n' % (dim_id, cx, cz))
@@ -1130,61 +1127,18 @@ class Datapacks:
 
     # -- Construccion de la PLATAFORMA CIRCULAR (arena) con MURO ------------
     @staticmethod
-    def _cmds_plataforma(dim_id, cx, cy, cz, suelo, borde, radio=ARENA_RADIO,
-                         muro_alto=ARENA_MURO_ALTO):
-        """Genera los comandos (prefijados con 'execute in <dim> positioned ...')
-        que fuerzan la carga del chunk, construyen una ARENA CIRCULAR de radio
-        dado con SUELO solido + MURO de contencion para que el mob no pueda
-        salir, y dejan el interior libre (aire) para la pelea.
-
-        - SUELO: disco relleno (dx*dx+dz*dz <= r*r), dos capas (pisada + soporte).
-        - INTERIOR: aire despejado hasta bastante alto (volumen de pelea).
-        - MURO: anillo exterior (el perimetro del circulo) elevado 'muro_alto'
-          bloques con el bloque 'borde', formando una pared que contiene al mob.
-
-        Se devuelve una lista de comandos con el prefijo de dimension/posicion ya
-        aplicado, de modo que las coords internas son RELATIVAS (~) al centro.
-        NOTA: NO se quita el forceload aqui; se mantiene mientras el jefe viva
-        (lo retira la funcion de muerte) para que la deteccion sea fiable."""
+    def _cmds_plataforma(dim_id, cx, cy, cz, suelo, borde=None, radio=ARENA_RADIO, muro_alto=0):
+        """Plataforma = UN disco de 1 bloque de grosor (en ~-1, bajo los pies del
+        jefe), sin muro, y el espacio de encima vaciado. El forceload se mantiene
+        mientras el jefe viva (lo quita la funcion de muerte)."""
         pre = 'execute in %s positioned %d %d %d run ' % (dim_id, cx, cy, cz)
         r = int(radio)
-        ah = int(muro_alto)
-        alto = 40  # volumen libre encima (dragones voladores / pelea)
-        cmds = []
-        # 1) Forzar carga del chunk del centro (se mantiene mientras viva el jefe).
-        cmds.append('execute in %s run forceload add %d %d' % (dim_id, cx, cz))
-        # 2) Despejar aire en todo el volumen interior (desde ~1 hasta arriba).
-        cmds.append(pre + 'fill ~%d ~1 ~%d ~%d ~%d ~%d air replace' % (-(r + 2), -(r + 2), (r + 2), alto, (r + 2)))
-        # 3) Dibujar el disco de SUELO fila por fila (ancho del circulo por fila).
+        cmds = ['execute in %s run forceload add %d %d' % (dim_id, cx, cz),
+                # Vaciar el espacio encima del disco para que el jefe tenga sitio.
+                pre + 'fill ~%d ~ ~%d ~%d ~%d ~%d air replace' % (-(r + 2), -(r + 2), r + 2, 40, r + 2)]
         for dz in range(-r, r + 1):
             dxmax = int((r * r - dz * dz) ** 0.5)
-            cmds.append(pre + 'fill ~%d ~-1 ~%d ~%d ~0 ~%d %s replace' % (-dxmax, dz, dxmax, dz, suelo))
-        # 4) MURO de contencion: perimetro del circulo elevado 'ah' bloques. Para
-        #    cada fila dz, los bloques en el borde exterior del disco (donde la
-        #    fila de arriba o abajo ya no alcanza ese dx) se levantan en columna.
-        #    Asi queda una pared circular cerrada de altura ah.
-        for dz in range(-r, r + 1):
-            dxmax = int((r * r - dz * dz) ** 0.5)
-            # dx de la fila vecina (dz+-1): si es menor, esos dx son perimetro.
-            dz_vec = dz + 1 if dz >= 0 else dz - 1
-            if abs(dz_vec) <= r:
-                dxmax_vec = int((r * r - dz_vec * dz_vec) ** 0.5)
-            else:
-                dxmax_vec = -1
-            # Columnas de muro en los extremos de la fila (siempre perimetro).
-            if dxmax >= 0:
-                cmds.append(pre + 'fill ~%d ~1 ~%d ~%d ~%d ~%d %s replace'
-                            % (-dxmax, dz, -dxmax, ah, dz, borde))
-                cmds.append(pre + 'fill ~%d ~1 ~%d ~%d ~%d ~%d %s replace'
-                            % (dxmax, dz, dxmax, ah, dz, borde))
-            # Rellenar el hueco del escalon hacia la fila vecina (de dxmax_vec+1
-            # a dxmax) a ambos lados para que el muro no deje aberturas.
-            if dxmax_vec < dxmax and dxmax >= 1:
-                for dx in range(max(0, dxmax_vec + 1), dxmax):
-                    cmds.append(pre + 'fill ~%d ~1 ~%d ~%d ~%d ~%d %s replace'
-                                % (-dx, dz, -dx, ah, dz, borde))
-                    cmds.append(pre + 'fill ~%d ~1 ~%d ~%d ~%d ~%d %s replace'
-                                % (dx, dz, dx, ah, dz, borde))
+            cmds.append(pre + 'fill ~%d ~-1 ~%d ~%d ~-1 ~%d %s replace' % (-dxmax, dz, dxmax, dz, suelo))
         return cmds
 
     def _cmds_summon(self, eid, destino, nivel, nombre):
@@ -1241,7 +1195,7 @@ class Datapacks:
                 # la deteccion de muerte sea fiable (la quita la funcion de muerte).
                 cmds.append('execute in %s run forceload add %d %d' % (dim_id, x, z))
             # Summon 1-2 bloques sobre el centro (y+2) en la dimension correcta.
-            summon = 'execute in %s run summon %s %d %d %d %s' % (dim_id, eid, x, y + 2, z, nbt)
+            summon = 'execute in %s run summon %s %d %d %d %s' % (dim_id, eid, x, y, z, nbt)
             info.update({'arena': True, 'dim_key': dim_key, 'dim_nombre': dcfg['nombre'],
                          'dim_id': dim_id, 'x': x, 'y': y, 'z': z, 'precarga': (dim_id, x, z)})
         elif tipo == 'coords':

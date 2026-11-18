@@ -693,16 +693,16 @@
         <select id="jefeDim" style="min-width:230px"><option value="auto">Automatico (habitat del jefe)</option></select>
       </div>
       <div class="fila" style="margin-bottom:10px">
-        <label class="fila" title="SI construye una arena circular de radio 8 con muro para contener al mob; NO lo spawnea sin construir nada."><span class="switch"><input type="checkbox" id="jefePlataforma" checked><span class="slider"></span></span> Crear plataforma (arena con muro)</label>
+        <label class="fila" title="SI pone un suelo circular de 1 bloque (radio 8) bajo el jefe; NO lo spawnea sin construir nada."><span class="switch"><input type="checkbox" id="jefePlataforma" checked><span class="slider"></span></span> Crear plataforma (suelo de 1 bloque)</label>
       </div>
-      <p class="suave" style="font-size:12px;margin:0 0 10px">Con <b>Crear plataforma</b> activado, el jefe aparece en el centro de una <b>arena circular (radio 8)</b> con <b>muro de contencion</b> para que no se escape, en una <b>ubicacion aleatoria</b> de la dimension elegida; al matarlo, la plataforma se <b>borra</b> y suelta <b>loot segun su nivel y dimension</b>. Desactivalo para un spawn normal sin construir nada. Siempre se <b>anuncia a todo el servidor</b>.</p>
+      <p class="suave" style="font-size:12px;margin:0 0 10px">Con <b>Crear plataforma</b> activado, el jefe aparece sobre un <b>suelo circular de 1 bloque</b> (radio 8), sin paredes y con el espacio de encima despejado, en una <b>ubicacion aleatoria</b> de la dimension elegida; al matarlo, la plataforma se <b>borra</b> y suelta <b>loot segun su nivel y dimension</b>. Desactivalo para un spawn normal sin construir nada. Siempre se <b>anuncia a todo el servidor</b>.</p>
       <div class="fila" style="margin-bottom:6px">
         <label class="fila"><input type="radio" name="jefeDest" value="cerca" onchange="jefeDestino()"> Aleatoria cerca de</label>
         <select id="jefeCercaJug" style="min-width:180px" disabled><option value="">un jugador al azar</option></select>
         <label>entre</label><input id="jefeCercaMin" type="number" value="60" min="10" max="1000" style="width:75px" disabled>
         <label>y</label><input id="jefeCercaMax" type="number" value="200" min="15" max="2000" style="width:75px" disabled><label>bloques</label>
       </div>
-      <p class="suave" style="font-size:12px;margin:0 0 10px">Elige un punto al azar a esa distancia del jugador, en una dirección al azar, y deja al jefe <b>sobre el suelo</b> (en el Nether, bajo el techo). Con jugador "al azar" se elige entre los conectados en el momento de aparecer. Con <b>Crear plataforma</b> se le construye la arena alrededor y al morir suelta el botín por nivel.</p>
+      <p class="suave" style="font-size:12px;margin:0 0 10px">Elige un punto al azar a esa distancia del jugador, en una dirección al azar, y deja al jefe <b>sobre el suelo</b> (en el Nether, bajo el techo). Con jugador "al azar" se elige entre los conectados en el momento de aparecer. Con <b>Crear plataforma</b> se le pone el suelo de 1 bloque debajo y al morir suelta el botín por nivel.</p>
       <div class="fila" style="margin-bottom:10px">
         <label class="fila"><input type="radio" name="jefeDest" value="jugador" onchange="jefeDestino()"> En un jugador conectado</label>
         <select id="jefeJugador" style="min-width:180px" disabled><option value="">(elige un jugador)</option></select>
@@ -2020,7 +2020,7 @@ async function spawnJefe(programado){
   let destino;try{destino=_destinoJefe();}catch(e){aviso(e.message,'error');return;}
   const nivel=jefeNivel();
   const etiqueta=JEFE_SEL.nombre+' [Nv '+nivel+']';
-  const dimTxt=destino.tipo==='arena'?(' en '+(($('jefeDim')&&$('jefeDim').selectedOptions[0])?$('jefeDim').selectedOptions[0].textContent:'la dimension del jefe')+(destino.plataforma?', con plataforma/arena (muro)':', SIN plataforma')):'';
+  const dimTxt=destino.tipo==='arena'?(' en '+(($('jefeDim')&&$('jefeDim').selectedOptions[0])?$('jefeDim').selectedOptions[0].textContent:'la dimension del jefe')+(destino.plataforma?', con plataforma':', SIN plataforma')):'';
   const avisoTxt=destino.silencioso?' — EN SILENCIO (sin aviso)':' — se anunciará a todos';
   try{
     if(programado){
