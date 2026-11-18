@@ -1153,6 +1153,182 @@ def _leer_waystones():
     return lista
 
 
+# ---- Jugadores: lista y ficha de cada uno (estilo exaroton) ----
+_ULTIMO_SAVE = [0.0]
+MODO_TXT = {0: 'survival', 1: 'creative', 2: 'adventure', 3: 'spectator'}
+
+
+def _listas_servidor():
+    """whitelist, baneados y operadores (nombres en minusculas)."""
+    def leer():
+        out = {}
+        for clave, arch in (('blanca', 'whitelist.json'), ('ban', 'banned-players.json'), ('op', 'ops.json')):
+            try:
+                out[clave] = {x.get('name', '').lower() for x in json.loads(EXA.leer_archivo(arch).decode('utf-8'))}
+            except (exaroton.ErrorApi, ValueError):
+                out[clave] = set()
+        return out
+    return _cacheado('listas_servidor', 10, leer)
+
+
+_NOMBRES_ITEMS = {}
+
+
+def _nombres_items():
+    if not _NOMBRES_ITEMS:
+        try:
+            with open(ARCH_INDICE_ITEMS, 'r', encoding='utf-8') as f:
+                for i in json.load(f).get('items', []):
+                    _NOMBRES_ITEMS[i['id']] = i.get('nombre') or i['id']
+        except (OSError, ValueError):
+            pass
+    return _NOMBRES_ITEMS
+
+
+def jugadores_lista():
+    base = consola_jugadores()['jugadores']
+    l = _listas_servidor()
+    for j in base:
+        n = j['nombre'].lower()
+        j['blanca'], j['ban'], j['op'] = n in l['blanca'], n in l['ban'], n in l['op']
+    return {'jugadores': base}
+
+
+def _items_de(lista_nodo, nombres):
+    out = []
+    if not lista_nodo or lista_nodo[0] != nbt.LIST:
+        return out
+    for it in lista_nodo[1][1]:
+        iid = nbt.get(it, ['id'])
+        if not iid:
+            continue
+        slot = nbt.get(it, ['Slot'])
+        cnt = nbt.get(it, ['Count'])
+        dano = nbt.get(it, ['tag', 'Damage'])
+        nom = nombres.get(iid[1]) or iid[1].split(':')[-1].replace('_', ' ')
+        custom = nbt.get(it, ['tag', 'display', 'Name'])
+        if custom:
+            try:
+                c = json.loads(custom[1])
+                if isinstance(c, dict) and c.get('text'):
+                    nom = c['text']
+            except ValueError:
+                pass
+        out.append({'slot': int(slot[1]) if slot else 0, 'id': iid[1], 'n': int(cnt[1]) if cnt else 1,
+                    'nombre': nom, 'dano': int(dano[1]) if dano else 0,
+                    'encantado': bool(nbt.get(it, ['tag', 'Enchantments']) or nbt.get(it, ['tag', 'StoredEnchantments']))})
+    return out
+
+
+def _estadisticas(uuid_txt):
+    try:
+        s = json.loads(EXA.leer_archivo('world/stats/%s.json' % uuid_txt).decode('utf-8')).get('stats', {})
+    except (exaroton.ErrorApi, ValueError):
+        return None
+    c = s.get('minecraft:custom', {})
+
+    def cm(k):
+        return int(c.get('minecraft:' + k, 0))
+    andado = sum(cm(k) for k in ('walk_one_cm', 'sprint_one_cm', 'crouch_one_cm', 'swim_one_cm', 'walk_on_water_one_cm',
+                                  'walk_under_water_one_cm', 'climb_one_cm'))
+    montado = sum(cm(k) for k in ('horse_one_cm', 'boat_one_cm', 'minecart_one_cm', 'pig_one_cm', 'strider_one_cm',
+                                   'aviate_one_cm'))
+    return {
+        'tiempo_jugado_h': round(cm('play_time') / 20 / 3600, 1),
+        'muertes': cm('deaths'),
+        'mobs_matados': cm('mob_kills'),
+        'jugadores_matados': cm('player_kills'),
+        'bloques_minados': sum(s.get('minecraft:mined', {}).values()),
+        'objetos_fabricados': sum(s.get('minecraft:crafted', {}).values()),
+        'km_a_pie': round(andado / 100000, 2),
+        'km_montado_o_volando': round(montado / 100000, 2),
+        'saltos': cm('jump'),
+        'dano_hecho': round(cm('damage_dealt') / 10),
+        'dano_recibido': round(cm('damage_taken') / 10),
+        'veces_dormido': cm('sleep_in_bed'),
+    }
+
+
+def jugador_ficha(nombre):
+    if not NOMBRE_OK.match(nombre or ''):
+        raise ValueError('Jugador no valido')
+    uid = BOT.uuids().get(nombre)
+    if not uid:
+        raise ValueError('Jugador desconocido.')
+    conectados = (EXA.estado(forzar=True).get('players') or {}).get('list') or []
+    online = nombre in conectados
+    if online and time.time() - _ULTIMO_SAVE[0] > 60:
+        # El archivo del jugador se escribe al guardar: forzarlo para ver datos frescos.
+        _ULTIMO_SAVE[0] = time.time()
+        EXA.comando('save-all')
+        time.sleep(2.5)
+    try:
+        raiz = nbt.load(EXA.leer_archivo('world/playerdata/%s.dat' % uid))
+    except exaroton.ErrorApi:
+        raise ValueError('%s todavia no tiene datos guardados en el servidor.' % nombre)
+
+    def g(*ruta):
+        n = nbt.get(raiz, list(ruta))
+        return n[1] if n else None
+    pos = g('Pos')
+    spawn = None
+    if g('SpawnX') is not None:
+        spawn = {'x': g('SpawnX'), 'y': g('SpawnY'), 'z': g('SpawnZ'), 'dim': g('SpawnDimension') or 'minecraft:overworld'}
+    muerte = None
+    p = nbt.get(raiz, ['LastDeathLocation', 'pos'])
+    if p:
+        muerte = {'x': p[1][0], 'y': p[1][1], 'z': p[1][2], 'dim': g('LastDeathLocation', 'dimension')}
+    vida_max = 20.0
+    attrs = nbt.get(raiz, ['Attributes'])
+    for a in (attrs[1][1] if attrs else []):
+        n = nbt.get(a, ['Name'])
+        if n and n[1] == 'minecraft:generic.max_health':
+            vida_max = float(nbt.get(a, ['Base'])[1])
+    vida_max = max(vida_max, float(g('Health') or 0))  # reliquias y mods suben la vida
+    nombres = _nombres_items()
+    l = _listas_servidor()
+    return {
+        'nombre': nombre, 'uuid': uid, 'conectado': online,
+        'modo': MODO_TXT.get(g('playerGameType'), 'survival'),
+        'vida': round(float(g('Health') or 0), 1), 'vida_max': vida_max,
+        'comida': int(g('foodLevel') or 0), 'xp_nivel': int(g('XpLevel') or 0), 'xp_progreso': float(g('XpP') or 0),
+        'pos': [round(v[1] if isinstance(v, tuple) else v, 2) for v in pos[1]] if pos else None, 'dim': g('Dimension'),
+        'spawn': spawn, 'muerte': muerte,
+        'inventario': _items_de(nbt.get(raiz, ['Inventory']), nombres),
+        'ender': _items_de(nbt.get(raiz, ['EnderItems']), nombres),
+        'blanca': nombre.lower() in l['blanca'], 'ban': nombre.lower() in l['ban'], 'op': nombre.lower() in l['op'],
+        'stats': _estadisticas(uid),
+    }
+
+
+ACCIONES_JUGADOR = {
+    'matar': 'kill {j}',
+    'curar': 'effect give {j} minecraft:instant_health 1 20 true',
+    'hambre': 'effect give {j} minecraft:hunger 20 255 true',
+    'alimentar': 'effect give {j} minecraft:saturation 2 255 true',
+    'echar': 'kick {j}',
+    'blanca_si': 'whitelist add {j}', 'blanca_no': 'whitelist remove {j}',
+    'ban_si': 'ban {j}', 'ban_no': 'pardon {j}',
+    'op_si': 'op {j}', 'op_no': 'deop {j}',
+}
+
+
+def jugador_accion(nombre, accion, valor=None):
+    if not NOMBRE_OK.match(nombre or ''):
+        raise ValueError('Jugador no valido')
+    if accion == 'modo':
+        if valor not in MODO_TXT.values():
+            raise ValueError('Modo no valido')
+        cmd = 'gamemode %s %s' % (valor, nombre)
+    elif accion in ACCIONES_JUGADOR:
+        cmd = ACCIONES_JUGADOR[accion].format(j=nombre)
+    else:
+        raise ValueError('Accion no valida')
+    _cache_consola.pop('listas_servidor', None)
+    return comando_en_fondo(cmd)
+
+
+
 def consola_waystones(jugador=None):
     """Todas las waystones; con jugador, marca las que el tiene descubiertas."""
     lista = _cacheado('waystones', 30, _leer_waystones)
@@ -2597,6 +2773,16 @@ class Manejador(BaseHTTPRequestHandler):
                 return self._json(comando_en_fondo(self._cuerpo_json().get('comando')))
             if metodo == 'GET' and ruta == '/api/comando/salida':
                 return self._json(SALIDAS.get(q.get('id'), {'listo': True, 'error': 'Comando desconocido'}))
+            if metodo == 'GET' and ruta == '/api/jugadores':
+                return self._json(jugadores_lista())
+            if metodo == 'GET' and ruta == '/api/jugador':
+                return self._json(jugador_ficha(self._jugador(q)))
+            if metodo == 'POST' and ruta in ('/api/jugador/accion', '/api/jugador/op'):
+                d = self._cuerpo_json()
+                acc = d.get('accion') or ''
+                if acc.startswith('op_') != (ruta == '/api/jugador/op'):
+                    raise ValueError('Usa la ruta correcta para esta accion.')
+                return self._json(jugador_accion((d.get('jugador') or '').strip(), acc, d.get('valor')))
             if metodo == 'GET' and ruta == '/api/consola/jugadores':
                 return self._json(consola_jugadores())
             if metodo == 'GET' and ruta == '/api/consola/waystones':

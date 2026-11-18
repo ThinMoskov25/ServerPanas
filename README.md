@@ -118,6 +118,10 @@ El rol define forma, tamaño y color, así que todos los capítulos tienen el mi
 
 ---
 
+### Jugadores (pestaña del panel)
+
+Lista de todos los que han entrado (en línea primero). Al pulsar uno se abre su ficha: modo de juego, echar, vida/hambre/XP con Matar/Curar/Hambre/Alimentar, lista blanca, baneo y operador (este último solo admin), inventario con armadura y cofre de Ender, posición/reaparición/última muerte con teletransporte, y estadísticas. Los datos salen de `world/playerdata`, `world/stats` y las listas del servidor; si el jugador está conectado se hace `save-all` (máx. 1/min) para verlos al día.
+
 ### Bot de avisos (Datapacks → Bot de avisos)
 
 Habla con cada jugador por el chat. Se configura y se instala desde el panel con **Guardar y aplicar** (servidor encendido).

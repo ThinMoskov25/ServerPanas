@@ -220,6 +220,42 @@
   .cmdgrupo > .gt{font-size:12.5px;color:var(--suave);font-weight:600;text-transform:uppercase;letter-spacing:.3px;margin:0 0 7px}
   .cmdgrupo .fila{gap:8px}
   .lista-jug{display:flex;flex-wrap:wrap;gap:6px;max-height:132px;overflow-y:auto}
+  /* ---- Jugadores ---- */
+  .jg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+  .jg-card{display:flex;gap:12px;align-items:center;padding:12px;background:#14232d;border:1px solid var(--linea);border-radius:10px;cursor:pointer;transition:.15s;text-align:left;color:var(--txt);font:inherit}
+  .jg-card:hover{border-color:rgba(66,211,160,.55);transform:translateY(-1px)}
+  .jg-card img{width:42px;height:42px;border-radius:6px;image-rendering:pixelated;background:#0d171e}
+  .jg-card .n{font-weight:650}
+  .jg-card .d{font-size:12px;color:var(--suave);margin-top:2px}
+  .jg-cab{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+  .jg-cab img{width:72px;height:72px;border-radius:8px;image-rendering:pixelated;background:#0d171e}
+  .jg-cols{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:14px;margin-top:14px}
+  @media(max-width:900px){.jg-cols{grid-template-columns:1fr}}
+  .jg-barra{height:12px;background:#33414a;border-radius:6px;overflow:hidden;margin:6px 0 14px}
+  .jg-barra>div{height:100%;background:linear-gradient(90deg,#3fd15a,#72e36b)}
+  .jg-fila{display:grid;grid-template-columns:120px 1fr 120px;gap:10px;align-items:center;margin-bottom:10px}
+  .jg-iconos{display:flex;flex-wrap:wrap;gap:3px;justify-content:center;font-size:20px;line-height:1}
+  .jg-iconos .vac{filter:grayscale(1);opacity:.25}
+  .jg-iconos .med{opacity:.55}
+  .jg-ctrl{display:flex;justify-content:space-between;align-items:center;padding:12px;background:#14232d;border-radius:8px;margin-bottom:8px}
+  .inv{display:flex;gap:18px;flex-wrap:wrap;background:#1d2a33;padding:10px;border-radius:8px;overflow-x:auto}
+  .inv-col{display:grid;grid-template-rows:repeat(4,48px);gap:4px}
+  .inv-main{display:grid;grid-template-columns:repeat(9,48px);gap:4px}
+  .inv-main .sep{grid-column:1/-1;height:6px}
+  .islot{position:relative;width:48px;height:48px;background:#2a3943;border:1px solid #3a4b56;border-radius:4px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .islot img{width:36px;height:36px;image-rendering:pixelated}
+  .islot .txt{font-size:9px;line-height:1.05;text-align:center;color:#c9d6dc;padding:2px;word-break:break-word}
+  .islot .cnt{position:absolute;right:3px;bottom:1px;font-size:13px;font-weight:700;color:#fff;text-shadow:1px 1px 0 #000}
+  .islot .dur{position:absolute;left:5px;right:5px;bottom:3px;height:3px;background:#000}
+  .islot .dur>div{height:100%}
+  .islot.enc{box-shadow:inset 0 0 10px rgba(190,120,255,.55)}
+  .islot.vacio{opacity:.6}
+  .jg-info{padding:10px 0;border-bottom:1px solid var(--linea)}
+  .jg-info:last-child{border-bottom:none}
+  .jg-stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
+  .jg-stats div{background:#14232d;border-radius:8px;padding:10px}
+  .jg-stats b{display:block;font-size:20px}
+  .jg-stats span{font-size:12px;color:var(--suave)}
   .pjug{display:inline-flex;align-items:center;padding:6px 11px;background:#14232d;border:1px solid var(--linea);border-radius:8px;color:var(--txt);font-size:13px;cursor:pointer;transition:.15s}
   .pjug:hover{border-color:rgba(66,211,160,.55)}
   .pjug.off{color:var(--suave)}
@@ -274,6 +310,7 @@
     <div class="nav-heading">GENERAL</div>
     <button class="navbtn activo" data-tab="inicio" aria-current="page"><span class="ic">&#128202;</span> Inicio</button>
     <div class="nav-heading">GESTION DEL JUEGO</div>
+    <button class="navbtn" data-tab="jugadores"><span class="ic">&#128101;</span> Jugadores</button>
     <button class="navbtn" data-tab="recuperar"><span class="ic">&#128230;</span> Recuperar items</button>
     <button class="navbtn" data-tab="misiones"><span class="ic">&#128220;</span> Misiones Diarias</button>
     <button class="navbtn" data-tab="tienda"><span class="ic">&#128176;</span> Tienda / Economia</button>
@@ -597,6 +634,26 @@
     </div>
   </section>
 
+  <!-- JUGADORES -->
+  <section id="tab-jugadores" hidden>
+    <div id="jgVistaLista">
+      <div class="top"><div><h1>Jugadores</h1><div class="sub">Todos los que han entrado al servidor. Pulsa uno para ver su ficha.</div></div>
+        <button class="btn" onclick="cargarJugadoresTab()">&#8635; Actualizar</button>
+      </div>
+      <div class="card">
+        <div class="fila" style="margin-bottom:12px"><input id="jgFiltro" placeholder="Buscar jugador..." style="min-width:240px" oninput="pintarJugadoresTab()"><span id="jgResumen" class="suave" style="font-size:13px"></span></div>
+        <div id="jgLista" class="jg-grid"><p class="suave">Cargando...</p></div>
+      </div>
+    </div>
+    <div id="jgVistaFicha" hidden>
+      <div class="fila" style="margin-bottom:12px">
+        <button class="btn" onclick="volverJugadores()">&#8592; Todos los jugadores</button>
+        <button class="btn" onclick="abrirFicha(JG_ACTUAL)">&#8635; Actualizar</button>
+        <span id="jgCargando" class="suave" style="font-size:13px"></span>
+      </div>
+      <div id="jgFicha"></div>
+    </div>
+  </section>
   <!-- JEFES / SPAWNS -->
   <section id="tab-jefes" hidden>
     <div class="top"><div><h1>Jefes / Spawns</h1><div class="sub">Invoca cualquier jefe (vanilla o de mods) ya mismo o programado por segundos</div></div>
@@ -986,6 +1043,7 @@ document.querySelectorAll('.navbtn').forEach(b=>b.onclick=()=>{
   });
   document.querySelectorAll('main section').forEach(s=>s.hidden=s.id!=='tab-'+b.dataset.tab);
   const t=b.dataset.tab;
+  if(t==='jugadores')cargarJugadoresTab();
   if(t==='recuperar')cargarModJug();
   if(t==='misiones')cargarMisiones();
   if(t==='tienda')cargarTienda();
@@ -1582,6 +1640,99 @@ function editarCatalogo(id){
   $('catalogoSel').scrollIntoView({behavior:'smooth',block:'center'});
 }
 
+// ============ JUGADORES ============
+let JG=[],JG_ACTUAL=null,JG_DATOS=null;
+const CABEZA=n=>'https://mc-heads.net/avatar/'+encodeURIComponent(n)+'/64';
+async function cargarJugadoresTab(){
+  try{JG=(await api('/api/jugadores')).jugadores;pintarJugadoresTab();}
+  catch(e){$('jgLista').innerHTML='<p class="suave">'+esc(e.message)+'</p>';}
+}
+function pintarJugadoresTab(){
+  const f=$('jgFiltro').value.trim().toLowerCase(),l=JG.filter(j=>!f||j.nombre.toLowerCase().includes(f));
+  $('jgResumen').textContent=JG.filter(j=>j.conectado).length+' conectados de '+JG.length;
+  $('jgLista').innerHTML=l.length?l.map(j=>'<button type="button" class="jg-card" data-j="'+esc(j.nombre)+'"><img src="'+CABEZA(j.nombre)+'" alt="" loading="lazy"><div>'
+    +'<div class="n"><span class="punto" style="background:'+(j.conectado?'var(--verde)':'var(--tenue)')+'"></span>'+esc(j.nombre)+'</div>'
+    +'<div class="d">'+(j.conectado?'En línea':'Desconectado')+(j.xp!=null?' · Nv '+j.xp:'')+(j.vida!=null?' · &#10084; '+j.vida:'')+'</div>'
+    +'<div class="d">'+(j.op?'<span class="chip mora">Operador</span> ':'')+(j.ban?'<span class="chip" style="background:#5a1f25">Baneado</span> ':'')+(!j.blanca?'<span class="chip gris">Sin lista blanca</span>':'')+'</div>'
+    +'</div></button>').join(''):'<p class="suave">Ningún jugador con ese nombre.</p>';
+  document.querySelectorAll('#jgLista .jg-card').forEach(b=>b.onclick=()=>abrirFicha(b.dataset.j));
+}
+function volverJugadores(){$('jgVistaFicha').hidden=true;$('jgVistaLista').hidden=false;cargarJugadoresTab();}
+async function abrirFicha(n){
+  JG_ACTUAL=n;$('jgVistaLista').hidden=true;$('jgVistaFicha').hidden=false;
+  $('jgCargando').textContent='Cargando datos de '+n+'...';
+  if(!JG_DATOS||JG_DATOS.nombre!==n)$('jgFicha').innerHTML='';
+  try{JG_DATOS=await api('/api/jugador?jugador='+encodeURIComponent(n));pintarFicha();$('jgCargando').textContent='';}
+  catch(e){$('jgCargando').textContent=e.message;}
+}
+const DIMS_TXT={'minecraft:overworld':'Mundo normal','minecraft:the_nether':'Nether','minecraft:the_end':'End'};
+const dimTxt=d=>DIMS_TXT[d]||d||'?';
+const MAXDUR={wooden:59,stone:131,iron:250,golden:32,diamond:1561,netherite:2031,
+  leather_helmet:55,leather_chestplate:80,leather_leggings:75,leather_boots:65,chainmail_helmet:165,chainmail_chestplate:240,chainmail_leggings:225,chainmail_boots:195,
+  iron_helmet:165,iron_chestplate:240,iron_leggings:225,iron_boots:195,golden_helmet:77,golden_chestplate:112,golden_leggings:105,golden_boots:91,
+  diamond_helmet:363,diamond_chestplate:528,diamond_leggings:495,diamond_boots:429,netherite_helmet:407,netherite_chestplate:592,netherite_leggings:555,netherite_boots:481,
+  turtle_helmet:275,bow:384,crossbow:465,trident:250,shield:336,elytra:432,fishing_rod:64,shears:238,flint_and_steel:64};
+function durMax(id){const [ns,n]=id.split(':');if(ns!=='minecraft')return 0;if(MAXDUR[n])return MAXDUR[n];
+  const m=/^(wooden|stone|iron|golden|diamond|netherite)_(sword|pickaxe|axe|shovel|hoe)$/.exec(n);return m?MAXDUR[m[1]]:0;}
+function iconoItem(img){const st=+img.dataset.p||0,id=img.dataset.id.split(':');
+  if(id[0]==='minecraft'&&st===0){img.dataset.p=1;img.src='https://assets.mcasset.cloud/1.20.1/assets/minecraft/textures/block/'+id[1]+'.png';return;}
+  const t=document.createElement('div');t.className='txt';t.textContent=img.alt;img.replaceWith(t);}
+function slotHtml(it,fondo){
+  if(!it)return '<div class="islot vacio">'+(fondo?'<span class="suave" style="font-size:18px">'+fondo+'</span>':'')+'</div>';
+  const [ns,n]=it.id.split(':'),max=durMax(it.id),tip=it.nombre+' ('+it.id+')'+(it.n>1?' x'+it.n:'')+(max?' · durabilidad '+(max-it.dano)+'/'+max:'');
+  const img=ns==='minecraft'?'<img src="https://assets.mcasset.cloud/1.20.1/assets/minecraft/textures/item/'+n+'.png" alt="'+esc(it.nombre)+'" data-id="'+esc(it.id)+'" onerror="iconoItem(this)" loading="lazy">'
+    :'<div class="txt">'+esc(it.nombre)+'</div>';
+  let dur='';if(max&&it.dano>0){const r=Math.max(0,(max-it.dano)/max);dur='<div class="dur"><div style="width:'+(r*100)+'%;background:hsl('+(r*120)+',90%,45%)"></div></div>';}
+  return '<div class="islot'+(it.encantado?' enc':'')+'" title="'+esc(tip)+'">'+img+(it.n>1?'<span class="cnt">'+it.n+'</span>':'')+dur+'</div>';
+}
+function iconos(valor,max,lleno){let s='';const n=Math.ceil(max/2);for(let i=0;i<n;i++){const v=valor-i*2;s+='<span class="'+(v>=2?'':v>=1?'med':'vac')+'">'+lleno+'</span>';}return s;}
+function infoUbic(titulo,u,jugador,conectado){
+  if(!u)return '<div class="jg-info"><b>'+titulo+'</b><div class="suave" style="font-size:13px">Sin datos</div></div>';
+  return '<div class="jg-info"><div class="fila" style="justify-content:space-between"><b>'+titulo+'</b>'
+    +(conectado?'<button class="btn sm az" onclick="teletransportar(\''+esc(jugador)+'\',{tipo:\'coords\',x:'+u.x+',y:'+u.y+',z:'+u.z+',dim:\''+esc(u.dim||'minecraft:overworld')+'\'})">Llevar aquí</button>':'')+'</div>'
+    +'<div class="mono" style="font-size:13px">X '+u.x+' · Y '+u.y+' · Z '+u.z+'</div><div class="suave" style="font-size:12.5px">'+esc(dimTxt(u.dim))+'</div></div>';
+}
+function pintarFicha(){
+  const d=JG_DATOS,inv={};d.inventario.forEach(i=>inv[i.slot]=i);
+  const modos={survival:'Supervivencia',creative:'Creativo',adventure:'Aventura',spectator:'Espectador'};
+  const S=d.stats,stat=(v,t)=>'<div><b>'+v+'</b><span>'+t+'</span></div>';
+  const ctrl=(id,t,v)=>'<div class="jg-ctrl"><span>'+t+'</span><label class="switch"><input type="checkbox" '+(v?'checked':'')+' onchange="accionJugador(\''+id+'_\'+(this.checked?\'si\':\'no\'),this)"><span class="slider"></span></label></div>';
+  const otros=JG.filter(j=>j.conectado&&j.nombre!==d.nombre).map(j=>'<option>'+esc(j.nombre)+'</option>').join('');
+  const main=[];for(let s=9;s<36;s++)main.push(slotHtml(inv[s]));main.push('<div class="sep"></div>');for(let s=0;s<9;s++)main.push(slotHtml(inv[s]));
+  $('jgFicha').innerHTML=
+    '<div class="card"><div class="jg-cab"><img src="'+CABEZA(d.nombre)+'" alt=""><div style="flex:1;min-width:200px"><h2 style="margin:0">'+esc(d.nombre)
+    +' <span class="chip '+(d.conectado?'verde':'gris')+'">'+(d.conectado?'En línea':'Desconectado')+'</span></h2><div class="suave mono" style="font-size:12.5px">'+esc(d.uuid)+'</div></div>'
+    +'<select onchange="accionJugador(\'modo\',this,this.value)">'+Object.entries(modos).map(([k,v])=>'<option value="'+k+'"'+(k===d.modo?' selected':'')+'>'+v+'</option>').join('')+'</select>'
+    +'<button class="btn r" onclick="accionJugador(\'echar\',this)">&#10005; Echar</button></div>'
+    +(d.conectado?'':'<div class="msg info" style="margin-top:10px"><span>&#8505;</span><span>Está desconectado: se muestran sus datos de la última vez que jugó. Las acciones le llegarán cuando entre.</span></div>')+'</div>'
+    +'<div class="jg-cols"><div class="card"><h2>Salud y experiencia</h2><div style="text-align:center;font-weight:650">Nivel '+d.xp_nivel+'</div>'
+    +'<div class="jg-barra"><div style="width:'+Math.round(d.xp_progreso*100)+'%"></div></div>'
+    +'<div class="jg-fila"><button class="btn r" onclick="accionJugador(\'matar\',this)">&#9760; Matar</button><div class="jg-iconos" title="'+d.vida+' / '+d.vida_max+'">'+iconos(d.vida,Math.min(d.vida_max,40),'&#10084;&#65039;')+'</div><button class="btn p" onclick="accionJugador(\'curar\',this)">&#10084; Curar</button></div>'
+    +'<div class="jg-fila"><button class="btn r" onclick="accionJugador(\'hambre\',this)">&#9760; Hambre</button><div class="jg-iconos" title="'+d.comida+' / 20">'+iconos(d.comida,20,'&#127831;')+'</div><button class="btn p" onclick="accionJugador(\'alimentar\',this)">&#127831; Alimentar</button></div></div>'
+    +'<div class="card"><h2>Control</h2>'+ctrl('blanca','&#128100; En la lista blanca',d.blanca)+ctrl('ban','&#128683; Baneado',d.ban)+ctrl('op','&#128081; Operador',d.op)+'</div></div>'
+    +'<div class="jg-cols"><div class="card"><div class="card-head"><h2>Inventario</h2><label class="fila suave" style="font-size:13px"><input type="checkbox" id="jgEnder" onchange="pintarEnder()"> Cofre de Ender</label></div>'
+    +'<div class="inv"><div class="inv-col">'+[103,102,101,100].map((s,i)=>slotHtml(inv[s],['&#9937;','&#128085;','&#128086;','&#128098;'][i])).join('')+'</div>'
+    +'<div class="inv-col" style="align-self:end;grid-template-rows:48px">'+slotHtml(inv[-106],'&#128737;')+'</div>'
+    +'<div class="inv-main">'+main.join('')+'</div></div><div id="jgEnderCaja"></div></div>'
+    +'<div class="card"><h2>Información</h2>'
+    +'<div class="jg-info"><b>&#128205; Posición actual</b><div class="mono" style="font-size:13px">'+(d.pos?'X '+d.pos[0]+' · Y '+d.pos[1]+' · Z '+d.pos[2]:'?')+'</div><div class="suave" style="font-size:12.5px">'+esc(dimTxt(d.dim))+'</div>'
+    +(d.conectado&&otros?'<div class="fila" style="margin-top:8px"><select id="jgTpOtro">'+otros+'</select><button class="btn sm az" onclick="teletransportar(JG_ACTUAL,{tipo:\'jugador\',nombre:$(\'jgTpOtro\').value})">Llevar con él</button><button class="btn sm" onclick="teletransportar($(\'jgTpOtro\').value,{tipo:\'jugador\',nombre:JG_ACTUAL})">Traerlo aquí</button></div>':'')+'</div>'
+    +infoUbic('&#128719; Ubicación de reaparición',d.spawn,d.nombre,d.conectado)+infoUbic('&#9760; Última ubicación de muerte',d.muerte,d.nombre,d.conectado)+'</div></div>'
+    +'<div class="card" style="margin-top:14px"><h2>Estadísticas</h2>'+(S?'<div class="jg-stats">'+stat(S.tiempo_jugado_h+' h','Tiempo jugado')+stat(S.muertes,'Muertes')+stat(S.mobs_matados,'Criaturas matadas')
+    +stat(S.jugadores_matados,'Jugadores matados')+stat(S.bloques_minados,'Bloques minados')+stat(S.objetos_fabricados,'Objetos fabricados')+stat(S.km_a_pie+' km','Recorrido a pie')
+    +stat(S.km_montado_o_volando+' km','Montado o volando')+stat(S.saltos,'Saltos')+stat(S.dano_hecho+' &#10084;','Daño hecho')+stat(S.dano_recibido+' &#10084;','Daño recibido')+stat(S.veces_dormido,'Veces dormido')+'</div>'
+    :'<p class="suave">Sin estadísticas todavía.</p>')+'</div>';
+}
+function pintarEnder(){const c=$('jgEnderCaja');if(!$('jgEnder').checked){c.innerHTML='';return;}const e={};JG_DATOS.ender.forEach(i=>e[i.slot]=i);
+  const s=[];for(let i=0;i<27;i++)s.push(slotHtml(e[i]));c.innerHTML='<h3 style="margin:12px 0 6px">Cofre de Ender</h3><div class="inv"><div class="inv-main">'+s.join('')+'</div></div>';}
+const ACC_CONFIRMA={matar:'Matar a',echar:'Echar del servidor a',ban_si:'Banear a',op_si:'Hacer operador a',op_no:'Quitar operador a',blanca_no:'Quitar de la lista blanca a',hambre:'Dar hambre a'};
+async function accionJugador(accion,el,valor){
+  const n=JG_ACTUAL;
+  if(ACC_CONFIRMA[accion]&&!confirm(ACC_CONFIRMA[accion]+' '+n+'?')){if(el&&el.type==='checkbox')el.checked=!el.checked;return;}
+  try{const r=await api(accion.startsWith('op_')?'/api/jugador/op':'/api/jugador/accion',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jugador:n,accion,valor})});
+    aviso('Enviado: /'+r.enviado,'ok');setTimeout(()=>{if(JG_ACTUAL===n&&!$('jgVistaFicha').hidden)abrirFicha(n);},4000);}
+  catch(e){aviso(e.message,'error');if(el&&el.type==='checkbox')el.checked=!el.checked;}
+}
 // ============ DATAPACKS ============
 document.querySelectorAll('#dpSubtabs .subtab').forEach(b=>b.onclick=()=>{
   document.querySelectorAll('#dpSubtabs .subtab').forEach(x=>x.classList.toggle('activo',x===b));

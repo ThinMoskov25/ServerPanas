@@ -36,6 +36,7 @@ SOLO_ADMIN = {
     ('POST', '/api/config'), ('POST', '/api/instalar-mod'),
     ('GET', '/api/usuarios'), ('POST', '/api/usuarios'), ('DELETE', '/api/usuarios'),
     ('GET', '/api/acceso'), ('POST', '/api/acceso/ngrok'),
+    ('POST', '/api/jugador/op'),
 }
 
 _candado = threading.Lock()
