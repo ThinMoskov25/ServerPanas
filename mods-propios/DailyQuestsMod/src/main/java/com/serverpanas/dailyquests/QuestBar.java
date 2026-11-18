@@ -29,6 +29,7 @@ public class QuestBar {
     private static final long DURACION = 60L * 20;        // visible 1 minuto
     private final Map<UUID, ServerBossEvent> barras = new HashMap<>();
     private final Map<UUID, Long> entrada = new HashMap<>(); // tick en que entro cada jugador
+    private final Map<UUID, Long> dia = new HashMap<>();     // ultimo dia de misiones visto
     private long ticks = 0;
     private int contador = 0;
 
@@ -43,6 +44,7 @@ public class QuestBar {
     @SubscribeEvent
     public void alSalir(PlayerEvent.PlayerLoggedOutEvent event) {
         entrada.remove(event.getEntity().getUUID());
+        dia.remove(event.getEntity().getUUID());
         ServerBossEvent b = barras.remove(event.getEntity().getUUID());
         if (b != null) {
             b.removeAllPlayers();
@@ -73,6 +75,15 @@ public class QuestBar {
     }
 
     private void actualizar(ServerPlayer p) {
+        // Misiones nuevas (cambio de dia): avisar por el chat y mostrar la barra ya.
+        long hoy = QuestData.diaActual();
+        Long previo = dia.put(p.getUUID(), hoy);
+        if (previo != null && previo != hoy) {
+            entrada.put(p.getUUID(), ticks);
+            p.sendSystemMessage(Component.literal("📜 ¡Tienes misiones diarias nuevas! ")
+                    .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD)
+                    .append(Component.literal("Búscalas con /misiones").withStyle(ChatFormatting.AQUA)));
+        }
         long desde = ticks - entrada.computeIfAbsent(p.getUUID(), k -> ticks);
         if (desde % CICLO >= DURACION) {
             ocultar(p);

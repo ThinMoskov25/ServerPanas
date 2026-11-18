@@ -47,5 +47,7 @@ public class ServerEcoMod {
 
         // Eventos (descubrimiento) y comandos (/shop, /ah, /buzon).
         MinecraftForge.EVENT_BUS.register(new EcoEvents());
+        // Aviso periodico de la tienda (barra 30 s cada 40 min).
+        MinecraftForge.EVENT_BUS.register(new com.serverpanas.servereco.shop.ShopBar());
     }
 }
