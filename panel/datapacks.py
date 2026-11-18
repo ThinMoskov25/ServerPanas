@@ -257,7 +257,8 @@ JEFE_DIMENSION = {
     'deeperdarker:stalker': 'otherside',
 }
 
-ARENA_RADIO = 8  # radio de la plataforma circular (bloques); diametro ~17
+ARENA_RADIO = 12  # radio de la plataforma circular (bloques); diametro 25
+ARENA_RADIO_DRAGON = 24  # los dragones son enormes: diametro 49
 ARENA_MURO_ALTO = 0  # sin muro: la plataforma es solo un disco de 1 bloque
 
 
@@ -399,6 +400,10 @@ def _nbt_extra(eid, nivel):
     if eid in DRAGONES_ICEANDFIRE:
         return ',AgeTicks:%d' % ((80 if nivel <= 3 else 110) * DIA_TICKS)
     return ''
+
+
+def _radio_arena(eid):
+    return ARENA_RADIO_DRAGON if eid in DRAGONES_ICEANDFIRE else ARENA_RADIO
 
 
 def _coords_aleatorias(dim_cfg):
@@ -1019,23 +1024,25 @@ class Datapacks:
         pre = 'execute in %s positioned %d %d %d run ' % (dim_id, cx, cy, cz)
         return [pre + 'fill ~%d ~-1 ~%d ~%d ~-1 ~%d air replace %s' % (-r, -r, r, r, suelo)]
 
-    def _cmds_arena_relativa(self, sys_tag, token):
-        """Arena (suelo + muro + interior libre) construida donde haya quedado el
-        jefe. Un marker pjc_<token> guarda el centro para el loot y el borrado, y
-        mantiene el chunk cargado mientras el jefe viva."""
+    def _cmds_arena_relativa(self, sys_tag, token, radio=ARENA_RADIO):
+        """Plataforma construida donde haya quedado el jefe. Un marker pjc_<token>
+        guarda el centro (loot y borrado) y mantiene la zona cargada. La
+        construccion va en una funcion aparte que se ejecuta 2 s despues, cuando
+        los chunks de alrededor ya cargaron (con radio grande ocupa varios)."""
         marca = 'pjc_%s' % token
         dcfg = DIMENSIONES['overworld']
         en_marca = 'execute at @e[tag=%s,limit=1] run ' % marca
-        cmds = ['execute at @e[tag=%s,limit=1] run summon minecraft:marker ~ ~ ~ {Tags:["%s"]}' % (sys_tag, marca)]
-        base = self._cmds_plataforma('minecraft:overworld', 0, 0, 0, dcfg['suelo'], dcfg['borde'])
         pre_abs = 'execute in minecraft:overworld positioned 0 0 0 run '
-        for c in base:
-            if c.startswith('execute in minecraft:overworld run forceload add'):
-                cmds.append(en_marca + 'forceload add ~ ~')
-            else:
-                cmds.append(c.replace(pre_abs, en_marca))
-        cmds.append(en_marca + 'tp @e[tag=%s,limit=1] ~ ~ ~' % sys_tag)
-        return cmds
+        obra = []
+        for c in self._cmds_plataforma('minecraft:overworld', 0, 0, 0, dcfg['suelo'], dcfg['borde'], radio=radio):
+            if not c.startswith('execute in minecraft:overworld run forceload add'):
+                obra.append(c.replace(pre_abs, en_marca))
+        obra.append(en_marca + 'tp @e[tag=%s,limit=1] ~ ~ ~' % sys_tag)
+        self.EXA.escribir_archivo(self._jefes_fn_dir() + '/obra_%s.mcfunction' % token,
+                                  (chr(10).join(obra) + chr(10)).encode('utf-8'))
+        return ['execute at @e[tag=%s,limit=1] run summon minecraft:marker ~ ~ ~ {Tags:["%s"]}' % (sys_tag, marca),
+                en_marca + 'forceload add ~ ~',
+                'schedule function %s:obra_%s 40t replace' % (NS_JEFES, token)]
 
     def _escribir_vigilante(self, token, info, nivel):
         if info.get('relativa'):
@@ -1054,7 +1061,7 @@ class Datapacks:
                 lineas.append(en + 'summon item ~ ~1 ~ {Item:{id:"%s",Count:%db}}\n' % (it, pila))
         lineas.append(en + 'summon experience_orb ~ ~1 ~ {Value:%d}\n' % xp_por_nivel(nivel))
         pre_abs = 'execute in minecraft:overworld positioned 0 0 0 run '
-        for c in self._cmds_borrar_plataforma('minecraft:overworld', 0, 0, 0):
+        for c in self._cmds_borrar_plataforma('minecraft:overworld', 0, 0, 0, radio=info.get('radio', ARENA_RADIO)):
             lineas.append(c.replace(pre_abs, en) + '\n')
         lineas.append(en + 'forceload remove ~ ~\n')
         lineas.append('kill @e[tag=%s]\n' % marca)
@@ -1096,7 +1103,7 @@ class Datapacks:
         # Borrar plataforma (solo si se construyo).
         if plataforma:
             suelo = (DIMENSIONES.get(info.get('dim_key')) or DIMENSIONES['overworld'])['suelo']
-            for c in self._cmds_borrar_plataforma(dim_id, cx, cy, cz, suelo=suelo):
+            for c in self._cmds_borrar_plataforma(dim_id, cx, cy, cz, radio=info.get('radio', ARENA_RADIO), suelo=suelo):
                 lineas.append(c + '\n')
         # Quitar forceload del chunk de la plataforma (ya no hace falta vigilar).
         lineas.append('execute in %s run forceload remove %d %d\n' % (dim_id, cx, cz))
@@ -1133,9 +1140,16 @@ class Datapacks:
         mientras el jefe viva (lo quita la funcion de muerte)."""
         pre = 'execute in %s positioned %d %d %d run ' % (dim_id, cx, cy, cz)
         r = int(radio)
-        cmds = ['execute in %s run forceload add %d %d' % (dim_id, cx, cz),
-                # Vaciar el espacio encima del disco para que el jefe tenga sitio.
-                pre + 'fill ~%d ~ ~%d ~%d ~%d ~%d air replace' % (-(r + 2), -(r + 2), r + 2, 40, r + 2)]
+        cmds = ['execute in %s run forceload add %d %d' % (dim_id, cx, cz)]
+        # Vaciar el espacio encima del disco (40 de alto) en franjas: /fill
+        # admite como maximo 32768 bloques por comando.
+        ancho = 2 * (r + 2) + 1
+        paso = max(1, 32768 // (ancho * ancho))
+        y0 = 0
+        while y0 <= 40:
+            y1 = min(40, y0 + paso - 1)
+            cmds.append(pre + 'fill ~%d ~%d ~%d ~%d ~%d ~%d air replace' % (-(r + 2), y0, -(r + 2), r + 2, y1, r + 2))
+            y0 = y1 + 1
         for dz in range(-r, r + 1):
             dxmax = int((r * r - dz * dz) ** 0.5)
             cmds.append(pre + 'fill ~%d ~-1 ~%d ~%d ~-1 ~%d %s replace' % (-dxmax, dz, dxmax, dz, suelo))
@@ -1177,7 +1191,7 @@ class Datapacks:
             tag, sys_tag, nivel, self._custom_name_json(etiqueta, NIVELES[nivel]['color']), _nbt_extra(eid, nivel))
 
         info = {'arena': False, 'nombre_jefe': nombre_vis, 'token': token,
-                'plataforma': False, 'nivel': nivel}
+                'plataforma': False, 'nivel': nivel, 'radio': _radio_arena(eid)}
         cmds = []
 
         if tipo == 'arena':
@@ -1188,7 +1202,7 @@ class Datapacks:
             if quiere_plataforma:
                 # Plataforma circular con MURO de contencion + forceload (se
                 # mantiene mientras el jefe viva; lo quita la funcion de muerte).
-                cmds.extend(self._cmds_plataforma(dim_id, x, y, z, dcfg['suelo'], dcfg['borde']))
+                cmds.extend(self._cmds_plataforma(dim_id, x, y, z, dcfg['suelo'], dcfg['borde'], radio=_radio_arena(eid)))
                 info['plataforma'] = True
             else:
                 # Sin plataforma: igualmente forzamos la carga del chunk para que
@@ -1245,7 +1259,7 @@ class Datapacks:
         if summon:
             cmds.append(summon)
         if quiere_plataforma and tipo in ('cerca', 'coords'):
-            cmds.extend(self._cmds_arena_relativa(sys_tag, token))
+            cmds.extend(self._cmds_arena_relativa(sys_tag, token, _radio_arena(eid)))
             info.update({'plataforma': True, 'relativa': True, 'dim_key': 'overworld'})
         elif tipo == 'coords':
             cmds.append('forceload remove %d %d' % (int(info['x']), int(info['z'])))
