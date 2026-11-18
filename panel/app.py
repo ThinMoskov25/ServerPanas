@@ -1324,9 +1324,47 @@ def _asegurar_util():
     EXA.escribir_archivo(DP_UTIL + '/pack.mcmeta', json.dumps(
         {'pack': {'pack_format': 15, 'description': 'Server Panas - Panel: utilidades (reparar objetos).'}}).encode('utf-8'))
     EXA.escribir_archivo(marca, json.dumps({'function': 'minecraft:set_damage', 'damage': 1.0}).encode('utf-8'))
+    _escribir_etiquetas_inmunes()
     EXA.comando('reload')
     time.sleep(4)
     _UTIL_OK[0] = True
+
+
+UTIL_VERSION = '2'
+
+
+def _escribir_etiquetas_inmunes():
+    """Hace que los jefes (dragones, Wither, Ender Dragon, Cataclysm) no puedan
+    romper el suelo de las plataformas."""
+    for etq in dp.ETIQUETAS_INMUNES:
+        ns, nombre = etq.split(':')
+        base = DP_UTIL + '/data/%s/tags/blocks' % ns
+        for d in (DP_UTIL + '/data/' + ns, DP_UTIL + '/data/%s/tags' % ns, base):
+            try:
+                EXA.crear_directorio(d)
+            except exaroton.ErrorApi:
+                pass
+        EXA.escribir_archivo(base + '/%s.json' % nombre, json.dumps(
+            {'replace': False, 'values': [{'id': dp.BLOQUE_PLATAFORMA, 'required': False}]}).encode('utf-8'))
+    EXA.escribir_archivo(DP_UTIL + '/panel_version.txt', UTIL_VERSION.encode('utf-8'))
+
+
+def asegurar_util_actual():
+    """Instala o actualiza PanelUtil (modificador de reparar + bloques inmunes)."""
+    try:
+        if EXA.leer_archivo(DP_UTIL + '/panel_version.txt').decode().strip() == UTIL_VERSION:
+            return False
+    except exaroton.ErrorApi:
+        pass
+    _UTIL_OK[0] = False
+    try:
+        EXA.info_archivo(DP_UTIL + '/data/panelutil/item_modifiers/reparar.json')
+        _escribir_etiquetas_inmunes()
+        EXA.comando('reload')
+    except exaroton.ErrorApi:
+        _asegurar_util()
+    _UTIL_OK[0] = True
+    return True
 
 
 def _ranura_mc(slot, ender=False):
@@ -2982,6 +3020,7 @@ class Manejador(BaseHTTPRequestHandler):
                 etiqueta = '%s [Nv %s]' % (nombre or (entidad or '').split(':')[-1], nivel)
 
                 def _trabajo_spawn():
+                    asegurar_util_actual()  # suelo indestructible
                     TAREAS.fase('spawn', 'ejecutando', 'Construyendo y ejecutando en el servidor...')
                     _, info = DATAPACKS.spawn_inmediato(entidad, destino, nivel, nombre)
                     TAREAS.fase('spawn', 'verificando', 'Confirmando aparicion...')
@@ -2998,6 +3037,7 @@ class Manejador(BaseHTTPRequestHandler):
                 return self._json(TAREAS.lanzar('spawn', _trabajo_spawn, etiqueta=etiqueta))
             if metodo == 'POST' and ruta == '/api/datapacks/spawn-programado':
                 d = self._cuerpo_json()
+                asegurar_util_actual()
                 return self._json(DATAPACKS.spawn_programado(
                     d.get('entidad'), d.get('destino'), d.get('segundos'), d.get('nivel', 1), d.get('nombre')))
             if metodo == 'GET' and ruta == '/api/archivos':

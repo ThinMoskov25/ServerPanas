@@ -402,6 +402,17 @@ def _nbt_extra(eid, nivel):
     return ''
 
 
+# Suelo de la plataforma: pizarra reforzada (aguanta explosiones) y ademas se
+# anade a las listas de bloques que los jefes no pueden romper (PanelUtil).
+BLOQUE_PLATAFORMA = 'minecraft:reinforced_deepslate'
+ETIQUETAS_INMUNES = [
+    'iceandfire:dragon_block_break_blacklist', 'minecraft:wither_immune', 'minecraft:dragon_immune',
+    'cataclysm:ignis_immune', 'cataclysm:harbinger_immune', 'cataclysm:leviathan_immune',
+    'cataclysm:maledictus_immune', 'cataclysm:netherite_monstrosity_immune', 'cataclysm:remnant_immune',
+    'cataclysm:scylla_immune', 'cataclysm:clawdian_immune', 'cataclysm:altar_destroy_immune',
+]
+
+
 def _radio_arena(eid):
     return ARENA_RADIO_DRAGON if eid in DRAGONES_ICEANDFIRE else ARENA_RADIO
 
@@ -1018,7 +1029,7 @@ class Datapacks:
             _tag_funcion([]))
 
     @staticmethod
-    def _cmds_borrar_plataforma(dim_id, cx, cy, cz, radio=ARENA_RADIO, suelo='minecraft:stone_bricks'):
+    def _cmds_borrar_plataforma(dim_id, cx, cy, cz, radio=ARENA_RADIO, suelo=BLOQUE_PLATAFORMA):
         """Quita el disco de la plataforma: solo sus bloques, en su capa."""
         r = int(radio)
         pre = 'execute in %s positioned %d %d %d run ' % (dim_id, cx, cy, cz)
@@ -1034,7 +1045,7 @@ class Datapacks:
         en_marca = 'execute at @e[tag=%s,limit=1] run ' % marca
         pre_abs = 'execute in minecraft:overworld positioned 0 0 0 run '
         obra = []
-        for c in self._cmds_plataforma('minecraft:overworld', 0, 0, 0, dcfg['suelo'], dcfg['borde'], radio=radio):
+        for c in self._cmds_plataforma('minecraft:overworld', 0, 0, 0, BLOQUE_PLATAFORMA, radio=radio):
             if not c.startswith('execute in minecraft:overworld run forceload add'):
                 obra.append(c.replace(pre_abs, en_marca))
         obra.append(en_marca + 'tp @e[tag=%s,limit=1] ~ ~ ~' % sys_tag)
@@ -1045,84 +1056,51 @@ class Datapacks:
                 'schedule function %s:obra_%s 40t replace' % (NS_JEFES, token)]
 
     def _escribir_vigilante(self, token, info, nivel):
-        if info.get('relativa'):
-            return self._escribir_vigilante_relativo(token, info, nivel)
-        return self._escribir_vigilante_fijo(token, info, nivel)
-
-    def _escribir_vigilante_relativo(self, token, info, nivel):
-        """Como el vigilante normal, pero el centro es el marker pjc_<token>."""
+        """Escribe watch_<token> / dead_<token>. Un marcador pjf_<token> sigue al
+        jefe cada segundo y mantiene cargado el chunk donde esta: asi el jefe
+        nunca se descarga y la plataforma solo se borra cuando muere de verdad."""
         fn = self._jefes_fn_dir()
-        tag, marca = 'pj_%s' % token, 'pjc_%s' % token
-        en = 'execute at @e[tag=%s,limit=1] run ' % marca
-        lineas = ['# Jefe muerto (arena relativa): loot, borrar arena y soltar el chunk.\n']
+        tag, sigue = 'pj_%s' % token, 'pjf_%s' % token
+        radio = info.get('radio', ARENA_RADIO)
+        if info.get('relativa'):
+            marca = 'pjc_%s' % token
+            en = 'execute at @e[tag=%s,limit=1] run ' % marca
+            centro_add = en + 'forceload add ~ ~'
+            borrar = [c.replace('execute in minecraft:overworld positioned 0 0 0 run ', en)
+                      for c in self._cmds_borrar_plataforma('minecraft:overworld', 0, 0, 0, radio=radio)]
+            quitar_centro = [en + 'forceload remove ~ ~', 'kill @e[tag=%s]' % marca]
+        else:
+            dim_id = info['dim_id']
+            cx, cy, cz = int(info['x']), int(info['y']), int(info['z'])
+            en = 'execute in %s positioned %d %d %d run ' % (dim_id, cx, cy, cz)
+            centro_add = 'execute in %s run forceload add %d %d' % (dim_id, cx, cz)
+            borrar = self._cmds_borrar_plataforma(dim_id, cx, cy, cz, radio=radio) if info.get('plataforma') else []
+            quitar_centro = ['execute in %s run forceload remove %d %d' % (dim_id, cx, cz)]
+        dead = ['# Jefe muerto: botin, borrar la plataforma y soltar los chunks.']
         for it, cant in tabla_loot(info.get('dim_key', 'overworld'), nivel):
             pilas = [1] * int(cant) if it in NO_APILABLES else [min(int(cant), 64)]
             for pila in pilas:
-                lineas.append(en + 'summon item ~ ~1 ~ {Item:{id:"%s",Count:%db}}\n' % (it, pila))
-        lineas.append(en + 'summon experience_orb ~ ~1 ~ {Value:%d}\n' % xp_por_nivel(nivel))
-        pre_abs = 'execute in minecraft:overworld positioned 0 0 0 run '
-        for c in self._cmds_borrar_plataforma('minecraft:overworld', 0, 0, 0, radio=info.get('radio', ARENA_RADIO)):
-            lineas.append(c.replace(pre_abs, en) + '\n')
-        lineas.append(en + 'forceload remove ~ ~\n')
-        lineas.append('kill @e[tag=%s]\n' % marca)
-        lineas.append('kill @e[tag=%s]\n' % tag)
-        self.EXA.escribir_archivo(fn + '/dead_%s.mcfunction' % token, ''.join(lineas).encode('utf-8'))
-        # Sin posicion en el selector, @e busca en todas las dimensiones.
-        watch = ('execute unless entity @e[tag=%s] run function %s:dead_%s\n'
-                 'execute if entity @e[tag=%s] run schedule function %s:watch_%s 20t replace\n'
-                 ) % (tag, NS_JEFES, token, tag, NS_JEFES, token)
-        self.EXA.escribir_archivo(fn + '/watch_%s.mcfunction' % token, watch.encode('utf-8'))
+                dead.append(en + 'summon item ~ ~1 ~ {Item:{id:"%s",Count:%db}}' % (it, pila))
+        dead.append(en + 'summon experience_orb ~ ~1 ~ {Value:%d}' % xp_por_nivel(nivel))
+        dead += borrar
+        dead.append('execute at @e[tag=%s,limit=1] run forceload remove ~ ~' % sigue)
+        dead += quitar_centro
+        dead += ['kill @e[tag=%s]' % sigue, 'kill @e[tag=%s]' % tag,
+                 'schedule clear %s:watch_%s' % (NS_JEFES, token)]
+        self.EXA.escribir_archivo(fn + '/dead_%s.mcfunction' % token, ('\n'.join(dead) + '\n').encode('utf-8'))
+        watch = [
+            '# Vigila al jefe pj_%s. Solo se da por muerto si su seguidor (pjf) esta' % token,
+            '# cargado y el jefe ya no existe; si la zona esta descargada, espera.',
+            'execute if entity @e[tag=%s] unless entity @e[tag=%s] run function %s:dead_%s' % (sigue, tag, NS_JEFES, token),
+            'execute unless entity @e[tag=%s] at @e[tag=%s,limit=1] run summon minecraft:marker ~ ~ ~ {Tags:["%s"]}' % (sigue, tag, sigue),
+            'execute if entity @e[tag=%s] at @e[tag=%s,limit=1] run forceload remove ~ ~' % (tag, sigue),
+            'execute as @e[tag=%s,limit=1] at @e[tag=%s,limit=1] run tp @s ~ ~ ~' % (sigue, tag),
+            'execute at @e[tag=%s,limit=1] run forceload add ~ ~' % sigue,
+            centro_add,
+            'schedule function %s:watch_%s 20t replace' % (NS_JEFES, token),
+        ]
+        self.EXA.escribir_archivo(fn + '/watch_%s.mcfunction' % token, ('\n'.join(watch) + '\n').encode('utf-8'))
         return 'schedule function %s:watch_%s 60t replace' % (NS_JEFES, token)
-
-    def _escribir_vigilante_fijo(self, token, info, nivel):
-        """Escribe las funciones watch_<token> y dead_<token> para un spawn
-        concreto. info trae dim_id, x,y,z, arena (plataforma si/no), dim_key.
-        Devuelve el comando que ARMA el vigilante (schedule inicial)."""
-        fn = self._jefes_fn_dir()
-        dim_id = info['dim_id']
-        cx, cy, cz = int(info['x']), int(info['y']), int(info['z'])
-        tag = 'pj_%s' % token
-        plataforma = bool(info.get('arena'))
-
-        # ---- dead_<token>: loot + borrado de plataforma + forceload remove ----
-        lineas = ['# Jefe muerto: suelta loot (%s Nv %d) y limpia la plataforma.\n'
-                  % (info.get('dim_key', 'overworld'), nivel)]
-        # Loot por (dimension x nivel): se suelta en el centro de la plataforma.
-        items = tabla_loot(info.get('dim_key', 'overworld'), nivel)
-        for it, cant in items:
-            # summon del item como entidad en la posicion exacta del centro. Los
-            # objetos que no se apilan se sueltan de uno en uno.
-            pilas = [1] * int(cant) if it in NO_APILABLES else [min(int(cant), 64)]
-            for pila in pilas:
-                lineas.append(
-                    'execute in %s positioned %d %d %d run summon item ~ ~1 ~ {Item:{id:"%s",Count:%db}}\n'
-                    % (dim_id, cx, cy, cz, it, pila))
-        # XP escalada.
-        lineas.append('execute in %s positioned %d %d %d run summon experience_orb ~ ~1 ~ {Value:%d}\n'
-                      % (dim_id, cx, cy, cz, xp_por_nivel(nivel)))
-        # Borrar plataforma (solo si se construyo).
-        if plataforma:
-            suelo = (DIMENSIONES.get(info.get('dim_key')) or DIMENSIONES['overworld'])['suelo']
-            for c in self._cmds_borrar_plataforma(dim_id, cx, cy, cz, radio=info.get('radio', ARENA_RADIO), suelo=suelo):
-                lineas.append(c + '\n')
-        # Quitar forceload del chunk de la plataforma (ya no hace falta vigilar).
-        lineas.append('execute in %s run forceload remove %d %d\n' % (dim_id, cx, cz))
-        # Limpiar cualquier marcador residual de este spawn.
-        lineas.append('kill @e[tag=%s]\n' % tag)
-        self.EXA.escribir_archivo(fn + '/dead_%s.mcfunction' % token, ''.join(lineas).encode('utf-8'))
-
-        # ---- watch_<token>: comprueba si el jefe sigue vivo ----
-        # Si NO existe ninguna entidad con el tag en la dimension -> murio.
-        watch = (
-            '# Vigilante del jefe pj_%s. Si ya no existe -> dead_%s. Si vive -> re-agenda.\n'
-            'execute in %s unless entity @e[tag=%s] run function %s:dead_%s\n'
-            'execute in %s if entity @e[tag=%s] run schedule function %s:watch_%s 20t replace\n'
-        ) % (token, token, dim_id, tag, NS_JEFES, token, dim_id, tag, NS_JEFES, token)
-        self.EXA.escribir_archivo(fn + '/watch_%s.mcfunction' % token, watch.encode('utf-8'))
-
-        # Comando que arma el primer disparo (margen de 2 s para que el jefe
-        # cargue antes de empezar a vigilar).
-        return 'schedule function %s:watch_%s 40t replace' % (NS_JEFES, token)
 
     @staticmethod
     def _custom_name_json(texto, color='white'):
@@ -1202,7 +1180,7 @@ class Datapacks:
             if quiere_plataforma:
                 # Plataforma circular con MURO de contencion + forceload (se
                 # mantiene mientras el jefe viva; lo quita la funcion de muerte).
-                cmds.extend(self._cmds_plataforma(dim_id, x, y, z, dcfg['suelo'], dcfg['borde'], radio=_radio_arena(eid)))
+                cmds.extend(self._cmds_plataforma(dim_id, x, y, z, BLOQUE_PLATAFORMA, radio=_radio_arena(eid)))
                 info['plataforma'] = True
             else:
                 # Sin plataforma: igualmente forzamos la carga del chunk para que
@@ -1286,6 +1264,9 @@ class Datapacks:
             # cargada en el server. Para el spawn INMEDIATO el panel hace /reload
             # antes de ejecutar (ver spawn_inmediato); para el PROGRAMADO el
             # arma-schedule va DENTRO de la tarea, que ya pasa por /reload.
+            sigue = 'pjf_%s' % token
+            cmds.append('execute at @e[tag=%s,limit=1] run summon minecraft:marker ~ ~ ~ {Tags:["%s"]}' % (sys_tag, sigue))
+            cmds.append('execute at @e[tag=%s,limit=1] run forceload add ~ ~' % sigue)
             cmds.append(arma)
 
         return cmds, info
