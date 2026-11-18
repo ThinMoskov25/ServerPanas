@@ -782,7 +782,7 @@ class Datapacks:
             raise ValueError('El servidor esta apagado; enciendelo para spawnear.')
         self.asegurar_niveles()
         cmds, info = self._cmds_summon(eid, destino, nivel, nombre)
-        if info.get('arena') or info.get('cerca'):
+        if info.get('arena') or info.get('cerca') or info.get('relativa') or info.get('precarga'):
             # Modo arena/cerca: la secuencia puede tener ~100 comandos (plataforma +
             # muro). En vez de mandarlos uno a uno por la API (lento y propenso a
             # timeouts del cliente), los METEMOS en una funcion de un solo uso
@@ -791,6 +791,11 @@ class Datapacks:
             # instantaneo y el schedule del vigilante prende bien.
             token = info['token']
             fn = self._jefes_fn_dir()
+            if info.get('precarga'):
+                # Cargar la zona ANTES: summon y fill fallan en chunks sin cargar.
+                d_, x_, z_ = info['precarga']
+                self.EXA.comando('execute in %s run forceload add %d %d' % (d_, x_, z_))
+                time.sleep(3)
             cuerpo = '# Spawn inmediato del panel: %s\n%s\n' % (
                 info.get('nombre_jefe', eid), '\n'.join(c.lstrip('/') for c in cmds))
             self.EXA.escribir_archivo(fn + '/spawn_%s.mcfunction' % token, cuerpo.encode('utf-8'))
@@ -1018,7 +1023,55 @@ class Datapacks:
         # Suelo esta en ~-1..~0; el muro sube hasta ~alto. Limpiamos ~-2..~alto+1.
         return [pre + 'fill ~%d ~-2 ~%d ~%d ~%d ~%d air replace' % (-r, -r, r, int(alto) + 1, r)]
 
+    def _cmds_arena_relativa(self, sys_tag, token):
+        """Arena (suelo + muro + interior libre) construida donde haya quedado el
+        jefe. Un marker pjc_<token> guarda el centro para el loot y el borrado, y
+        mantiene el chunk cargado mientras el jefe viva."""
+        marca = 'pjc_%s' % token
+        dcfg = DIMENSIONES['overworld']
+        en_marca = 'execute at @e[tag=%s,limit=1] run ' % marca
+        cmds = ['execute at @e[tag=%s,limit=1] run summon minecraft:marker ~ ~ ~ {Tags:["%s"]}' % (sys_tag, marca)]
+        base = self._cmds_plataforma('minecraft:overworld', 0, 0, 0, dcfg['suelo'], dcfg['borde'])
+        pre_abs = 'execute in minecraft:overworld positioned 0 0 0 run '
+        for c in base:
+            if c.startswith('execute in minecraft:overworld run forceload add'):
+                cmds.append(en_marca + 'forceload add ~ ~')
+            else:
+                cmds.append(c.replace(pre_abs, en_marca))
+        cmds.append(en_marca + 'tp @e[tag=%s,limit=1] ~ ~2 ~' % sys_tag)
+        return cmds
+
     def _escribir_vigilante(self, token, info, nivel):
+        if info.get('relativa'):
+            return self._escribir_vigilante_relativo(token, info, nivel)
+        return self._escribir_vigilante_fijo(token, info, nivel)
+
+    def _escribir_vigilante_relativo(self, token, info, nivel):
+        """Como el vigilante normal, pero el centro es el marker pjc_<token>."""
+        fn = self._jefes_fn_dir()
+        tag, marca = 'pj_%s' % token, 'pjc_%s' % token
+        en = 'execute at @e[tag=%s,limit=1] run ' % marca
+        lineas = ['# Jefe muerto (arena relativa): loot, borrar arena y soltar el chunk.\n']
+        for it, cant in tabla_loot(info.get('dim_key', 'overworld'), nivel):
+            pilas = [1] * int(cant) if it in NO_APILABLES else [min(int(cant), 64)]
+            for pila in pilas:
+                lineas.append(en + 'summon item ~ ~1 ~ {Item:{id:"%s",Count:%db}}\n' % (it, pila))
+        lineas.append(en + 'summon experience_orb ~ ~1 ~ {Value:%d}\n' % xp_por_nivel(nivel))
+        pre_abs = 'execute in minecraft:overworld positioned 0 0 0 run '
+        for c in self._cmds_borrar_plataforma('minecraft:overworld', 0, 0, 0):
+            lineas.append(c.replace(pre_abs, en) + '\n')
+        lineas.append(en + 'forceload remove ~ ~\n')
+        lineas.append('kill @e[tag=%s]\n' % marca)
+        lineas.append('kill @e[tag=%s]\n' % tag)
+        self.EXA.escribir_archivo(fn + '/dead_%s.mcfunction' % token, ''.join(lineas).encode('utf-8'))
+        # Sin posicion en el selector, @e busca en todas las dimensiones.
+        watch = ('execute unless entity @e[tag=%s] run function %s:dead_%s\n'
+                 'execute if entity @e[tag=%s] run schedule function %s:watch_%s 20t replace\n'
+                 ) % (tag, NS_JEFES, token, tag, NS_JEFES, token)
+        self.EXA.escribir_archivo(fn + '/watch_%s.mcfunction' % token, watch.encode('utf-8'))
+        return 'schedule function %s:watch_%s 60t replace' % (NS_JEFES, token)
+
+    def _escribir_vigilante_fijo(self, token, info, nivel):
         """Escribe las funciones watch_<token> y dead_<token> para un spawn
         concreto. info trae dim_id, x,y,z, arena (plataforma si/no), dim_key.
         Devuelve el comando que ARMA el vigilante (schedule inicial)."""
@@ -1190,7 +1243,7 @@ class Datapacks:
             # Summon 1-2 bloques sobre el centro (y+2) en la dimension correcta.
             summon = 'execute in %s run summon %s %d %d %d %s' % (dim_id, eid, x, y + 2, z, nbt)
             info.update({'arena': True, 'dim_key': dim_key, 'dim_nombre': dcfg['nombre'],
-                         'dim_id': dim_id, 'x': x, 'y': y, 'z': z})
+                         'dim_id': dim_id, 'x': x, 'y': y, 'z': z, 'precarga': (dim_id, x, z)})
         elif tipo == 'coords':
             try:
                 x = float(destino.get('x'))
@@ -1199,7 +1252,7 @@ class Datapacks:
             except (TypeError, ValueError):
                 raise ValueError('Coordenadas no validas.')
             summon = 'summon %s %s %s %s %s' % (eid, _fmt(x), _fmt(y), _fmt(z), nbt)
-            info.update({'x': x, 'y': y, 'z': z})
+            info.update({'x': x, 'y': y, 'z': z, 'precarga': ('minecraft:overworld', int(x), int(z))})
         elif tipo == 'cerca':
             # Ubicacion ALEATORIA cerca de un jugador (el elegido o uno al azar al
             # dispararse): a min..max bloques en una direccion al azar y sobre el
@@ -1237,6 +1290,11 @@ class Datapacks:
 
         if summon:
             cmds.append(summon)
+        if quiere_plataforma and tipo in ('cerca', 'coords'):
+            cmds.extend(self._cmds_arena_relativa(sys_tag, token))
+            info.update({'plataforma': True, 'relativa': True, 'dim_key': 'overworld'})
+        elif tipo == 'coords':
+            cmds.append('forceload remove %d %d' % (int(info['x']), int(info['z'])))
         # ANUNCIO GLOBAL a todo el servidor. En modo arena incluye dimension y
         # coords; en los otros modos un aviso mas simple. En el caso PROGRAMADO,
         # este tellraw va DENTRO de la funcion de la tarea (se ejecuta junto al
@@ -1253,7 +1311,7 @@ class Datapacks:
         # escriben las funciones watch_/dead_ del spawn y se ARMA el vigilante.
         # IMPORTANTE: el forceload NO se quita aqui; lo retira dead_<token> al
         # morir el jefe, para que la deteccion y el borrado sean fiables.
-        if info.get('arena'):
+        if info.get('arena') or info.get('relativa'):
             self._asegurar_base_jefes()
             arma = self._escribir_vigilante(token, info, nivel)
             # El schedule del vigilante solo "prende" si la funcion ya esta
