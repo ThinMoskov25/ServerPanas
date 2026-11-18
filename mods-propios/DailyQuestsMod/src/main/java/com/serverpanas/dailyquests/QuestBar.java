@@ -19,23 +19,30 @@ import java.util.UUID;
  * Barra arriba en la pantalla (como la de vida de los jefes) que le recuerda a
  * cada jugador sus misiones diarias: cuantas le quedan, cuantas estan listas
  * para reclamar y que se abren con /misiones. La barra avanza con las misiones
- * completadas. Cada jugador ve solo la suya. Desaparece cuando ya reclamo todas.
+ * completadas. Cada jugador ve solo la suya. No es fija: aparece 1 minuto al
+ * entrar y luego 1 minuto cada 40 minutos. Nunca sale si ya reclamo todas.
  */
 public class QuestBar {
 
-    private static final int CADA_TICKS = 100; // se actualiza cada 5 s
+    private static final int CADA_TICKS = 100;            // se revisa cada 5 s
+    private static final long CICLO = 40L * 60 * 20;      // cada 40 minutos
+    private static final long DURACION = 60L * 20;        // visible 1 minuto
     private final Map<UUID, ServerBossEvent> barras = new HashMap<>();
+    private final Map<UUID, Long> entrada = new HashMap<>(); // tick en que entro cada jugador
+    private long ticks = 0;
     private int contador = 0;
 
     @SubscribeEvent
     public void alEntrar(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.getEntity() instanceof ServerPlayer p) {
+            entrada.put(p.getUUID(), ticks);
             actualizar(p);
         }
     }
 
     @SubscribeEvent
     public void alSalir(PlayerEvent.PlayerLoggedOutEvent event) {
+        entrada.remove(event.getEntity().getUUID());
         ServerBossEvent b = barras.remove(event.getEntity().getUUID());
         if (b != null) {
             b.removeAllPlayers();
@@ -44,7 +51,11 @@ public class QuestBar {
 
     @SubscribeEvent
     public void alTick(TickEvent.ServerTickEvent event) {
-        if (event.phase != TickEvent.Phase.END || ++contador < CADA_TICKS) {
+        if (event.phase != TickEvent.Phase.END) {
+            return;
+        }
+        ticks++;
+        if (++contador < CADA_TICKS) {
             return;
         }
         contador = 0;
@@ -54,7 +65,19 @@ public class QuestBar {
         }
     }
 
+    private void ocultar(ServerPlayer p) {
+        ServerBossEvent barra = barras.remove(p.getUUID());
+        if (barra != null) {
+            barra.removeAllPlayers();
+        }
+    }
+
     private void actualizar(ServerPlayer p) {
+        long desde = ticks - entrada.computeIfAbsent(p.getUUID(), k -> ticks);
+        if (desde % CICLO >= DURACION) {
+            ocultar(p);
+            return;
+        }
         QuestData data = QuestData.get(p.server);
         int total = 0, completadas = 0, reclamadas = 0;
         for (QuestData.Entrada e : data.misionesDeHoy(p.getUUID())) {
@@ -74,10 +97,7 @@ public class QuestBar {
         int listas = completadas - reclamadas;
         ServerBossEvent barra = barras.get(p.getUUID());
         if (pendientes <= 0) {
-            if (barra != null) {
-                barra.removeAllPlayers();
-                barras.remove(p.getUUID());
-            }
+            ocultar(p);
             return;
         }
         if (barra == null) {
