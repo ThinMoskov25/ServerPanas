@@ -415,7 +415,25 @@ ETIQUETAS_INMUNES = [
 
 # Color de la barra de vida (bossbar) segun el nivel.
 COLOR_BARRA = {1: 'green', 2: 'blue', 3: 'purple', 4: 'yellow', 5: 'red'}
-RADIO_BARRA = 500  # la barra solo la ven los jugadores a esta distancia del punto de aparicion
+RADIO_BARRA = 500
+OBJ_VIDA = 'pjv'  # marcador donde se guarda la vida actual/maxima para escribirla en la barra
+
+
+def texto_stats(nivel):
+    """Resumen de estadisticas del nivel (para el raton sobre el nombre en el chat)."""
+    c = NIVELES[nivel]
+    return 'Vida x%s | Daño x%s | Reducción de daño %d%% | Jefes: escoltas %d' % (
+        _fmt(c['vida']), _fmt(c['dano']), c['resist'] * 20, c['escoltas'])
+
+
+def nombre_barra(etiqueta, nivel, token):
+    """Nombre de la barra: '<Jefe> [Nv N]  ❤ actual / maxima' (los numeros salen del marcador)."""
+    return json.dumps(['', {'text': etiqueta + '  ', 'color': NIVELES[nivel]['color'], 'bold': True},
+                       {'text': '\u2764 ', 'color': 'red'},
+                       {'score': {'name': '#v_%s' % token[-16:], 'objective': OBJ_VIDA}, 'color': 'white'},
+                       {'text': ' / ', 'color': 'gray'},
+                       {'score': {'name': '#m_%s' % token[-16:], 'objective': OBJ_VIDA}, 'color': 'white'}],
+                      ensure_ascii=False)  # la barra solo la ven los jugadores a esta distancia del punto de aparicion
 
 
 def _radio_arena(eid):
@@ -1089,7 +1107,8 @@ class Datapacks:
             centro_add = 'execute in %s run forceload add %d %d' % (dim_id, cx, cz)
             borrar = self._cmds_borrar_plataforma(dim_id, cx, cy, cz, radio=radio) if info.get('plataforma') else []
             quitar_centro = ['execute in %s run forceload remove %d %d' % (dim_id, cx, cz)]
-        dead = ['# Jefe muerto: botin, borrar la plataforma y soltar los chunks.', 'bossbar remove %s' % barra]
+        dead = ['# Jefe muerto: botin, borrar la plataforma y soltar los chunks.', 'bossbar remove %s' % barra,
+                'scoreboard players reset #v_%s %s' % (token[-16:], OBJ_VIDA), 'scoreboard players reset #m_%s %s' % (token[-16:], OBJ_VIDA)]
         if not info.get('solo_barra'):
             for it, cant in tabla_loot(info.get('dim_key', 'overworld'), nivel):
                 pilas = [1] * int(cant) if it in NO_APILABLES else [min(int(cant), 64)]
@@ -1113,8 +1132,13 @@ class Datapacks:
             centro_add,
             # Barra de vida visible para todos, a cualquier distancia.
             en + 'bossbar set %s players @a[distance=..%d]' % (barra, RADIO_BARRA),
-            'execute store result bossbar %s max run attribute @e[tag=%s,limit=1] minecraft:generic.max_health get' % (barra, tag),
-            'execute store result bossbar %s value run data get entity @e[tag=%s,limit=1] Health' % (barra, tag),
+            'scoreboard objectives add %s dummy' % OBJ_VIDA,
+            'execute store result score #v_%s %s run data get entity @e[tag=%s,limit=1] Health' % (token[-16:], OBJ_VIDA, tag),
+            'execute store result score #m_%s %s run attribute @e[tag=%s,limit=1] minecraft:generic.max_health get' % (token[-16:], OBJ_VIDA, tag),
+            'execute store result bossbar %s value run scoreboard players get #v_%s %s' % (barra, token[-16:], OBJ_VIDA),
+            'execute store result bossbar %s max run scoreboard players get #m_%s %s' % (barra, token[-16:], OBJ_VIDA),
+            'execute if entity @e[tag=%s] run bossbar set %s name %s' % (
+                tag, barra, nombre_barra(info.get('etiqueta') or info.get('nombre_jefe', 'Jefe'), nivel, token)),
             'schedule function %s:watch_%s 20t replace' % (NS_JEFES, token),
         ]
         watch = [w for w in watch if w and (info.get('barra') or ' bossbar ' not in ' ' + w)]
@@ -1187,7 +1211,7 @@ class Datapacks:
         nbt = '{Tags:["%s","panelboss","%s","pn_nv%d"],CustomName:%s,CustomNameVisible:1b,PersistenceRequired:1b%s}' % (
             tag, sys_tag, nivel, self._custom_name_json(etiqueta, NIVELES[nivel]['color']), _nbt_extra(eid, nivel))
 
-        info = {'arena': False, 'nombre_jefe': nombre_vis, 'token': token,
+        info = {'arena': False, 'nombre_jefe': nombre_vis, 'token': token, 'etiqueta': etiqueta,
                 'plataforma': False, 'nivel': nivel, 'radio': _radio_arena(eid)}
         cmds = []
 
@@ -1319,6 +1343,15 @@ class Datapacks:
             return o
 
         partes = [_txt('[Server Panas] ', 'gold', True)]
+        _txt_base = _txt
+
+        def _txt(t, color=None, bold=False):
+            o = _txt_base(t, color, bold)
+            if t == etiqueta and info.get('nivel'):
+                o['hoverEvent'] = {'action': 'show_text', 'contents': [
+                    {'text': etiqueta + '\n', 'color': 'gold', 'bold': True},
+                    {'text': texto_stats(info['nivel']).replace(' | ', '\n'), 'color': 'white'}]}
+            return o
         if info.get('cerca'):
             partes += [
                 _txt('Ha aparecido ', 'yellow'),

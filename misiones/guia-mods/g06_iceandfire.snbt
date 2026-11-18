@@ -6,6 +6,7 @@
 	icon: "iceandfire:dragon_skull_fire"
 	id: "7000000000000006"
 	order_index: 5
+	quest_links: [ ]
 	quests: [
 		{
 			description: [
@@ -13,16 +14,19 @@
 				"gorgonas, cockatrices, sirenas y mas."
 			]
 			icon: "iceandfire:dragon_skull_fire"
-			id: "9060000000000000"
+			id: "0BFEA6A4376E4B9B"
 			size: 1.5d
 			subtitle: "Doma tu propio dragon"
-			tasks: [{ id: "A060000000000000", title: "Empezar", type: "checkmark" }]
+			tasks: [{
+				id: "17AE4317B6E4392E"
+				title: "Empezar"
+				type: "checkmark"
+			}]
 			title: "&c&lICE AND FIRE"
 			x: 0.0d
 			y: 0.0d
 		}
 		{
-			dependencies: ["9060000000000000"]
 			description: [
 				"&6PASO 1.&r"
 				"Busca &6nidos de dragon&r (montanas con oro/plata"
@@ -32,15 +36,18 @@
 				"&aDesbloquea:&r conseguir un huevo."
 			]
 			icon: "iceandfire:dragon_skull_fire"
-			id: "9060000000000001"
+			id: "2A417D431595E645"
 			subtitle: "Caza de dragones"
-			tasks: [{ id: "A060000000000001", title: "Entendido", type: "checkmark" }]
+			tasks: [{
+				id: "06767AFB0816A68D"
+				title: "Entendido"
+				type: "checkmark"
+			}]
 			title: "&c1. Encuentra un nido"
 			x: 2.0d
 			y: 0.0d
 		}
 		{
-			dependencies: ["9060000000000001"]
 			description: [
 				"&6PASO 2.&r"
 				"Mata al dragon guardian o roba un &6Huevo&r del nido con"
@@ -48,33 +55,50 @@
 				""
 				"&aDesbloquea:&r incubar."
 			]
-			icon: "iceandfire:dragon_egg_red"
-			id: "9060000000000002"
+			icon: "iceandfire:dragonegg_red"
+			id: "260DEC5CD27A1438"
 			subtitle: "Con cuidado"
-			tasks: [{ id: "A060000000000002", title: "Entendido", type: "checkmark" }]
+			tasks: [{
+				id: "29FB2F66544AA7BB"
+				title: "Entendido"
+				type: "checkmark"
+			}]
 			title: "&c2. Consigue un huevo"
 			x: 4.0d
 			y: 0.0d
 		}
 		{
-			dependencies: ["9060000000000002"]
 			description: [
-				"&6PASO 3.&r"
-				"Incuba el huevo: &cfuego/lava&r para el de fuego,"
-				"&bhielo/nieve&r para el de hielo."
+				"&6PASO 3.&r Cada huevo eclosiona de una forma segun su &etipo&r."
+				"Mira su &ecolor&r para saber cual es:"
 				""
-				"&aDesbloquea:&r criar al dragon."
+				"&cFuego:&r rojo, verde, bronce o gris."
+				"&bHielo:&r azul, blanco, zafiro o &fplateado&r."
+				"&dRayo:&r electrico, amatista, cobre o negro."
+				""
+				"&eReglas para todos:&r"
+				"- Coloca el huevo en el suelo (clic derecho con el)."
+				"- Tarda unos &e6 minutos&r (7200 ticks) en eclosionar."
+				"- Quedate cerca: si te alejas y la zona se descarga,"
+				"  el huevo deja de contar."
+				"- La cria se vincula con el &ejugador mas cercano&r"
+				"  al eclosionar: que estes tu al lado."
+				""
+				"&aSigue:&r la mision del tipo de tu huevo (abajo)."
 			]
-			icon: "minecraft:fire_charge"
-			id: "9060000000000003"
-			subtitle: "Fuego o hielo"
-			tasks: [{ id: "A060000000000003", title: "Entendido", type: "checkmark" }]
-			title: "&c3. Incuba"
+			icon: "iceandfire:dragonegg_red"
+			id: "22633EAFFAC0B935"
+			subtitle: "Segun el color del huevo"
+			tasks: [{
+				id: "756B090947DD9189"
+				title: "Entendido"
+				type: "checkmark"
+			}]
+			title: "&c3. Incuba tu huevo"
 			x: 6.0d
 			y: 0.0d
 		}
 		{
-			dependencies: ["9060000000000003"]
 			description: [
 				"&6PASO 4.&r"
 				"Alimenta la cria con carne hasta que crezca por etapas."
@@ -82,15 +106,18 @@
 				"&aDesbloquea:&r montarlo."
 			]
 			icon: "minecraft:cooked_beef"
-			id: "9060000000000004"
+			id: "2E18D08F6E9CBFD0"
 			subtitle: "De cria a adulto"
-			tasks: [{ id: "A060000000000004", title: "Entendido", type: "checkmark" }]
+			tasks: [{
+				id: "18867BE017CA70D6"
+				title: "Entendido"
+				type: "checkmark"
+			}]
 			title: "&c4. Alimenta y crece"
 			x: 8.0d
 			y: 0.0d
 		}
 		{
-			dependencies: ["9060000000000004"]
 			description: [
 				"&6PASO 5 (FINAL).&r"
 				"Con &eStage 2+&r ponle &esilla de dragon&r y collar para"
@@ -100,12 +127,92 @@
 				"&6Ya tienes tu dragon.&r"
 			]
 			icon: "iceandfire:dragon_meal"
-			id: "9060000000000005"
+			id: "45FD1E45EAC416DE"
 			subtitle: "A volar"
-			tasks: [{ id: "A060000000000005", title: "Entendido", type: "checkmark" }]
+			tasks: [{
+				id: "7855D032323A65B3"
+				title: "Entendido"
+				type: "checkmark"
+			}]
 			title: "&c5. Silla y vuelo"
 			x: 10.0d
 			y: 0.0d
+		}
+		{
+			dependencies: ["22633EAFFAC0B935"]
+			description: [
+				"&cHuevo de FUEGO&r (rojo, verde, bronce o gris)."
+				""
+				"1. Pon un bloque de &6Netherrack&r en el suelo."
+				"2. Coloca el huevo &eencima&r del netherrack."
+				"3. Enciende el netherrack con un &6Mechero&r: el fuego"
+				"   debe quedar &econ el huevo dentro de las llamas&r."
+				"4. Espera unos 6 minutos sin apagar el fuego."
+				"   (El netherrack arde para siempre: no se apaga solo.)"
+				""
+				"&7Evita la lluvia: apaga el fuego. Mejor bajo techo."
+			]
+			icon: "iceandfire:dragonegg_red"
+			id: "3A1F0C2D4E5B6A71"
+			subtitle: "Fuego bajo el huevo"
+			tasks: [{
+				id: "4B2E1D3C5F6A7B82"
+				title: "Entendido"
+				type: "checkmark"
+			}]
+			title: "&c3a. Huevo de fuego"
+			x: 5.0d
+			y: 2.0d
+		}
+		{
+			dependencies: ["22633EAFFAC0B935"]
+			description: [
+				"&bHuevo de HIELO&r (azul, blanco, zafiro o plateado)."
+				""
+				"1. Haz un pequeno estanque de &9agua&r (un bloque de agua"
+				"   fuente basta)."
+				"2. Coloca el huevo &edentro del agua&r."
+				"3. El huevo se cubre de hielo y se convierte en un"
+				"   &bHuevo de dragon congelado&r. Es normal: no lo rompas."
+				"4. Espera unos 6 minutos y la cria sale del hielo."
+			]
+			icon: "iceandfire:dragonegg_silver"
+			id: "5C3F2E4D6A7B8C93"
+			subtitle: "Agua alrededor"
+			tasks: [{
+				id: "6D4A3F5E7B8C9DA4"
+				title: "Entendido"
+				type: "checkmark"
+			}]
+			title: "&b3b. Huevo de hielo"
+			x: 6.0d
+			y: 2.0d
+		}
+		{
+			dependencies: ["22633EAFFAC0B935"]
+			description: [
+				"&dHuevo de RAYO&r (electrico, amatista, cobre o negro)."
+				""
+				"1. Coloca el huevo en el suelo &ea cielo abierto&r"
+				"   (nada encima: ni techo, ni hojas)."
+				"2. Solo cuenta mientras &9llueve&r sobre el huevo; si no"
+				"   llueve, espera o pide a un admin que ponga lluvia."
+				"3. Con lluvia se mueve y tiembla: dejalo unos 6 minutos"
+				"   de lluvia en total."
+				""
+				"&7En desiertos y biomas sin lluvia no funciona."
+			]
+			icon: "iceandfire:dragonegg_electric"
+			id: "7E5B4A6F8C9DAEB5"
+			subtitle: "Bajo la lluvia"
+			tasks: [{
+				id: "8F6C5B7A9DAEBFC6"
+				title: "Entendido"
+				type: "checkmark"
+			}]
+			title: "&d3c. Huevo de rayo"
+			x: 7.0d
+			y: 2.0d
 		}
 	]
 	title: "&c6. Ice and Fire"
