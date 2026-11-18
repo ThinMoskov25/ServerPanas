@@ -44,5 +44,7 @@ public class DailyQuestsMod {
         // Registrar los manejadores de eventos de juego (minar, matar, recoger)
         // y el comando /misiones en el bus principal de Forge.
         MinecraftForge.EVENT_BUS.register(new QuestEvents());
+        // Barra con las misiones pendientes de cada jugador.
+        MinecraftForge.EVENT_BUS.register(new QuestBar());
     }
 }
