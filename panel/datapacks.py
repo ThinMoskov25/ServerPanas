@@ -67,6 +67,7 @@ Nombres de tarea/mob se sanean para que sean nombres de funcion validos
 usa EXA.comando.
 """
 import json
+import math
 import random
 import re
 import time
@@ -767,8 +768,8 @@ class Datapacks:
             raise ValueError('El servidor esta apagado; enciendelo para spawnear.')
         self.asegurar_niveles()
         cmds, info = self._cmds_summon(eid, destino, nivel, nombre)
-        if info.get('arena'):
-            # Modo arena: la secuencia puede tener ~100 comandos (plataforma +
+        if info.get('arena') or info.get('cerca'):
+            # Modo arena/cerca: la secuencia puede tener ~100 comandos (plataforma +
             # muro). En vez de mandarlos uno a uno por la API (lento y propenso a
             # timeouts del cliente), los METEMOS en una funcion de un solo uso
             # paneljefes:spawn_<token>, hacemos /reload (que ademas carga las
@@ -1183,6 +1184,32 @@ class Datapacks:
                 raise ValueError('Coordenadas no validas.')
             summon = 'summon %s %s %s %s %s' % (eid, _fmt(x), _fmt(y), _fmt(z), nbt)
             info.update({'x': x, 'y': y, 'z': z})
+        elif tipo == 'cerca':
+            # Ubicacion ALEATORIA cerca de un jugador (el elegido o uno al azar al
+            # dispararse): a min..max bloques en una direccion al azar y sobre el
+            # suelo (spreadplayers busca la superficie; en el Nether, bajo el techo).
+            jug = (destino.get('jugador') or '').strip()
+            if jug and not NOMBRE_OK.match(jug):
+                raise ValueError('Nombre de jugador no valido.')
+            try:
+                dmin = max(10, min(1000, int(destino.get('min') or 60)))
+                dmax = max(dmin + 5, min(2000, int(destino.get('max') or 200)))
+            except (TypeError, ValueError):
+                raise ValueError('Distancias no validas.')
+            ang = random.uniform(0, 2 * math.pi)
+            dist = random.randint(dmin, dmax)
+            dx, dz = int(round(math.cos(ang) * dist)), int(round(math.sin(ang) * dist))
+            marca = 'pbcerca_%s' % token
+            cmds.append('tag %s add %s' % (jug or '@r[gamemode=!spectator]', marca))
+            summon = 'execute at @a[tag=%s,limit=1] run summon %s ~ ~ ~ %s' % (marca, eid, nbt)
+            cmds.append(summon)
+            cmds.append('execute as @e[tag=%s,limit=1] at @s if dimension minecraft:the_nether '
+                        'run spreadplayers ~%d ~%d 1 6 under 110 false @s' % (sys_tag, dx, dz))
+            cmds.append('execute as @e[tag=%s,limit=1] at @s unless dimension minecraft:the_nether '
+                        'run spreadplayers ~%d ~%d 1 6 false @s' % (sys_tag, dx, dz))
+            self._asegurar_base_jefes()
+            info.update({'cerca': True, 'jugador': jug or 'un jugador al azar', 'distancia': dist, 'marca': marca})
+            summon = None
         elif tipo == 'jugador':
             jug = destino.get('jugador', '')
             if not NOMBRE_OK.match(jug):
@@ -1190,14 +1217,17 @@ class Datapacks:
             summon = 'execute at %s run summon %s ~ ~ ~ %s' % (jug, eid, nbt)
             info.update({'jugador': jug})
         else:
-            raise ValueError('Destino no valido (arena | coords | jugador).')
+            raise ValueError('Destino no valido (arena | cerca | coords | jugador).')
 
-        cmds.append(summon)
+        if summon:
+            cmds.append(summon)
         # ANUNCIO GLOBAL a todo el servidor. En modo arena incluye dimension y
         # coords; en los otros modos un aviso mas simple. En el caso PROGRAMADO,
         # este tellraw va DENTRO de la funcion de la tarea (se ejecuta junto al
         # summon), no al programar.
         cmds.append(self._cmd_anuncio(etiqueta, info))
+        if info.get('cerca'):
+            cmds.append('tag @a remove %s' % info['marca'])
 
         # DETECCION DE MUERTE + LOOT + BORRADO DE PLATAFORMA (Tareas 2 y 4):
         # solo en modo arena (donde controlamos dimension y posicion exacta). Se
@@ -1228,7 +1258,15 @@ class Datapacks:
             return o
 
         partes = [_txt('[Server Panas] ', 'gold', True)]
-        if info.get('arena'):
+        if info.get('cerca'):
+            partes += [
+                _txt('Ha aparecido ', 'yellow'),
+                _txt(etiqueta, 'red', True),
+                _txt(' a unos %d bloques de ' % info['distancia'], 'yellow'),
+                {'selector': '@a[tag=%s]' % info['marca'], 'color': 'aqua', 'bold': True},
+                _txt('. Cuidado!', 'green', True),
+            ]
+        elif info.get('arena'):
             partes += [
                 _txt('Ha aparecido ', 'yellow'),
                 _txt(etiqueta, 'red', True),
