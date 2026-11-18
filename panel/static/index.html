@@ -250,6 +250,10 @@
   .islot .dur>div{height:100%}
   .islot.enc{box-shadow:inset 0 0 10px rgba(190,120,255,.55)}
   .islot.vacio{opacity:.6}
+  .islot.lleno{cursor:pointer}
+  .islot.lleno:hover{border-color:#8fb3c4}
+  .islot.sel{outline:2px solid var(--verde);outline-offset:1px}
+  .jg-sel{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:12px;padding:12px;background:#14232d;border-radius:8px}
   .jg-info{padding:10px 0;border-bottom:1px solid var(--linea)}
   .jg-info:last-child{border-bottom:none}
   .jg-stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
@@ -1641,7 +1645,7 @@ function editarCatalogo(id){
 }
 
 // ============ JUGADORES ============
-let JG=[],JG_ACTUAL=null,JG_DATOS=null;
+let JG=[],JG_ACTUAL=null,JG_DATOS=null,JG_SEL=null;
 const CABEZA=n=>'https://mc-heads.net/avatar/'+encodeURIComponent(n)+'/64';
 async function cargarJugadoresTab(){
   try{JG=(await api('/api/jugadores')).jugadores;pintarJugadoresTab();}
@@ -1659,7 +1663,7 @@ function pintarJugadoresTab(){
 }
 function volverJugadores(){$('jgVistaFicha').hidden=true;$('jgVistaLista').hidden=false;cargarJugadoresTab();}
 async function abrirFicha(n){
-  JG_ACTUAL=n;$('jgVistaLista').hidden=true;$('jgVistaFicha').hidden=false;
+  if(JG_ACTUAL!==n)JG_SEL=null;JG_ACTUAL=n;$('jgVistaLista').hidden=true;$('jgVistaFicha').hidden=false;
   $('jgCargando').textContent='Cargando datos de '+n+'...';
   if(!JG_DATOS||JG_DATOS.nombre!==n)$('jgFicha').innerHTML='';
   try{JG_DATOS=await api('/api/jugador?jugador='+encodeURIComponent(n));pintarFicha();$('jgCargando').textContent='';}
@@ -1677,13 +1681,14 @@ function durMax(id){const [ns,n]=id.split(':');if(ns!=='minecraft')return 0;if(M
 function iconoItem(img){const st=+img.dataset.p||0,id=img.dataset.id.split(':');
   if(id[0]==='minecraft'&&st===0){img.dataset.p=1;img.src='https://assets.mcasset.cloud/1.20.1/assets/minecraft/textures/block/'+id[1]+'.png';return;}
   const t=document.createElement('div');t.className='txt';t.textContent=img.alt;img.replaceWith(t);}
-function slotHtml(it,fondo){
+function slotHtml(it,fondo,ender){
   if(!it)return '<div class="islot vacio">'+(fondo?'<span class="suave" style="font-size:18px">'+fondo+'</span>':'')+'</div>';
   const [ns,n]=it.id.split(':'),max=durMax(it.id),tip=it.nombre+' ('+it.id+')'+(it.n>1?' x'+it.n:'')+(max?' · durabilidad '+(max-it.dano)+'/'+max:'');
   const img=ns==='minecraft'?'<img src="https://assets.mcasset.cloud/1.20.1/assets/minecraft/textures/item/'+n+'.png" alt="'+esc(it.nombre)+'" data-id="'+esc(it.id)+'" onerror="iconoItem(this)" loading="lazy">'
     :'<div class="txt">'+esc(it.nombre)+'</div>';
   let dur='';if(max&&it.dano>0){const r=Math.max(0,(max-it.dano)/max);dur='<div class="dur"><div style="width:'+(r*100)+'%;background:hsl('+(r*120)+',90%,45%)"></div></div>';}
-  return '<div class="islot'+(it.encantado?' enc':'')+'" title="'+esc(tip)+'">'+img+(it.n>1?'<span class="cnt">'+it.n+'</span>':'')+dur+'</div>';
+  const sel=JG_SEL&&JG_SEL.slot===it.slot&&!!JG_SEL.ender===!!ender;
+  return '<div class="islot lleno'+(it.encantado?' enc':'')+(sel?' sel':'')+'" title="'+esc(tip)+'" onclick="elegirItem('+it.slot+','+(ender?1:0)+')">'+img+(it.n>1?'<span class="cnt">'+it.n+'</span>':'')+dur+'</div>';
 }
 function iconos(valor,max,lleno){let s='';const n=Math.ceil(max/2);for(let i=0;i<n;i++){const v=valor-i*2;s+='<span class="'+(v>=2?'':v>=1?'med':'vac')+'">'+lleno+'</span>';}return s;}
 function infoUbic(titulo,u,jugador,conectado){
@@ -1713,7 +1718,7 @@ function pintarFicha(){
     +'<div class="jg-cols"><div class="card"><div class="card-head"><h2>Inventario</h2><label class="fila suave" style="font-size:13px"><input type="checkbox" id="jgEnder" onchange="pintarEnder()"> Cofre de Ender</label></div>'
     +'<div class="inv"><div class="inv-col">'+[103,102,101,100].map((s,i)=>slotHtml(inv[s],['&#9937;','&#128085;','&#128086;','&#128098;'][i])).join('')+'</div>'
     +'<div class="inv-col" style="align-self:end;grid-template-rows:48px">'+slotHtml(inv[-106],'&#128737;')+'</div>'
-    +'<div class="inv-main">'+main.join('')+'</div></div><div id="jgEnderCaja"></div></div>'
+    +'<div class="inv-main">'+main.join('')+'</div></div><div id="jgSelCaja"></div><div id="jgEnderCaja"></div></div>'
     +'<div class="card"><h2>Información</h2>'
     +'<div class="jg-info"><b>&#128205; Posición actual</b><div class="mono" style="font-size:13px">'+(d.pos?'X '+d.pos[0]+' · Y '+d.pos[1]+' · Z '+d.pos[2]:'?')+'</div><div class="suave" style="font-size:12.5px">'+esc(dimTxt(d.dim))+'</div>'
     +(d.conectado&&otros?'<div class="fila" style="margin-top:8px"><select id="jgTpOtro">'+otros+'</select><button class="btn sm az" onclick="teletransportar(JG_ACTUAL,{tipo:\'jugador\',nombre:$(\'jgTpOtro\').value})">Llevar con él</button><button class="btn sm" onclick="teletransportar($(\'jgTpOtro\').value,{tipo:\'jugador\',nombre:JG_ACTUAL})">Traerlo aquí</button></div>':'')+'</div>'
@@ -1722,9 +1727,26 @@ function pintarFicha(){
     +stat(S.jugadores_matados,'Jugadores matados')+stat(S.bloques_minados,'Bloques minados')+stat(S.objetos_fabricados,'Objetos fabricados')+stat(S.km_a_pie+' km','Recorrido a pie')
     +stat(S.km_montado_o_volando+' km','Montado o volando')+stat(S.saltos,'Saltos')+stat(S.dano_hecho+' &#10084;','Daño hecho')+stat(S.dano_recibido+' &#10084;','Daño recibido')+stat(S.veces_dormido,'Veces dormido')+'</div>'
     :'<p class="suave">Sin estadísticas todavía.</p>')+'</div>';
+  pintarSeleccion();if(JG_SEL&&JG_SEL.ender){$('jgEnder').checked=true;pintarEnder();}
+}
+function elegirItem(slot,ender){JG_SEL={slot,ender:!!ender};pintarFicha();if($('jgEnder')&&ender){$('jgEnder').checked=true;pintarEnder();}}
+function pintarSeleccion(){
+  const c=$('jgSelCaja');if(!c)return;if(!JG_SEL){c.innerHTML='<p class="suave" style="font-size:12.5px;margin-top:10px">Pulsa un objeto para ver su detalle y repararlo.</p>';return;}
+  const it=(JG_SEL.ender?JG_DATOS.ender:JG_DATOS.inventario).find(i=>i.slot===JG_SEL.slot);if(!it){JG_SEL=null;pintarSeleccion();return;}
+  const max=durMax(it.id),dur=max?(max-it.dano)+' / '+max+' ('+Math.round((max-it.dano)/max*100)+'%)':(it.dano>0?'Desgastado ('+it.dano+' de daño)':'Sin desgaste');
+  const puede=it.dano>0&&JG_DATOS.conectado;
+  c.innerHTML='<div class="jg-sel">'+slotHtml(it,null,JG_SEL.ender)+'<div style="flex:1;min-width:180px"><b>'+esc(it.nombre)+'</b>'+(it.n>1?' x'+it.n:'')
+    +'<div class="suave mono" style="font-size:12px">'+esc(it.id)+'</div><div style="font-size:13px">Durabilidad: '+esc(dur)+'</div></div>'
+    +'<button class="btn p" '+(puede?'':'disabled ')+'onclick="repararItem()" title="'+(it.dano<=0?'No tiene desgaste':!JG_DATOS.conectado?'El jugador debe estar conectado':'Deja el objeto como nuevo')+'">&#128295; Reparar al 100%</button></div>';
+}
+async function repararItem(){
+  if(!JG_SEL)return;const n=JG_ACTUAL;
+  try{const r=await api('/api/jugador/reparar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jugador:n,slot:JG_SEL.slot,ender:JG_SEL.ender})});
+    aviso('Reparando: /'+r.enviado,'ok');setTimeout(()=>{if(JG_ACTUAL===n&&!$('jgVistaFicha').hidden)abrirFicha(n);},5000);}
+  catch(e){aviso(e.message,'error');}
 }
 function pintarEnder(){const c=$('jgEnderCaja');if(!$('jgEnder').checked){c.innerHTML='';return;}const e={};JG_DATOS.ender.forEach(i=>e[i.slot]=i);
-  const s=[];for(let i=0;i<27;i++)s.push(slotHtml(e[i]));c.innerHTML='<h3 style="margin:12px 0 6px">Cofre de Ender</h3><div class="inv"><div class="inv-main">'+s.join('')+'</div></div>';}
+  const s=[];for(let i=0;i<27;i++)s.push(slotHtml(e[i],null,true));c.innerHTML='<h3 style="margin:12px 0 6px">Cofre de Ender</h3><div class="inv"><div class="inv-main">'+s.join('')+'</div></div>';}
 const ACC_CONFIRMA={matar:'Matar a',echar:'Echar del servidor a',ban_si:'Banear a',op_si:'Hacer operador a',op_no:'Quitar operador a',blanca_no:'Quitar de la lista blanca a',hambre:'Dar hambre a'};
 async function accionJugador(accion,el,valor){
   const n=JG_ACTUAL;

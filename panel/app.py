@@ -1301,6 +1301,61 @@ def jugador_ficha(nombre):
     }
 
 
+# Reparar: un modificador de item (set_damage 100%) en un datapack minimo del panel.
+DP_UTIL = 'world/datapacks/PanelUtil'
+_UTIL_OK = [False]
+
+
+def _asegurar_util():
+    if _UTIL_OK[0]:
+        return
+    marca = DP_UTIL + '/data/panelutil/item_modifiers/reparar.json'
+    try:
+        EXA.info_archivo(marca)
+        _UTIL_OK[0] = True
+        return
+    except exaroton.ErrorApi:
+        pass
+    for d in (DP_UTIL, DP_UTIL + '/data', DP_UTIL + '/data/panelutil', DP_UTIL + '/data/panelutil/item_modifiers'):
+        try:
+            EXA.crear_directorio(d)
+        except exaroton.ErrorApi:
+            pass
+    EXA.escribir_archivo(DP_UTIL + '/pack.mcmeta', json.dumps(
+        {'pack': {'pack_format': 15, 'description': 'Server Panas - Panel: utilidades (reparar objetos).'}}).encode('utf-8'))
+    EXA.escribir_archivo(marca, json.dumps({'function': 'minecraft:set_damage', 'damage': 1.0}).encode('utf-8'))
+    EXA.comando('reload')
+    time.sleep(4)
+    _UTIL_OK[0] = True
+
+
+def _ranura_mc(slot, ender=False):
+    """Numero de ranura del NBT -> nombre de ranura de /item."""
+    if ender:
+        if 0 <= slot <= 26:
+            return 'enderchest.%d' % slot
+    elif 0 <= slot <= 8:
+        return 'hotbar.%d' % slot
+    elif 9 <= slot <= 35:
+        return 'inventory.%d' % (slot - 9)
+    else:
+        m = {100: 'armor.feet', 101: 'armor.legs', 102: 'armor.chest', 103: 'armor.head', -106: 'weapon.offhand'}
+        if slot in m:
+            return m[slot]
+    raise ValueError('Esa ranura no se puede reparar.')
+
+
+def jugador_reparar(nombre, slot, ender=False):
+    if not NOMBRE_OK.match(nombre or ''):
+        raise ValueError('Jugador no valido')
+    if nombre not in ((EXA.estado(forzar=True).get('players') or {}).get('list') or []):
+        raise ValueError('%s debe estar conectado para repararle objetos.' % nombre)
+    ranura = _ranura_mc(int(slot), bool(ender))
+    _asegurar_util()
+    _ULTIMO_SAVE[0] = 0  # que la proxima ficha relea los datos
+    return comando_en_fondo('item modify entity %s %s panelutil:reparar' % (nombre, ranura))
+
+
 ACCIONES_JUGADOR = {
     'matar': 'kill {j}',
     'curar': 'effect give {j} minecraft:instant_health 1 20 true',
@@ -2777,6 +2832,9 @@ class Manejador(BaseHTTPRequestHandler):
                 return self._json(jugadores_lista())
             if metodo == 'GET' and ruta == '/api/jugador':
                 return self._json(jugador_ficha(self._jugador(q)))
+            if metodo == 'POST' and ruta == '/api/jugador/reparar':
+                d = self._cuerpo_json()
+                return self._json(jugador_reparar((d.get('jugador') or '').strip(), d.get('slot'), d.get('ender')))
             if metodo == 'POST' and ruta in ('/api/jugador/accion', '/api/jugador/op'):
                 d = self._cuerpo_json()
                 acc = d.get('accion') or ''
