@@ -413,6 +413,11 @@ ETIQUETAS_INMUNES = [
 ]
 
 
+# Color de la barra de vida (bossbar) segun el nivel.
+COLOR_BARRA = {1: 'green', 2: 'blue', 3: 'purple', 4: 'yellow', 5: 'red'}
+RADIO_BARRA = 500  # la barra solo la ven los jugadores a esta distancia del punto de aparicion
+
+
 def _radio_arena(eid):
     return ARENA_RADIO_DRAGON if eid in DRAGONES_ICEANDFIRE else ARENA_RADIO
 
@@ -798,7 +803,7 @@ class Datapacks:
             raise ValueError('El servidor esta apagado; enciendelo para spawnear.')
         self.asegurar_niveles()
         cmds, info = self._cmds_summon(eid, destino, nivel, nombre)
-        if info.get('arena') or info.get('cerca') or info.get('relativa') or info.get('precarga'):
+        if info.get('arena') or info.get('cerca') or info.get('relativa') or info.get('precarga') or info.get('solo_barra'):
             # Modo arena/cerca: la secuencia puede tener ~100 comandos (plataforma +
             # muro). En vez de mandarlos uno a uno por la API (lento y propenso a
             # timeouts del cliente), los METEMOS en una funcion de un solo uso
@@ -1062,7 +1067,15 @@ class Datapacks:
         fn = self._jefes_fn_dir()
         tag, sigue = 'pj_%s' % token, 'pjf_%s' % token
         radio = info.get('radio', ARENA_RADIO)
-        if info.get('relativa'):
+        barra = 'paneljefes:%s' % token
+        if info.get('solo_barra'):
+            # Sin plataforma: un marcador pjo_ guarda el punto de aparicion (origen de la barra).
+            origen = 'pjo_%s' % token
+            en = 'execute at @e[tag=%s,limit=1] run ' % origen
+            centro_add = en + 'forceload add ~ ~'
+            borrar = []
+            quitar_centro = [en + 'forceload remove ~ ~', 'kill @e[tag=%s]' % origen]
+        elif info.get('relativa'):
             marca = 'pjc_%s' % token
             en = 'execute at @e[tag=%s,limit=1] run ' % marca
             centro_add = en + 'forceload add ~ ~'
@@ -1076,12 +1089,13 @@ class Datapacks:
             centro_add = 'execute in %s run forceload add %d %d' % (dim_id, cx, cz)
             borrar = self._cmds_borrar_plataforma(dim_id, cx, cy, cz, radio=radio) if info.get('plataforma') else []
             quitar_centro = ['execute in %s run forceload remove %d %d' % (dim_id, cx, cz)]
-        dead = ['# Jefe muerto: botin, borrar la plataforma y soltar los chunks.']
-        for it, cant in tabla_loot(info.get('dim_key', 'overworld'), nivel):
-            pilas = [1] * int(cant) if it in NO_APILABLES else [min(int(cant), 64)]
-            for pila in pilas:
-                dead.append(en + 'summon item ~ ~1 ~ {Item:{id:"%s",Count:%db}}' % (it, pila))
-        dead.append(en + 'summon experience_orb ~ ~1 ~ {Value:%d}' % xp_por_nivel(nivel))
+        dead = ['# Jefe muerto: botin, borrar la plataforma y soltar los chunks.', 'bossbar remove %s' % barra]
+        if not info.get('solo_barra'):
+            for it, cant in tabla_loot(info.get('dim_key', 'overworld'), nivel):
+                pilas = [1] * int(cant) if it in NO_APILABLES else [min(int(cant), 64)]
+                for pila in pilas:
+                    dead.append(en + 'summon item ~ ~1 ~ {Item:{id:"%s",Count:%db}}' % (it, pila))
+            dead.append(en + 'summon experience_orb ~ ~1 ~ {Value:%d}' % xp_por_nivel(nivel))
         dead += borrar
         dead.append('execute at @e[tag=%s,limit=1] run forceload remove ~ ~' % sigue)
         dead += quitar_centro
@@ -1097,8 +1111,13 @@ class Datapacks:
             'execute as @e[tag=%s,limit=1] at @e[tag=%s,limit=1] run tp @s ~ ~ ~' % (sigue, tag),
             'execute at @e[tag=%s,limit=1] run forceload add ~ ~' % sigue,
             centro_add,
+            # Barra de vida visible para todos, a cualquier distancia.
+            en + 'bossbar set %s players @a[distance=..%d]' % (barra, RADIO_BARRA),
+            'execute store result bossbar %s max run attribute @e[tag=%s,limit=1] minecraft:generic.max_health get' % (barra, tag),
+            'execute store result bossbar %s value run data get entity @e[tag=%s,limit=1] Health' % (barra, tag),
             'schedule function %s:watch_%s 20t replace' % (NS_JEFES, token),
         ]
+        watch = [w for w in watch if w and (info.get('barra') or ' bossbar ' not in ' ' + w)]
         self.EXA.escribir_archivo(fn + '/watch_%s.mcfunction' % token, ('\n'.join(watch) + '\n').encode('utf-8'))
         return 'schedule function %s:watch_%s 60t replace' % (NS_JEFES, token)
 
@@ -1257,7 +1276,23 @@ class Datapacks:
         # escriben las funciones watch_/dead_ del spawn y se ARMA el vigilante.
         # IMPORTANTE: el forceload NO se quita aqui; lo retira dead_<token> al
         # morir el jefe, para que la deteccion y el borrado sean fiables.
-        if info.get('arena') or info.get('relativa'):
+        info['barra'] = destino.get('barra', not info.get('silencioso'))
+        if isinstance(info['barra'], str):
+            info['barra'] = info['barra'].strip().lower() not in ('no', 'false', '0', '')
+        if info['barra'] and not (info.get('arena') or info.get('relativa')):
+            info['solo_barra'] = True
+        if info['barra']:
+            barra = 'paneljefes:%s' % token
+            cmds += ['bossbar add %s %s' % (barra, json.dumps({'text': etiqueta, 'color': NIVELES[nivel]['color'], 'bold': True},
+                                                                ensure_ascii=False)),
+                     'bossbar set %s color %s' % (barra, COLOR_BARRA.get(nivel, 'white')),
+                     'bossbar set %s style notched_10' % barra,
+                     'execute at @e[tag=%s,limit=1] run bossbar set %s players @a[distance=..%d]' % (sys_tag, barra, RADIO_BARRA)]
+            if info.get('solo_barra'):
+                origen = 'pjo_%s' % token
+                cmds += ['execute at @e[tag=%s,limit=1] run summon minecraft:marker ~ ~ ~ {Tags:["%s"]}' % (sys_tag, origen),
+                         'execute at @e[tag=%s,limit=1] run forceload add ~ ~' % origen]
+        if info.get('arena') or info.get('relativa') or info.get('solo_barra'):
             self._asegurar_base_jefes()
             arma = self._escribir_vigilante(token, info, nivel)
             # El schedule del vigilante solo "prende" si la funcion ya esta

@@ -714,7 +714,8 @@
         <input id="jefeZ" type="number" placeholder="Z" style="width:90px" disabled>
       </div>
       <div class="fila" style="margin-bottom:12px">
-        <label class="fila" title="No se anuncia en el chat del servidor: nadie sabe que apareció."><span class="switch"><input type="checkbox" id="jefeSilencio"><span class="slider"></span></span> &#129323; Invocar en silencio (sin aviso en el servidor)</label>
+        <label class="fila" title="No se anuncia en el chat del servidor: nadie sabe que apareció."><span class="switch"><input type="checkbox" id="jefeSilencio" onchange="if(this.checked)$('jefeBarra').checked=false"><span class="slider"></span></span> &#129323; Invocar en silencio (sin aviso en el servidor)</label>
+        <label class="fila" title="Barra arriba en la pantalla con el nombre, nivel y vida del jefe, para los jugadores que esten a menos de 500 bloques de donde aparecio."><span class="switch"><input type="checkbox" id="jefeBarra" checked><span class="slider"></span></span> &#10084; Mostrar su vida (barra de jefe, a 500 bloques)</label>
       </div>
       <h3>2. Nivel</h3>
       <div class="fila" style="margin-bottom:6px">
@@ -2004,7 +2005,7 @@ function jefeDestino(){
   if($('jefeDim'))$('jefeDim').disabled=!arena;
   if($('jefePlataforma'))$('jefePlataforma').disabled=!(arena||tipo==='cerca'||tipo==='coords');
 }
-function _destinoJefe(){const d=_destinoJefeBase();d.silencioso=!!($('jefeSilencio')&&$('jefeSilencio').checked);return d;}
+function _destinoJefe(){const d=_destinoJefeBase();d.silencioso=!!($('jefeSilencio')&&$('jefeSilencio').checked);d.barra=!!($('jefeBarra')&&$('jefeBarra').checked);return d;}
 function _destinoJefeBase(){
   const tipo=document.querySelector('input[name=jefeDest]:checked').value;
   if(tipo==='arena'){return{tipo:'arena',dimension:($('jefeDim')||{}).value||'auto',plataforma:($('jefePlataforma')?!!$('jefePlataforma').checked:true)};}
