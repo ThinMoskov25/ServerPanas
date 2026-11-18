@@ -387,6 +387,20 @@ def _dim_de_jefe(eid, override='auto'):
     return JEFE_DIMENSION.get(eid, 'overworld')
 
 
+# Mobs que con /summon (con NBT) nacen como CRIA porque el mod solo les da edad
+# al aparecer de forma natural. Se les fija la edad para que salgan adultos.
+DRAGONES_ICEANDFIRE = ('iceandfire:fire_dragon', 'iceandfire:ice_dragon', 'iceandfire:lightning_dragon')
+DIA_TICKS = 24000
+
+
+def _nbt_extra(eid, nivel):
+    """NBT adicional segun la criatura. Dragones de Ice and Fire: adultos
+    (etapa 4, ~80 dias) en Nv 1-3 y etapa maxima (5, ~110 dias) en Nv 4-5."""
+    if eid in DRAGONES_ICEANDFIRE:
+        return ',AgeTicks:%d' % ((80 if nivel <= 3 else 110) * DIA_TICKS)
+    return ''
+
+
 def _coords_aleatorias(dim_cfg):
     """X/Z aleatorias dentro del rango de la dimension (centradas en 0,0). La Y
     es la altura fija segura de la dimension. Se evita quedar pegado al centro
@@ -1152,8 +1166,8 @@ class Datapacks:
         sys_tag = 'pj_%s' % token           # tag del SISTEMA (persistente, lo vigila PanelJefes)
         # pn_nv<N> hace que el datapack PanelNiveles aplique el nivel en menos de 1 s.
         # PersistenceRequired: sin el, un mob lejos de los jugadores desaparece.
-        nbt = '{Tags:["%s","panelboss","%s","pn_nv%d"],CustomName:%s,CustomNameVisible:1b,PersistenceRequired:1b}' % (
-            tag, sys_tag, nivel, self._custom_name_json(etiqueta, NIVELES[nivel]['color']))
+        nbt = '{Tags:["%s","panelboss","%s","pn_nv%d"],CustomName:%s,CustomNameVisible:1b,PersistenceRequired:1b%s}' % (
+            tag, sys_tag, nivel, self._custom_name_json(etiqueta, NIVELES[nivel]['color']), _nbt_extra(eid, nivel))
 
         info = {'arena': False, 'nombre_jefe': nombre_vis, 'token': token,
                 'plataforma': False, 'nivel': nivel}
