@@ -31,6 +31,14 @@ import exaroton
 import items
 import nbt
 import datapacks as dp
+
+# Hora de Colombia (UTC-5, sin horario de verano). En Render el reloj va en UTC,
+# asi que todas las fechas del panel se calculan con esta zona.
+TZ_BOGOTA = datetime.timezone(datetime.timedelta(hours=-5), 'Bogota')
+
+
+def ahora_bogota():
+    return datetime.datetime.now(TZ_BOGOTA).replace(tzinfo=None)
 import bot as botmod
 
 BASE = os.path.dirname(os.path.abspath(__file__))
@@ -81,7 +89,7 @@ def guardar_config(cfg):
 
 def registrar_error(msg):
     with open(ARCH_ERRORES, 'a', encoding='utf-8') as f:
-        f.write('%s  %s\n' % (datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), msg))
+        f.write('%s  %s\n' % (ahora_bogota().strftime('%Y-%m-%d %H:%M:%S'), msg))
 
 
 CONFIG = cargar_config()
@@ -172,7 +180,7 @@ class GestorTareas:
         s['etiqueta'] = etiqueta
         s['resultado'] = None
         s['mensaje'] = 'Enviando...'
-        s['iniciado'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        s['iniciado'] = ahora_bogota().strftime('%Y-%m-%d %H:%M:%S')
         s['terminado'] = None
 
         def _correr():
@@ -193,7 +201,7 @@ class GestorTareas:
                 registrar_error('tarea %s: %s' % (tipo, traceback.format_exc()))
             finally:
                 s['activo'] = False
-                s['terminado'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                s['terminado'] = ahora_bogota().strftime('%Y-%m-%d %H:%M:%S')
                 s['candado'].release()
 
         threading.Thread(target=_correr, daemon=True).start()
@@ -214,6 +222,41 @@ class Capturador:
             return
         EXA.comando('gamerule logAdminCommands ' + valor)
         ESTADO_PANEL['silencio_aplicado'] = valor
+
+    @staticmethod
+    def corregir_fechas_utc():
+        """Copias guardadas con el reloj UTC de Render: aparecen en el futuro.
+        Se les restan 5 h para dejarlas en hora de Bogota (una sola vez)."""
+        if not os.path.isdir(DIR_INV):
+            return
+        limite = ahora_bogota() + datetime.timedelta(minutes=2)
+        for jugador in os.listdir(DIR_INV):
+            carpeta = os.path.join(DIR_INV, jugador)
+            if not os.path.isdir(carpeta):
+                continue
+            for x in sorted(os.listdir(carpeta), reverse=True):
+                try:
+                    f = datetime.datetime.strptime(x[:-5], '%Y%m%d-%H%M%S')
+                except ValueError:
+                    continue
+                if f <= limite:
+                    continue
+                nueva = f - datetime.timedelta(hours=5)
+                ruta = os.path.join(carpeta, x)
+                try:
+                    with open(ruta, 'r', encoding='utf-8') as fh:
+                        datos = json.load(fh)
+                    datos['id'] = nueva.strftime('%Y%m%d-%H%M%S')
+                    datos['fecha'] = nueva.strftime('%Y-%m-%d %H:%M:%S')
+                    destino = os.path.join(carpeta, datos['id'] + '.json')
+                    if os.path.exists(destino):
+                        os.remove(ruta)
+                        continue
+                    with open(destino, 'w', encoding='utf-8') as fh:
+                        json.dump(datos, fh, ensure_ascii=False)
+                    os.remove(ruta)
+                except (OSError, ValueError):
+                    registrar_error('corregir fecha %s/%s: %s' % (jugador, x, traceback.format_exc()))
 
     def capturar(self, motivo='auto'):
         with self.candado:
@@ -251,7 +294,7 @@ class Capturador:
             if contenido is None:
                 return {'ok': False, 'mensaje': 'El servidor no guardo la copia a tiempo. Se reintenta en la proxima vuelta.'}
 
-            ahora = datetime.datetime.now()
+            ahora = ahora_bogota()
             guardados, sin_cambios = [], []
             for p in jugadores:
                 nodo = nbt.get(contenido, ['jugadores', p])
@@ -359,13 +402,13 @@ class Capturador:
                         if ultima is not None and items.huella(ultima['items']) == items.huella(lista_items):
                             continue
                     if e.get('desfase') is not None:
-                        fecha = datetime.datetime.fromtimestamp(e['desfase'] + g / 20.0)
+                        fecha = datetime.datetime.fromtimestamp(e['desfase'] + g / 20.0, TZ_BOGOTA).replace(tzinfo=None)
                     else:
-                        fecha = datetime.datetime.now()
+                        fecha = ahora_bogota()
                     self.guardar(nombre, fecha, lista_items, nbt.snbt(j), 'servidor', gametime=g)
                     nuevas += 1
             self._guardar_estado_espejo(e)
-            ESTADO_PANEL['ultima_captura'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            ESTADO_PANEL['ultima_captura'] = ahora_bogota().strftime('%Y-%m-%d %H:%M:%S')
             return {'ok': True, 'mensaje': 'Historial del servidor leido: %d fotos, %d copias nuevas guardadas.' % (len(fotos), nuevas)}
 
     def guardar(self, jugador, fecha, lista, snbt_completo, motivo, gametime=None):
@@ -389,7 +432,7 @@ class Capturador:
             os.remove(os.path.join(carpeta, viejo))
             archivos.remove(viejo)
         # por tiempo (segun la fecha del nombre AAAAMMDD-HHMMSS)
-        limite = datetime.datetime.now() - datetime.timedelta(minutes=int(CONFIG.get('minutos_retencion', 5)))
+        limite = ahora_bogota() - datetime.timedelta(minutes=int(CONFIG.get('minutos_retencion', 5)))
         for x in list(archivos):
             try:
                 f = datetime.datetime.strptime(x[:-5], '%Y%m%d-%H%M%S')
@@ -500,7 +543,7 @@ class InstaladorMod:
         return self._jar_cache
 
     def _paso(self, texto):
-        self.pasos.append('%s  %s' % (datetime.datetime.now().strftime('%H:%M:%S'), texto))
+        self.pasos.append('%s  %s' % (ahora_bogota().strftime('%H:%M:%S'), texto))
 
     def _jar_en_servidor(self):
         try:
@@ -521,7 +564,7 @@ class InstaladorMod:
         self.resultado = None
         self.mensaje = 'Instalacion iniciada.'
         self.pasos = []
-        self.iniciado = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        self.iniciado = ahora_bogota().strftime('%Y-%m-%d %H:%M:%S')
         self.terminado = None
         threading.Thread(target=self._correr, daemon=True).start()
         return {'ok': True, 'mensaje': 'Instalacion iniciada.', 'estado': self.estado()}
@@ -539,7 +582,7 @@ class InstaladorMod:
             registrar_error('instalar-mod: %s' % traceback.format_exc())
         finally:
             self.activo = False
-            self.terminado = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            self.terminado = ahora_bogota().strftime('%Y-%m-%d %H:%M:%S')
             self._jar_cache = None  # fuerza recomprobar el .jar tras instalar
             self.candado.release()
 
@@ -827,7 +870,7 @@ class GuardaLogs:
         self.fecha = None
 
     def _preparar_dia(self):
-        hoy = datetime.date.today().isoformat()
+        hoy = ahora_bogota().date().isoformat()
         if hoy != self.fecha:
             self.fecha = hoy
             self.vistas = set()
@@ -950,7 +993,7 @@ def jugadores_con_copias():
 
 def leer_log_local(fecha, tipo, filtro, n):
     if not re.match(r'^\d{4}-\d{2}-\d{2}$', fecha or ''):
-        fecha = datetime.date.today().isoformat()
+        fecha = ahora_bogota().date().isoformat()
     tipo = 'eventos' if tipo == 'eventos' else 'completo'
     arch = os.path.join(DIR_LOGS, '%s-%s.log' % (fecha, tipo))
     if not os.path.exists(arch):
@@ -2776,6 +2819,7 @@ class Manejador(BaseHTTPRequestHandler):
 
 
 def main():
+    Capturador.corregir_fechas_utc()
     threading.Thread(target=CAPTURADOR.bucle, daemon=True).start()
     threading.Thread(target=GUARDA_LOGS.bucle, daemon=True).start()
     threading.Thread(target=BOT.bucle, daemon=True).start()

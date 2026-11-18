@@ -1140,20 +1140,30 @@ async function elegirModJug(j){
   modJugSel=j;$('zonaMod').hidden=false;$('modTitulo').textContent=j;cargarModJug();
   await cargarModResp();
 }
+// Fechas del panel: vienen en hora de Bogotá como 'AAAA-MM-DD HH:MM:SS'.
+const MESES=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+function partesFecha(s){const m=/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2}):(\d{2})/.exec(s||'');return m?m.slice(1).map(Number):null;}
+function fechaClara(s){const p=partesFecha(s);if(!p)return s||'';const [a,me,d,h,mi,se]=p,h12=h%12||12,dd=n=>String(n).padStart(2,'0');
+  return d+' '+MESES[me-1]+' '+a+' · '+h12+':'+dd(mi)+':'+dd(se)+(h<12?' a. m.':' p. m.');}
+function haceCuanto(s){const p=partesFecha(s);if(!p)return '';
+  const ahoraBog=Date.now()-5*3600e3,t=Date.UTC(p[0],p[1]-1,p[2],p[3],p[4],p[5]),seg=Math.round((ahoraBog-t)/1000);
+  if(seg<0)return '';if(seg<60)return 'hace '+seg+' s';const min=Math.floor(seg/60);if(min<60)return 'hace '+min+' min';
+  const hr=Math.floor(min/60);if(hr<24)return 'hace '+hr+' h '+(min%60)+' min';const dias=Math.floor(hr/24);return 'hace '+dias+' día'+(dias>1?'s':'');}
 async function cargarModResp(){
   try{
     const r=await api('/api/mod/respaldos?jugador='+encodeURIComponent(modJugSel));
     if(!r.ok||!r.lista.length){$('modListaResp').innerHTML='<p class="suave">'+esc(r.mensaje||'Sin respaldos.')+'</p>';return;}
     $('modListaResp').innerHTML='<div class="suave" style="margin-bottom:8px">'+r.lista.length+' copias guardadas</div>'+
-      '<table><thead><tr><th>Fecha y hora</th><th>Items</th><th>Motivo</th><th></th></tr></thead><tbody>'+
-      r.lista.map((c,i)=>'<tr><td><b>'+esc(c.fecha)+'</b>'+(i===0?' <span class="chip verde">mas reciente</span>':'')+'</td>'+
+      '<table><thead><tr><th>Fecha y hora (Bogotá)</th><th>Items</th><th>Motivo</th><th></th></tr></thead><tbody>'+
+      r.lista.map((c,i)=>'<tr><td><b>'+esc(fechaClara(c.fecha))+'</b>'+(i===0?' <span class="chip verde">mas reciente</span>':'')+'<div class="suave" style="font-size:12px">'+esc(haceCuanto(c.fecha))+'</div></td>'+
       '<td>'+(c.items||0)+'</td><td class="suave">'+esc(c.motivo||'')+'</td>'+
       '<td style="text-align:right"><button class="btn p sm btnRest" data-arch="'+esc(c.archivo)+'" onclick="restaurarMod(\''+esc(c.archivo)+'\')">&#8635; Restaurar este</button></td></tr>').join('')+
       '</tbody></table>';
   }catch(e){aviso(e.message,'error');}
 }
 async function restaurarMod(archivo){
-  if(!confirm('Restaurar el inventario de '+modJugSel+' al respaldo del '+archivo+'?\n\nSu inventario ACTUAL se reemplaza por completo. Debe estar conectado.'))return;
+  const pf=/^(\d{4})(\d{2})(\d{2})-(\d{2})(\d{2})(\d{2})$/.exec(archivo),cuando=pf?fechaClara(pf[1]+'-'+pf[2]+'-'+pf[3]+' '+pf[4]+':'+pf[5]+':'+pf[6]):archivo;
+  if(!confirm('Restaurar el inventario de '+modJugSel+' al respaldo del '+cuando+' (hora Bogotá)?\n\nSu inventario ACTUAL se reemplaza por completo. Debe estar conectado.'))return;
   try{
     const r=await api('/api/mod/restaurar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jugador:modJugSel,archivo:archivo})});
     aviso(r.mensaje,r.ok?'ok':'error');
