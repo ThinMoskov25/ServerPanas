@@ -815,6 +815,8 @@ class Datapacks:
             else:
                 r['mensaje'] = 'Spawn de %s [Nv %d] programado en %s s. Ocurrira aunque cierres el panel.' % (
                     eid, nivel, _fmt(float(segundos)))
+            if info.get('silencioso'):
+                r['mensaje'] = r['mensaje'].replace(' Se anunciara a todos.', '') + ' En silencio: sin aviso.'
         return r
 
     # ==================================================================
@@ -1225,7 +1227,10 @@ class Datapacks:
         # coords; en los otros modos un aviso mas simple. En el caso PROGRAMADO,
         # este tellraw va DENTRO de la funcion de la tarea (se ejecuta junto al
         # summon), no al programar.
-        cmds.append(self._cmd_anuncio(etiqueta, info))
+        # Invocacion SILENCIOSA: sin tellraw a nadie.
+        info['silencioso'] = bool(destino.get('silencioso'))
+        if not info['silencioso']:
+            cmds.append(self._cmd_anuncio(etiqueta, info))
         if info.get('cerca'):
             cmds.append('tag @a remove %s' % info['marca'])
 

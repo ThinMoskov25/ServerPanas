@@ -2991,6 +2991,8 @@ class Manejador(BaseHTTPRequestHandler):
                             info['nombre_jefe'], nivel, info['dim_nombre'], info['x'], info['z'])
                     else:
                         msg = 'Spawn de %s [Nv %s] enviado.' % (info.get('nombre_jefe', ''), nivel)
+                    if info.get('silencioso'):
+                        msg = msg.replace('; se anuncio a todos.', '.') + ' En silencio: no se aviso a nadie.'
                     return {'ok': True, 'mensaje': msg, 'info': info}
 
                 return self._json(TAREAS.lanzar('spawn', _trabajo_spawn, etiqueta=etiqueta))

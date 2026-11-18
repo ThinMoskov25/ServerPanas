@@ -713,6 +713,9 @@
         <input id="jefeY" type="number" placeholder="Y" style="width:90px" disabled>
         <input id="jefeZ" type="number" placeholder="Z" style="width:90px" disabled>
       </div>
+      <div class="fila" style="margin-bottom:12px">
+        <label class="fila" title="No se anuncia en el chat del servidor: nadie sabe que apareció."><span class="switch"><input type="checkbox" id="jefeSilencio"><span class="slider"></span></span> &#129323; Invocar en silencio (sin aviso en el servidor)</label>
+      </div>
       <h3>2. Nivel</h3>
       <div class="fila" style="margin-bottom:6px">
         <label>Nivel del jefe:</label>
@@ -2001,7 +2004,8 @@ function jefeDestino(){
   if($('jefeDim'))$('jefeDim').disabled=!arena;
   if($('jefePlataforma'))$('jefePlataforma').disabled=!arena;
 }
-function _destinoJefe(){
+function _destinoJefe(){const d=_destinoJefeBase();d.silencioso=!!($('jefeSilencio')&&$('jefeSilencio').checked);return d;}
+function _destinoJefeBase(){
   const tipo=document.querySelector('input[name=jefeDest]:checked').value;
   if(tipo==='arena'){return{tipo:'arena',dimension:($('jefeDim')||{}).value||'auto',plataforma:($('jefePlataforma')?!!$('jefePlataforma').checked:true)};}
   if(tipo==='cerca'){const mn=+$('jefeCercaMin').value,mx=+$('jefeCercaMax').value;if(!(mn>=10&&mx>mn))throw new Error('Distancias no válidas: mínimo 10 y el máximo mayor que el mínimo.');return{tipo:'cerca',jugador:$('jefeCercaJug').value,min:mn,max:mx};}
@@ -2015,16 +2019,17 @@ async function spawnJefe(programado){
   let destino;try{destino=_destinoJefe();}catch(e){aviso(e.message,'error');return;}
   const nivel=jefeNivel();
   const etiqueta=JEFE_SEL.nombre+' [Nv '+nivel+']';
-  const dimTxt=destino.tipo==='arena'?(' en '+(($('jefeDim')&&$('jefeDim').selectedOptions[0])?$('jefeDim').selectedOptions[0].textContent:'la dimension del jefe')+(destino.plataforma?', con plataforma/arena (muro)':', SIN plataforma')+'; se anunciara a todos'):'';
+  const dimTxt=destino.tipo==='arena'?(' en '+(($('jefeDim')&&$('jefeDim').selectedOptions[0])?$('jefeDim').selectedOptions[0].textContent:'la dimension del jefe')+(destino.plataforma?', con plataforma/arena (muro)':', SIN plataforma')):'';
+  const avisoTxt=destino.silencioso?' — EN SILENCIO (sin aviso)':' — se anunciará a todos';
   try{
     if(programado){
       const seg=parseInt($('jefeSeg').value,10);
       if(isNaN(seg)||seg<1){aviso('Segundos no validos.','error');return;}
-      if(!confirm('Spawn de '+etiqueta+' programado en '+seg+' segundos'+dimTxt+'?'))return;
+      if(!confirm('Spawn de '+etiqueta+' programado en '+seg+' segundos'+dimTxt+avisoTxt+'?'))return;
       const r=await api('/api/datapacks/spawn-programado',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({entidad:JEFE_SEL.id,nombre:JEFE_SEL.nombre,nivel,destino,segundos:seg})});
       $('jefeMsg').innerHTML='<div class="msg '+(r.ok?'ok':'error')+'"><span>'+(r.ok?'&#9989;':'&#9888;')+'</span><span>'+esc(r.mensaje)+'</span></div>';
     }else{
-      if(!confirm('Spawn de '+etiqueta+' AHORA'+dimTxt+'?'))return;
+      if(!confirm('Spawn de '+etiqueta+' AHORA'+dimTxt+avisoTxt+'?'))return;
       // Spawn inmediato = tarea en segundo plano: el backend responde al
       // instante, el boton se bloquea y la barra sigue el progreso.
       const r=await api('/api/datapacks/spawn',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({entidad:JEFE_SEL.id,nombre:JEFE_SEL.nombre,nivel,destino})});
