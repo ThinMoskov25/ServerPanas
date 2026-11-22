@@ -99,15 +99,13 @@ public final class Reconstruir {
         CompoundTag t = persistido(p);
         if (si) {
             t.putBoolean(CLAVE, true);
-            p.displayClientMessage(Component.literal("§aModo reconstruccion activado: §fla rueda del raton te da el bloque que miras y colocar no gasta bloques."), false);
         } else {
             retirarCopias(p);
             t.remove(CLAVE);
             estados.remove(p.getUUID());
-            p.displayClientMessage(Component.literal("§eModo reconstruccion desactivado."), false);
         }
         c.getSource().sendSuccess(() -> Component.literal("Modo reconstruccion " + (si ? "activado" : "desactivado")
-                + " para " + p.getGameProfile().getName()), true);
+                + " para " + p.getGameProfile().getName()), false);
         return 1;
     }
 
@@ -232,11 +230,8 @@ public final class Reconstruir {
             for (int i = 9; i < 36; i++) if (i != RESERVADO && inv.getItem(i).isEmpty()) { libre = i; break; }
             if (libre < 0) for (int i = 0; i < 9; i++) if (inv.getItem(i).isEmpty()) { libre = i; break; }
             if (libre < 0) {
-                if (!st.avisoLleno) {
-                    p.displayClientMessage(Component.literal("§cReconstruccion: libera un espacio del inventario."), true);
-                    st.avisoLleno = true;
-                }
                 return;
+
             }
             inv.setItem(libre, enReservado);
         } else if (esCopia) {
