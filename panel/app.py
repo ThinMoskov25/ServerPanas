@@ -1643,6 +1643,8 @@ def jugador_accion(nombre, accion, valor=None):
     else:
         raise ValueError('Accion no valida')
     _cache_consola.pop('listas_servidor', None)
+    if accion.startswith('reconstruir_'):
+        _ULTIMO_SAVE[0] = 0  # el estado vive en el archivo del jugador: releerlo tras guardar
     return comando_en_fondo(cmd)
 
 
