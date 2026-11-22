@@ -788,16 +788,84 @@ class GestorMod:
         return self._cache_uuid.get(nombre)
 
     def jugadores(self):
-        """Jugadores con copias en el catalogo del datapack (lo que guarda el panel)."""
-        salida = []
+        """Jugadores con copias del panel (cada 30 s) o respaldos del mod (al morir/salir)."""
+        cuenta = {}
         for p in sorted(os.listdir(DIR_INV)):
             d = os.path.join(DIR_INV, p)
             if os.path.isdir(d):
                 n = len([x for x in os.listdir(d) if x.endswith('.json')])
                 if n:
-                    salida.append({'jugador': p, 'respaldos': n})
+                    cuenta[p] = cuenta.get(p, 0) + n
+        nombres = {v.lower(): k for k, v in BOT.uuids().items()}
+        try:
+            for h in EXA.info_archivo(CARPETA_MOD).get('children') or []:
+                nombre = nombres.get(h.get('name', '').lower())
+                if nombre:
+                    n = len([x for x in self._archivos_mod(h['name'])])
+                    if n:
+                        cuenta[nombre] = cuenta.get(nombre, 0) + n
+        except exaroton.ErrorApi:
+            pass
+        salida = [{'jugador': k, 'respaldos': v} for k, v in cuenta.items()]
         salida.sort(key=lambda x: x['jugador'].lower())
         return salida
+
+    # ---- respaldos del mod InvBackup (world/inventory_backups/<uuid>/AAAA-MM-DD_HH-MM-SS.nbt) ----
+    _cache_mod = {}
+
+    def _archivos_mod(self, uuid):
+        return sorted(h['name'] for h in EXA.info_archivo('%s/%s' % (CARPETA_MOD, uuid)).get('children') or []
+                      if re.match(r'^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}(_\d+)?\.nbt$', h.get('name', '')))
+
+    def _leer_mod(self, uuid, archivo):
+        """Respaldo del mod -> (motivo, items). Los archivos no cambian: se guardan en cache."""
+        clave = uuid + '/' + archivo
+        if clave not in self._cache_mod:
+            raiz = nbt.load(EXA.leer_archivo('%s/%s/%s' % (CARPETA_MOD, uuid, archivo)))
+            caps = nbt.get(raiz, ['ForgeCaps'])
+            nodo = {k: raiz[1][k] for k in ('Inventory', 'EnderItems') if k in raiz[1]}
+            if caps and 'curios:inventory' in caps[1]:
+                nodo['Curios'] = caps[1]['curios:inventory']
+            lista = items.extraer((nbt.COMPOUND, nodo))
+            if caps and 'travelersbackpack:travelers_backpack' in caps[1]:
+                items._recorrer(caps[1]['travelersbackpack:travelers_backpack'], 'Mochila puesta', None, lista)
+            motivo = (nbt.get(raiz, ['motivo']) or (0, ''))[1]
+            self._cache_mod[clave] = (motivo, lista)
+        return self._cache_mod[clave]
+
+    def _uuid_mod(self, jugador):
+        uid = BOT.uuids().get(jugador)
+        if not uid:
+            raise ValueError('Jugador desconocido.')
+        return uid
+
+    def items_respaldo(self, jugador, fuente, archivo):
+        """Todos los objetos de un respaldo (panel o mod), numerados para poder dar uno."""
+        if not NOMBRE_OK.match(jugador or ''):
+            raise ValueError('Jugador no valido')
+        if fuente == 'mod':
+            if not re.match(r'^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}(_\d+)?$', archivo or ''):
+                raise ValueError('Respaldo no valido')
+            motivo, lista = self._leer_mod(self._uuid_mod(jugador), archivo + '.nbt')
+        else:
+            c = CAPTURADOR.leer_copia(jugador, archivo)
+            motivo, lista = c.get('motivo', ''), c['items']
+        nombres = _nombres_items()
+        return motivo, [dict(it, n=i, nombre_es=nombres.get(it['id'], '')) for i, it in enumerate(lista)]
+
+    def dar_objeto(self, jugador, fuente, archivo, indice):
+        """Da al jugador UN objeto del respaldo (con sus encantamientos y datos)."""
+        _, lista = self.items_respaldo(jugador, fuente, archivo)
+        try:
+            it = lista[int(indice)]
+        except (TypeError, ValueError, IndexError):
+            raise ValueError('Objeto no valido.')
+        if jugador not in ((EXA.estado(forzar=True).get('players') or {}).get('list') or []):
+            raise ValueError('%s debe estar conectado para recibir el objeto.' % jugador)
+        cmd = 'give %s %s%s %d' % (jugador, it['id'], it.get('tag') or '', max(1, min(64, int(it['cantidad']))))
+        r = comando_en_fondo(cmd)
+        r['mensaje'] = 'Enviado a %s: %s x%d' % (jugador, it.get('nombre') or it['id'], it['cantidad'])
+        return r
 
     def respaldos(self, jugador):
         """Lista las copias del datapack de ese jugador, del mas nuevo al mas viejo."""
@@ -805,15 +873,36 @@ class GestorMod:
             lista_copias = CAPTURADOR.lista_copias(jugador)  # ya vienen ordenadas nuevo->viejo
         except Exception:
             lista_copias = []
-        if not lista_copias:
-            return {'ok': False, 'mensaje': 'Sin copias para %s.' % jugador, 'lista': []}
         lista = [{'archivo': c['id'], 'fecha': c['fecha'], 'items': c.get('items', 0),
-                  'motivo': c.get('motivo', '')} for c in lista_copias]
+                  'motivo': c.get('motivo', ''), 'fuente': 'panel'} for c in lista_copias]
+        try:
+            uid = self._uuid_mod(jugador)
+            archivos = self._archivos_mod(uid)
+            with ThreadPoolExecutor(max_workers=4) as hilos:
+                leidos = list(hilos.map(lambda a: self._leer_mod(uid, a), archivos))
+            for a, (motivo, its) in zip(archivos, leidos):
+                b = a[:-4]
+                fecha = '%s %s' % (b[:10], b[11:19].replace('-', ':'))
+                lista.append({'archivo': b, 'fecha': fecha, 'items': sum(i['cantidad'] for i in its),
+                              'motivo': motivo or 'mod', 'fuente': 'mod'})
+        except (ValueError, exaroton.ErrorApi):
+            pass
+        if not lista:
+            return {'ok': False, 'mensaje': 'Sin respaldos para %s.' % jugador, 'lista': []}
+        lista.sort(key=lambda x: x['fecha'], reverse=True)
         return {'ok': True, 'lista': lista}
 
-    def restaurar(self, jugador, archivo):
+    def restaurar(self, jugador, archivo, fuente='panel'):
         if not NOMBRE_OK.match(jugador or ''):
             return {'ok': False, 'mensaje': 'Jugador no valido.'}
+        if fuente == 'mod':
+            if not re.match(r'^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}(_\d+)?$', archivo or ''):
+                return {'ok': False, 'mensaje': 'Respaldo no valido.'}
+            if jugador not in ((EXA.estado(forzar=True).get('players') or {}).get('list') or []):
+                return {'ok': False, 'mensaje': '%s debe estar conectado para restaurarle el inventario.' % jugador}
+            r = comando_en_fondo('invrestore %s %s' % (jugador, archivo))
+            return {'ok': True, 'mensaje': 'Restaurando el respaldo del mod (%s)...' % archivo, 'id': r['id'],
+                    'estado': {'activo': False}}
         if not re.match(r'^\d{8}-\d{6}$', archivo or ''):
             return {'ok': False, 'mensaje': 'Copia no valida.'}
         if not self.candado.acquire(blocking=False):
@@ -2911,13 +3000,20 @@ class Manejador(BaseHTTPRequestHandler):
                 return self._json(INSTALADOR.lanzar())
             if metodo == 'GET' and ruta == '/api/mod/jugadores':
                 return self._json(MOD.jugadores())
+            if metodo == 'GET' and ruta == '/api/mod/ver':
+                motivo, lista = MOD.items_respaldo(self._jugador(q), q.get('fuente', 'panel'), q.get('archivo'))
+                return self._json({'ok': True, 'motivo': motivo, 'items': lista})
+            if metodo == 'POST' and ruta == '/api/mod/dar':
+                d = self._cuerpo_json()
+                return self._json(MOD.dar_objeto((d.get('jugador') or '').strip(), d.get('fuente', 'panel'),
+                                                 d.get('archivo'), d.get('indice')))
             if metodo == 'GET' and ruta == '/api/mod/respaldos':
                 return self._json(MOD.respaldos(self._jugador(q)))
             if metodo == 'GET' and ruta == '/api/mod/restaurar-estado':
                 return self._json(MOD.estado())
             if metodo == 'POST' and ruta == '/api/mod/restaurar':
                 d = self._cuerpo_json()
-                return self._json(MOD.restaurar(d.get('jugador'), d.get('archivo')))
+                return self._json(MOD.restaurar(d.get('jugador'), d.get('archivo'), d.get('fuente', 'panel')))
             if metodo == 'POST' and ruta.startswith('/api/servidor/'):
                 return self._json(EXA.accion(ruta.rsplit('/', 1)[-1]))
             if metodo == 'POST' and ruta == '/api/comando':

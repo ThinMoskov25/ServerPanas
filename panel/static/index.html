@@ -260,6 +260,11 @@
   .jg-stats div{background:#14232d;border-radius:8px;padding:10px}
   .jg-stats b{display:block;font-size:20px}
   .jg-stats span{font-size:12px;color:var(--suave)}
+  .ritem{display:flex;align-items:center;gap:10px;padding:8px;background:#14232d;border:1px solid var(--linea);border-radius:8px}
+  .ritem .islot{flex:none}
+  .ritem .info{flex:1;min-width:0}
+  .ritem .info b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .rgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:8px;margin-bottom:12px}
   .pjug{display:inline-flex;align-items:center;padding:6px 11px;background:#14232d;border:1px solid var(--linea);border-radius:8px;color:var(--txt);font-size:13px;cursor:pointer;transition:.15s}
   .pjug:hover{border-color:rgba(66,211,160,.55)}
   .pjug.off{color:var(--suave)}
@@ -373,7 +378,7 @@
 
   <!-- RECUPERAR (con el MOD) -->
   <section id="tab-recuperar" hidden>
-    <div class="top"><div><h1>Recuperar inventario</h1><div class="sub">Restaura con el mod el inventario que se guardo al morir o al salir</div></div>
+    <div class="top"><div><h1>Recuperar inventario</h1><div class="sub">Copias cada 30 s de las últimas 2 horas y respaldos al morir o salir. Restaura todo o recupera un solo objeto.</div></div>
       <button class="btn" onclick="cargarModJug()">&#8635; Actualizar</button>
     </div>
     <div class="msg info"><span>&#8505;</span><span>El jugador debe estar <b>conectado</b> al servidor para restaurarle el inventario. Al restaurar, su inventario actual se reemplaza por el del respaldo elegido.</span></div>
@@ -387,7 +392,13 @@
           <h2>&#128230; Respaldos de <span id="modTitulo"></span></h2>
           <span id="modChipRest"></span>
         </div>
-        <p class="suave">2. Elige el respaldo (el de arriba es el mas reciente) y pulsa <b>Restaurar</b>. El de justo antes de morir suele ser uno de los primeros.</p>
+        <p class="suave">2. Elige el respaldo (el de arriba es el más reciente). Pulsa <b>Ver objetos</b> para recuperar solo una cosa, o <b>Restaurar todo</b> para devolverle el inventario completo.</p>
+        <div class="fila" style="margin-bottom:10px">
+          <label>Mostrar:</label>
+          <select id="modFiltroFuente" onchange="pintarModResp()"><option value="">Todos</option><option value="mod">Al morir o salir</option><option value="panel">Copias cada 30 s</option></select>
+          <input id="modBuscaFecha" placeholder="Filtrar por fecha u hora (ej. 22 nov, 2:0)" style="min-width:240px" oninput="pintarModResp()">
+        </div>
+        <div id="modVer" hidden></div>
         <div id="modListaResp"></div>
       </div>
     </div>
@@ -1222,26 +1233,69 @@ function haceCuanto(s){const p=partesFecha(s);if(!p)return '';
   const ahoraBog=Date.now()-5*3600e3,t=Date.UTC(p[0],p[1]-1,p[2],p[3],p[4],p[5]),seg=Math.round((ahoraBog-t)/1000);
   if(seg<0)return '';if(seg<60)return 'hace '+seg+' s';const min=Math.floor(seg/60);if(min<60)return 'hace '+min+' min';
   const hr=Math.floor(min/60);if(hr<24)return 'hace '+hr+' h '+(min%60)+' min';const dias=Math.floor(hr/24);return 'hace '+dias+' día'+(dias>1?'s':'');}
+let MOD_RESP=[],MOD_VER=null;
+const MOTIVO_TXT={muerte:'Al morir',salida:'Al salir',servidor:'Copia (30 s)',manual:'Manual',auto:'Copia',mod:'Respaldo'};
 async function cargarModResp(){
+  $('modListaResp').innerHTML='<p class="suave">Cargando respaldos...</p>';$('modVer').hidden=true;
   try{
     const r=await api('/api/mod/respaldos?jugador='+encodeURIComponent(modJugSel));
-    if(!r.ok||!r.lista.length){$('modListaResp').innerHTML='<p class="suave">'+esc(r.mensaje||'Sin respaldos.')+'</p>';return;}
-    $('modListaResp').innerHTML='<div class="suave" style="margin-bottom:8px">'+r.lista.length+' copias guardadas</div>'+
-      '<table><thead><tr><th>Fecha y hora (Bogotá)</th><th>Items</th><th>Motivo</th><th></th></tr></thead><tbody>'+
-      r.lista.map((c,i)=>'<tr><td><b>'+esc(fechaClara(c.fecha))+'</b>'+(i===0?' <span class="chip verde">mas reciente</span>':'')+'<div class="suave" style="font-size:12px">'+esc(haceCuanto(c.fecha))+'</div></td>'+
-      '<td>'+(c.items||0)+'</td><td class="suave">'+esc(c.motivo||'')+'</td>'+
-      '<td style="text-align:right"><button class="btn p sm btnRest" data-arch="'+esc(c.archivo)+'" onclick="restaurarMod(\''+esc(c.archivo)+'\')">&#8635; Restaurar este</button></td></tr>').join('')+
-      '</tbody></table>';
+    MOD_RESP=r.ok?r.lista:[];
+    if(!MOD_RESP.length){$('modListaResp').innerHTML='<p class="suave">'+esc(r.mensaje||'Sin respaldos.')+'</p>';return;}
+    pintarModResp();
   }catch(e){aviso(e.message,'error');}
 }
-async function restaurarMod(archivo){
-  const pf=/^(\d{4})(\d{2})(\d{2})-(\d{2})(\d{2})(\d{2})$/.exec(archivo),cuando=pf?fechaClara(pf[1]+'-'+pf[2]+'-'+pf[3]+' '+pf[4]+':'+pf[5]+':'+pf[6]):archivo;
-  if(!confirm('Restaurar el inventario de '+modJugSel+' al respaldo del '+cuando+' (hora Bogotá)?\n\nSu inventario ACTUAL se reemplaza por completo. Debe estar conectado.'))return;
+function pintarModResp(){
+  const f=$('modFiltroFuente').value,q=$('modBuscaFecha').value.trim().toLowerCase();
+  const l=MOD_RESP.filter(c=>(!f||c.fuente===f)&&(!q||fechaClara(c.fecha).toLowerCase().includes(q)||c.fecha.includes(q)));
+  $('modListaResp').innerHTML='<div class="suave" style="margin-bottom:8px">'+l.length+' de '+MOD_RESP.length+' respaldos</div>'+
+    '<table><thead><tr><th>Fecha y hora (Bogotá)</th><th>Objetos</th><th>Tipo</th><th></th></tr></thead><tbody>'+
+    l.slice(0,300).map((c,i)=>'<tr><td><b>'+esc(fechaClara(c.fecha))+'</b>'+(c===MOD_RESP[0]?' <span class="chip verde">más reciente</span>':'')+'<div class="suave" style="font-size:12px">'+esc(haceCuanto(c.fecha))+'</div></td>'+
+    '<td>'+(c.items||0)+'</td><td><span class="chip '+(c.fuente==='mod'?(c.motivo==='muerte'?'rojo':'mora'):'gris')+'">'+esc(MOTIVO_TXT[c.motivo]||c.motivo||'')+'</span></td>'+
+    '<td style="text-align:right;white-space:nowrap"><button class="btn az sm" onclick="verRespaldo(\''+c.fuente+'\',\''+esc(c.archivo)+'\',\''+esc(c.fecha)+'\')">&#128065; Ver objetos</button> '+
+    '<button class="btn p sm btnRest" onclick="restaurarMod(\''+esc(c.archivo)+'\',\''+c.fuente+'\',\''+esc(c.fecha)+'\')">&#8635; Restaurar todo</button></td></tr>').join('')+
+    '</tbody></table>'+(l.length>300?'<p class="suave">Mostrando 300; usa el filtro para encontrar otros.</p>':'');
+}
+const ORDEN_UBI=['Equipo','Barra rápida','Inventario','Amuletos','Mochila puesta','Cofre de Ender','Otros'];
+function grupoUbi(u){u=u||'';if(/Casco|Pechera|Grebas|Botas|Mano secundaria/.test(u))return 'Equipo';if(u.startsWith('Barra'))return 'Barra rápida';if(u==='Inventario')return 'Inventario';
+  if(u.startsWith('Amuleto'))return 'Amuletos';if(u.startsWith('Mochila'))return 'Mochila puesta';if(u.startsWith('Cofre'))return 'Cofre de Ender';return 'Otros';}
+function iconoRec(id,n,nombre,enc){const [ns,nm]=id.split(':');
+  const img=ns==='minecraft'?'<img src="https://assets.mcasset.cloud/1.20.1/assets/minecraft/textures/item/'+nm+'.png" alt="'+esc(nombre)+'" data-id="'+esc(id)+'" onerror="iconoItem(this)" loading="lazy">':'<div class="txt">'+esc(nombre)+'</div>';
+  return '<div class="islot'+(enc?' enc':'')+'">'+img+(n>1?'<span class="cnt">'+n+'</span>':'')+'</div>';}
+async function verRespaldo(fuente,archivo,fecha){
+  const c=$('modVer');c.hidden=false;c.innerHTML='<div class="card"><p class="suave">Cargando objetos...</p></div>';c.scrollIntoView({behavior:'smooth'});
+  try{const r=await api('/api/mod/ver?jugador='+encodeURIComponent(modJugSel)+'&fuente='+fuente+'&archivo='+encodeURIComponent(archivo));
+    MOD_VER={fuente,archivo,fecha,items:r.items,motivo:r.motivo};pintarVer();}
+  catch(e){c.innerHTML='<div class="card"><p class="suave">'+esc(e.message)+'</p></div>';}
+}
+function pintarVer(){
+  const v=MOD_VER,q=($('verBusca')?$('verBusca').value:'').trim().toLowerCase();
+  const l=v.items.filter(i=>!q||(i.nombre||'').toLowerCase().includes(q)||i.id.includes(q)||(i.dentro_de||'').toLowerCase().includes(q));
+  const grupos={};l.forEach(i=>{const g=grupoUbi(i.ubicacion);(grupos[g]=grupos[g]||[]).push(i);});
+  const nombreDe=i=>i.nombre||i.nombre_es||i.id.split(':')[1].replace(/_/g,' ');
+  const tarjeta=i=>{const tip=(i.encantamientos||[]).join(', ');return '<div class="ritem" title="'+esc(i.id+(tip?' · '+tip:''))+'">'+iconoRec(i.id,i.cantidad,nombreDe(i),!!(i.encantamientos||[]).length)
+    +'<div class="info"><b>'+esc(nombreDe(i))+'</b><span class="suave" style="font-size:12px">x'+i.cantidad+' · '+esc(i.ubicacion)+(i.dentro_de?' · dentro de '+esc(i.dentro_de):'')+'</span>'
+    +(tip?'<div style="font-size:11.5px;color:#c9a7ff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(tip)+'</div>':'')+'</div>'
+    +'<button class="btn p sm" onclick="darObjeto('+i.n+')" title="Darle este objeto al jugador (debe estar conectado)">Recuperar</button></div>';};
+  $('modVer').innerHTML='<div class="card"><div class="card-head"><h2>&#128065; Objetos del '+esc(fechaClara(v.fecha))+' <span class="chip gris">'+esc(MOTIVO_TXT[v.motivo]||v.motivo)+'</span></h2>'
+    +'<button class="btn sm" onclick="$(\'modVer\').hidden=true">&#10005; Cerrar</button></div>'
+    +'<p class="suave" style="font-size:13px">Pulsa <b>Recuperar</b> en un objeto para dárselo a '+esc(modJugSel)+' (debe estar conectado). No toca el resto de su inventario. Lo que estaba dentro de mochilas o cajas sale por separado.</p>'
+    +'<div class="fila" style="margin-bottom:10px"><input id="verBusca" placeholder="Buscar objeto..." style="min-width:240px" value="'+esc(q)+'" oninput="pintarVer()"><span class="suave" style="font-size:12.5px">'+l.length+' objetos</span></div>'
+    +ORDEN_UBI.filter(g=>grupos[g]).map(g=>'<h3 style="margin:8px 0 6px">'+g+' <span class="suave" style="font-size:12px">('+grupos[g].length+')</span></h3><div class="rgrid">'+grupos[g].map(tarjeta).join('')+'</div>').join('')
+    +(l.length?'':'<p class="suave">Ningún objeto coincide.</p>')+'</div>';
+  const b=$('verBusca');if(b&&q){b.focus();b.setSelectionRange(q.length,q.length);}
+}
+async function darObjeto(n){
+  const v=MOD_VER,it=v.items.find(i=>i.n===n);if(!it)return;
+  if(!confirm('Darle a '+modJugSel+': '+(it.nombre||it.id)+' x'+it.cantidad+'?'))return;
+  try{const r=await api('/api/mod/dar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jugador:modJugSel,fuente:v.fuente,archivo:v.archivo,indice:n})});aviso(r.mensaje,'ok');}
+  catch(e){aviso(e.message,'error');}
+}
+async function restaurarMod(archivo,fuente,fecha){
+  if(!confirm('Restaurar TODO el inventario de '+modJugSel+' al respaldo del '+fechaClara(fecha)+' (hora Bogotá)?\n\nSu inventario ACTUAL se reemplaza por completo. Debe estar conectado.'))return;
   try{
-    const r=await api('/api/mod/restaurar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jugador:modJugSel,archivo:archivo})});
+    const r=await api('/api/mod/restaurar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jugador:modJugSel,archivo:archivo,fuente:fuente||'panel'})});
     aviso(r.mensaje,r.ok?'ok':'error');
-    pintarRestEstado(r.estado||{activo:true});
-    vigilarRest();
+    if((fuente||'panel')==='panel'){pintarRestEstado(r.estado||{activo:true});vigilarRest();}
   }catch(e){aviso(e.message,'error');}
 }
 function pintarRestEstado(s){
