@@ -1233,7 +1233,7 @@ function haceCuanto(s){const p=partesFecha(s);if(!p)return '';
   const ahoraBog=Date.now()-5*3600e3,t=Date.UTC(p[0],p[1]-1,p[2],p[3],p[4],p[5]),seg=Math.round((ahoraBog-t)/1000);
   if(seg<0)return '';if(seg<60)return 'hace '+seg+' s';const min=Math.floor(seg/60);if(min<60)return 'hace '+min+' min';
   const hr=Math.floor(min/60);if(hr<24)return 'hace '+hr+' h '+(min%60)+' min';const dias=Math.floor(hr/24);return 'hace '+dias+' día'+(dias>1?'s':'');}
-let MOD_RESP=[],MOD_VER=null;
+let MOD_RESP=[],MOD_VER=null,MOD_VER_CAJA=null;
 const MOTIVO_TXT={muerte:'Al morir',salida:'Al salir',servidor:'Copia (30 s)',manual:'Manual',auto:'Copia',mod:'Respaldo'};
 async function cargarModResp(){
   $('modListaResp').innerHTML='<p class="suave">Cargando respaldos...</p>';$('modVer').hidden=true;
@@ -1251,7 +1251,7 @@ function pintarModResp(){
     '<table><thead><tr><th>Fecha y hora (Bogotá)</th><th>Objetos</th><th>Tipo</th><th></th></tr></thead><tbody>'+
     l.slice(0,300).map((c,i)=>'<tr><td><b>'+esc(fechaClara(c.fecha))+'</b>'+(c===MOD_RESP[0]?' <span class="chip verde">más reciente</span>':'')+'<div class="suave" style="font-size:12px">'+esc(haceCuanto(c.fecha))+'</div></td>'+
     '<td>'+(c.items||0)+'</td><td><span class="chip '+(c.fuente==='mod'?(c.motivo==='muerte'?'rojo':'mora'):'gris')+'">'+esc(MOTIVO_TXT[c.motivo]||c.motivo||'')+'</span></td>'+
-    '<td style="text-align:right;white-space:nowrap"><button class="btn az sm" onclick="verRespaldo(\''+c.fuente+'\',\''+esc(c.archivo)+'\',\''+esc(c.fecha)+'\')">&#128065; Ver objetos</button> '+
+    '<td style="text-align:right;white-space:nowrap"><button class="btn az sm" onclick="verRespaldo(\''+c.fuente+'\',\''+esc(c.archivo)+'\',\''+esc(c.fecha)+'\',this)">&#128065; Ver objetos</button> '+
     '<button class="btn p sm btnRest" onclick="restaurarMod(\''+esc(c.archivo)+'\',\''+c.fuente+'\',\''+esc(c.fecha)+'\')">&#8635; Restaurar todo</button></td></tr>').join('')+
     '</tbody></table>'+(l.length>300?'<p class="suave">Mostrando 300; usa el filtro para encontrar otros.</p>':'');
 }
@@ -1261,10 +1261,17 @@ function grupoUbi(u){u=u||'';if(/Casco|Pechera|Grebas|Botas|Mano secundaria/.tes
 function iconoRec(id,n,nombre,enc){const [ns,nm]=id.split(':');
   const img=ns==='minecraft'?'<img src="https://assets.mcasset.cloud/1.20.1/assets/minecraft/textures/item/'+nm+'.png" alt="'+esc(nombre)+'" data-id="'+esc(id)+'" onerror="iconoItem(this)" loading="lazy">':'<div class="txt">'+esc(nombre)+'</div>';
   return '<div class="islot'+(enc?' enc':'')+'">'+img+(n>1?'<span class="cnt">'+n+'</span>':'')+'</div>';}
-async function verRespaldo(fuente,archivo,fecha){
-  const c=$('modVer');c.hidden=false;c.innerHTML='<div class="card"><p class="suave">Cargando objetos...</p></div>';c.scrollIntoView({behavior:'smooth'});
+async function verRespaldo(fuente,archivo,fecha,boton){
+  // El visor se abre justo debajo del respaldo pulsado (no arriba de la lista).
+  const vieja=document.getElementById('modVerFila');if(vieja)vieja.remove();
+  const tr=boton&&boton.closest('tr');let c;
+  if(tr){const fila=document.createElement('tr');fila.id='modVerFila';fila.innerHTML='<td colspan="4" style="padding:0"><div id="modVerCaja"></div></td>';tr.after(fila);c=document.getElementById('modVerCaja');$('modVer').hidden=true;}
+  else{c=$('modVer');c.hidden=false;}
+  MOD_VER_CAJA=c;
+  c.innerHTML='<div class="card" style="margin:8px 0"><p class="suave">Cargando objetos...</p></div>';
   try{const r=await api('/api/mod/ver?jugador='+encodeURIComponent(modJugSel)+'&fuente='+fuente+'&archivo='+encodeURIComponent(archivo));
-    MOD_VER={fuente,archivo,fecha,items:r.items,motivo:r.motivo};pintarVer();}
+    MOD_VER={fuente,archivo,fecha,items:r.items,motivo:r.motivo};pintarVer();
+    c.scrollIntoView({block:'start'});}
   catch(e){c.innerHTML='<div class="card"><p class="suave">'+esc(e.message)+'</p></div>';}
 }
 function pintarVer(){
@@ -1276,14 +1283,15 @@ function pintarVer(){
     +'<div class="info"><b>'+esc(nombreDe(i))+'</b><span class="suave" style="font-size:12px">x'+i.cantidad+' · '+esc(i.ubicacion)+(i.dentro_de?' · dentro de '+esc(i.dentro_de):'')+'</span>'
     +(tip?'<div style="font-size:11.5px;color:#c9a7ff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(tip)+'</div>':'')+'</div>'
     +'<button class="btn p sm" onclick="darObjeto('+i.n+')" title="Darle este objeto al jugador (debe estar conectado)">Recuperar</button></div>';};
-  $('modVer').innerHTML='<div class="card"><div class="card-head"><h2>&#128065; Objetos del '+esc(fechaClara(v.fecha))+' <span class="chip gris">'+esc(MOTIVO_TXT[v.motivo]||v.motivo)+'</span></h2>'
-    +'<button class="btn sm" onclick="$(\'modVer\').hidden=true">&#10005; Cerrar</button></div>'
+  (MOD_VER_CAJA||$('modVer')).innerHTML='<div class="card" style="margin:8px 0;border-color:rgba(66,211,160,.45)"><div class="card-head"><h2>&#128065; Objetos del '+esc(fechaClara(v.fecha))+' <span class="chip gris">'+esc(MOTIVO_TXT[v.motivo]||v.motivo)+'</span></h2>'
+    +'<button class="btn sm" onclick="cerrarVer()">&#10005; Cerrar</button></div>'
     +'<p class="suave" style="font-size:13px">Pulsa <b>Recuperar</b> en un objeto para dárselo a '+esc(modJugSel)+' (debe estar conectado). No toca el resto de su inventario. Lo que estaba dentro de mochilas o cajas sale por separado.</p>'
     +'<div class="fila" style="margin-bottom:10px"><input id="verBusca" placeholder="Buscar objeto..." style="min-width:240px" value="'+esc(q)+'" oninput="pintarVer()"><span class="suave" style="font-size:12.5px">'+l.length+' objetos</span></div>'
     +ORDEN_UBI.filter(g=>grupos[g]).map(g=>'<h3 style="margin:8px 0 6px">'+g+' <span class="suave" style="font-size:12px">('+grupos[g].length+')</span></h3><div class="rgrid">'+grupos[g].map(tarjeta).join('')+'</div>').join('')
     +(l.length?'':'<p class="suave">Ningún objeto coincide.</p>')+'</div>';
   const b=$('verBusca');if(b&&q){b.focus();b.setSelectionRange(q.length,q.length);}
 }
+function cerrarVer(){const f=document.getElementById('modVerFila');if(f)f.remove();$('modVer').hidden=true;MOD_VER_CAJA=null;}
 async function darObjeto(n){
   const v=MOD_VER,it=v.items.find(i=>i.n===n);if(!it)return;
   if(!confirm('Darle a '+modJugSel+': '+(it.nombre||it.id)+' x'+it.cantidad+'?'))return;
