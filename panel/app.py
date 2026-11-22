@@ -353,6 +353,59 @@ class Capturador:
                         return int(m.group(1))
         return None
 
+    @staticmethod
+    def _desfase_level():
+        """Segundos UNIX que corresponden al gametime 0, leidos de world/level.dat
+        (LastPlayed = cuando se guardo, Time = gametime en ese momento). Es fiable
+        y no depende de leer la consola."""
+        try:
+            raiz = nbt.load(EXA.leer_archivo('world/level.dat'))
+            t_juego = nbt.get(raiz, ['Data', 'Time']) or nbt.get(raiz, ['', 'Data', 'Time'])
+            guardado = nbt.get(raiz, ['Data', 'LastPlayed']) or nbt.get(raiz, ['', 'Data', 'LastPlayed'])
+            if t_juego and guardado:
+                return guardado[1] / 1000.0 - t_juego[1] / 20.0
+        except Exception:
+            registrar_error('level.dat: %s' % traceback.format_exc())
+        return None
+
+    def corregir_fechas_servidor(self):
+        """Vuelve a fechar las copias 'servidor' con su gametime (arregla las que se
+        guardaron con la hora actual, separadas 1 s) y quita las repetidas."""
+        d = self._desfase_level()
+        if d is None or not os.path.isdir(DIR_INV):
+            return
+        for jugador in os.listdir(DIR_INV):
+            carpeta = os.path.join(DIR_INV, jugador)
+            if not os.path.isdir(carpeta):
+                continue
+            vistos = set()
+            for x in sorted(os.listdir(carpeta)):
+                ruta = os.path.join(carpeta, x)
+                try:
+                    with open(ruta, 'r', encoding='utf-8') as fh:
+                        datos = json.load(fh)
+                except (OSError, ValueError):
+                    continue
+                g = datos.get('gametime')
+                if datos.get('motivo') != 'servidor' or not g:
+                    continue
+                if g in vistos:
+                    os.remove(ruta)
+                    continue
+                vistos.add(g)
+                f = datetime.datetime.fromtimestamp(d + g / 20.0, TZ_BOGOTA).replace(tzinfo=None)
+                nuevo_id = f.strftime('%Y%m%d-%H%M%S')
+                if nuevo_id == datos.get('id'):
+                    continue
+                datos['id'], datos['fecha'] = nuevo_id, f.strftime('%Y-%m-%d %H:%M:%S')
+                destino = os.path.join(carpeta, nuevo_id + '.json')
+                if os.path.exists(destino):
+                    os.remove(ruta)
+                    continue
+                with open(destino, 'w', encoding='utf-8') as fh:
+                    json.dump(datos, fh, ensure_ascii=False)
+                os.remove(ruta)
+
     def espejo(self):
         """Descarga el historial que guarda el servidor y lo separa por personaje."""
         with self.candado:
@@ -360,9 +413,17 @@ class Capturador:
             online = EXA.estado().get('status') == 1
             if online:
                 self.aplicar_silencio()
-                gt = self._gametime_actual()
-                if gt is not None:
-                    e['desfase'] = time.time() - gt / 20.0
+                d = self._desfase_level()
+                if d is None:
+                    gt = self._gametime_actual()
+                    if gt is not None:
+                        d = time.time() - gt / 20.0
+                if d is not None:
+                    e['desfase'] = d
+            if e.get('desfase') is None:
+                # Sin la hora del juego no se puede fechar el historial: mejor
+                # esperar a la siguiente vuelta que inventar fechas.
+                return {'ok': False, 'mensaje': 'Aun no se pudo leer la hora del servidor; se reintenta.'}
             try:
                 raiz = nbt.load(EXA.leer_archivo(ARCH_STORAGE))
             except exaroton.ErrorApi:
@@ -401,10 +462,7 @@ class Capturador:
                         ultima = self.ultima_copia(nombre)
                         if ultima is not None and items.huella(ultima['items']) == items.huella(lista_items):
                             continue
-                    if e.get('desfase') is not None:
-                        fecha = datetime.datetime.fromtimestamp(e['desfase'] + g / 20.0, TZ_BOGOTA).replace(tzinfo=None)
-                    else:
-                        fecha = ahora_bogota()
+                    fecha = datetime.datetime.fromtimestamp(e['desfase'] + g / 20.0, TZ_BOGOTA).replace(tzinfo=None)
                     self.guardar(nombre, fecha, lista_items, nbt.snbt(j), 'servidor', gametime=g)
                     nuevas += 1
             self._guardar_estado_espejo(e)
@@ -3106,6 +3164,10 @@ class Manejador(BaseHTTPRequestHandler):
 
 def main():
     Capturador.corregir_fechas_utc()
+    try:
+        CAPTURADOR.corregir_fechas_servidor()
+    except Exception:
+        registrar_error('corregir fechas servidor: %s' % traceback.format_exc())
     threading.Thread(target=CAPTURADOR.bucle, daemon=True).start()
     threading.Thread(target=GUARDA_LOGS.bucle, daemon=True).start()
     threading.Thread(target=BOT.bucle, daemon=True).start()
