@@ -264,6 +264,11 @@
   .ritem .islot{flex:none}
   .ritem .info{flex:1;min-width:0}
   .ritem .info b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .rprog{height:8px;background:#22323c;border-radius:4px;overflow:hidden;min-width:110px}
+  .rprog>div{height:100%;width:0;background:linear-gradient(90deg,#3fd15a,#72e36b);transition:width .4s}
+  .rok{color:#7ee2a8;font-size:12px;font-weight:650;white-space:nowrap}
+  .rmal{color:#ff9aa0;font-size:12px;white-space:nowrap}
+  .ritem.hecho{border-color:rgba(66,211,160,.55);background:#13281f}
   .rgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:8px;margin-bottom:12px}
   .pjug{display:inline-flex;align-items:center;padding:6px 11px;background:#14232d;border:1px solid var(--linea);border-radius:8px;color:var(--txt);font-size:13px;cursor:pointer;transition:.15s}
   .pjug:hover{border-color:rgba(66,211,160,.55)}
@@ -1250,7 +1255,8 @@ function pintarModResp(){
   $('modListaResp').innerHTML='<div class="suave" style="margin-bottom:8px">'+l.length+' de '+MOD_RESP.length+' respaldos</div>'+
     '<table><thead><tr><th>Fecha y hora (Bogotá)</th><th>Objetos</th><th>Tipo</th><th></th></tr></thead><tbody>'+
     l.slice(0,300).map((c,i)=>'<tr><td><b>'+esc(fechaClara(c.fecha))+'</b>'+(c===MOD_RESP[0]?' <span class="chip verde">más reciente</span>':'')+'<div class="suave" style="font-size:12px">'+esc(haceCuanto(c.fecha))+'</div></td>'+
-    '<td>'+(c.items||0)+'</td><td><span class="chip '+(c.fuente==='mod'?(c.motivo==='muerte'?'rojo':'mora'):'gris')+'">'+esc(MOTIVO_TXT[c.motivo]||c.motivo||'')+'</span></td>'+
+    '<td>'+(c.items||0)+'</td><td><span class="chip '+(c.fuente==='mod'?(c.motivo==='muerte'?'rojo':'mora'):'gris')+'">'+esc(MOTIVO_TXT[c.motivo]||c.motivo||'')+'</span>'
+    +(c.recuperado?'<div class="rok" style="margin-top:4px">&#10004; '+(c.recuperado.todo?'Restaurado todo':'Recuperado: '+c.recuperado.objetos+' objeto'+(c.recuperado.objetos===1?'':'s'))+'</div>':'')+'<div id="rrest_'+esc(c.archivo)+'"></div></td>'+
     '<td style="text-align:right;white-space:nowrap"><button class="btn az sm" onclick="verRespaldo(\''+c.fuente+'\',\''+esc(c.archivo)+'\',\''+esc(c.fecha)+'\',this)">&#128065; Ver objetos</button> '+
     '<button class="btn p sm btnRest" onclick="restaurarMod(\''+esc(c.archivo)+'\',\''+c.fuente+'\',\''+esc(c.fecha)+'\')">&#8635; Restaurar todo</button></td></tr>').join('')+
     '</tbody></table>'+(l.length>300?'<p class="suave">Mostrando 300; usa el filtro para encontrar otros.</p>':'');
@@ -1270,39 +1276,81 @@ async function verRespaldo(fuente,archivo,fecha,boton){
   MOD_VER_CAJA=c;
   c.innerHTML='<div class="card" style="margin:8px 0"><p class="suave">Cargando objetos...</p></div>';
   try{const r=await api('/api/mod/ver?jugador='+encodeURIComponent(modJugSel)+'&fuente='+fuente+'&archivo='+encodeURIComponent(archivo));
-    MOD_VER={fuente,archivo,fecha,items:r.items,motivo:r.motivo};pintarVer();
+    MOD_VER={fuente,archivo,fecha,items:r.items,motivo:r.motivo};VER_TAB='inv';pintarVer();
     c.scrollIntoView({block:'start'});}
   catch(e){c.innerHTML='<div class="card"><p class="suave">'+esc(e.message)+'</p></div>';}
 }
+// Pestanas del visor: cada una muestra solo lo suyo.
+const PESTANAS_VER=[['inv','&#127890; Inventario'],['mochila','&#127890; Mochila'],['amuletos','&#128142; Amuletos'],['ender','&#128230; Cofre de Ender'],['cajas','&#128193; Dentro de cajas']];
+let VER_TAB='inv';
+function pestanaDe(i){const u=i.ubicacion||'',d=i.dentro_de;
+  if(i.inv)return 'inv';
+  if(u.startsWith('Mochila'))return 'mochila';
+  if(u.startsWith('Amuleto'))return d?(u==='Amuleto (back)'?'mochila2':'cajas'):'amuletos';
+  if(u.startsWith('Cofre'))return d?'cajas':'ender';
+  return 'cajas';}
 function pintarVer(){
   const v=MOD_VER,q=($('verBusca')?$('verBusca').value:'').trim().toLowerCase();
-  const l=v.items.filter(i=>!q||(i.nombre||'').toLowerCase().includes(q)||i.id.includes(q)||(i.dentro_de||'').toLowerCase().includes(q));
-  const grupos={};l.forEach(i=>{const g=grupoUbi(i.ubicacion);(grupos[g]=grupos[g]||[]).push(i);});
+  const por={};v.items.forEach(i=>{const p=pestanaDe(i);(por[p]=por[p]||[]).push(i);});
+  // La mochila puesta sale dos veces (como amuleto de espalda y como mochila): se usa solo una.
+  if(!por.mochila&&por.mochila2)por.mochila=por.mochila2;delete por.mochila2;
+  const tabs=PESTANAS_VER.filter(([k])=>por[k]&&por[k].length);
+  if(!tabs.some(([k])=>k===VER_TAB))VER_TAB=tabs.length?tabs[0][0]:'inv';
+  const l=(por[VER_TAB]||[]).filter(i=>!q||(i.nombre||'').toLowerCase().includes(q)||(i.nombre_es||'').toLowerCase().includes(q)||i.id.includes(q));
   const nombreDe=i=>i.nombre||i.nombre_es||i.id.split(':')[1].replace(/_/g,' ');
-  const tarjeta=i=>{const tip=(i.encantamientos||[]).join(', ');return '<div class="ritem" title="'+esc(i.id+(tip?' · '+tip:''))+'">'+iconoRec(i.id,i.cantidad,nombreDe(i),!!(i.encantamientos||[]).length)
+  const tarjeta=i=>{const tip=(i.encantamientos||[]).join(', ');return '<div class="ritem'+(i.recuperado?' hecho':'')+'" id="ritem'+i.n+'" title="'+esc(i.id+(tip?' · '+tip:''))+'">'+iconoRec(i.id,i.cantidad,nombreDe(i),!!(i.encantamientos||[]).length)
     +'<div class="info"><b>'+esc(nombreDe(i))+'</b><span class="suave" style="font-size:12px">x'+i.cantidad+' · '+esc(i.ubicacion)+(i.dentro_de?' · dentro de '+esc(i.dentro_de):'')+'</span>'
     +(tip?'<div style="font-size:11.5px;color:#c9a7ff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(tip)+'</div>':'')+'</div>'
-    +'<button class="btn p sm" onclick="darObjeto('+i.n+')" title="Darle este objeto al jugador (debe estar conectado)">Recuperar</button></div>';};
+    +'<div id="rest'+i.n+'" style="text-align:right">'+(i.recuperado?'<div class="rok">&#10004; Recuperado</div><div class="suave" style="font-size:11px">'+esc(haceCuanto(i.recuperado)||fechaClara(i.recuperado))+'</div><button class="btn sm" style="margin-top:4px" onclick="darObjeto('+i.n+')">Otra vez</button>'
+    :'<button class="btn p sm" onclick="darObjeto('+i.n+')" title="Darle este objeto al jugador (debe estar conectado)">Recuperar</button>')+'</div></div>';};
+  let cuerpo;
+  if(VER_TAB==='inv'){const g={};l.forEach(i=>{const k=grupoUbi(i.ubicacion);(g[k]=g[k]||[]).push(i);});
+    cuerpo=['Equipo','Barra rápida','Inventario'].filter(k=>g[k]).map(k=>'<h3 style="margin:8px 0 6px">'+k+' <span class="suave" style="font-size:12px">('+g[k].length+')</span></h3><div class="rgrid">'+g[k].map(tarjeta).join('')+'</div>').join('');}
+  else cuerpo='<div class="rgrid">'+l.map(tarjeta).join('')+'</div>';
   (MOD_VER_CAJA||$('modVer')).innerHTML='<div class="card" style="margin:8px 0;border-color:rgba(66,211,160,.45)"><div class="card-head"><h2>&#128065; Objetos del '+esc(fechaClara(v.fecha))+' <span class="chip gris">'+esc(MOTIVO_TXT[v.motivo]||v.motivo)+'</span></h2>'
     +'<button class="btn sm" onclick="cerrarVer()">&#10005; Cerrar</button></div>'
-    +'<p class="suave" style="font-size:13px">Pulsa <b>Recuperar</b> en un objeto para dárselo a '+esc(modJugSel)+' (debe estar conectado). No toca el resto de su inventario. Lo que estaba dentro de mochilas o cajas sale por separado.</p>'
-    +'<div class="fila" style="margin-bottom:10px"><input id="verBusca" placeholder="Buscar objeto..." style="min-width:240px" value="'+esc(q)+'" oninput="pintarVer()"><span class="suave" style="font-size:12.5px">'+l.length+' objetos</span></div>'
-    +ORDEN_UBI.filter(g=>grupos[g]).map(g=>'<h3 style="margin:8px 0 6px">'+g+' <span class="suave" style="font-size:12px">('+grupos[g].length+')</span></h3><div class="rgrid">'+grupos[g].map(tarjeta).join('')+'</div>').join('')
-    +(l.length?'':'<p class="suave">Ningún objeto coincide.</p>')+'</div>';
+    +'<p class="suave" style="font-size:13px">Pulsa <b>Recuperar</b> en un objeto para dárselo a '+esc(modJugSel)+' (debe estar conectado). No toca el resto de su inventario.</p>'
+    +'<div class="subtabs" style="margin-bottom:10px">'+tabs.map(([k,t])=>'<button type="button" class="subtab'+(k===VER_TAB?' activo':'')+'" onclick="VER_TAB=\''+k+'\';pintarVer()">'+t+' <span class="suave" style="font-size:12px">('+por[k].length+')</span></button>').join('')+'</div>'
+    +'<div class="fila" style="margin-bottom:10px"><input id="verBusca" placeholder="Buscar en esta pestaña..." style="min-width:240px" value="'+esc(q)+'" oninput="pintarVer()"><span class="suave" style="font-size:12.5px">'+l.length+' objetos</span></div>'
+    +cuerpo+(l.length?'':'<p class="suave">Ningún objeto coincide.</p>')+'</div>';
   const b=$('verBusca');if(b&&q){b.focus();b.setSelectionRange(q.length,q.length);}
 }
 function cerrarVer(){const f=document.getElementById('modVerFila');if(f)f.remove();$('modVer').hidden=true;MOD_VER_CAJA=null;}
+// Sigue la respuesta del servidor a un comando: barra de progreso y check al final.
+async function progresoComando(id,caja,textoOk){
+  caja.innerHTML='<div class="suave" style="font-size:12px;margin-bottom:4px">Enviando al servidor...</div><div class="rprog"><div></div></div>';
+  const barra=caja.querySelector('.rprog>div');let p=10;barra.style.width=p+'%';
+  for(let k=0;k<40;k++){
+    await new Promise(r=>setTimeout(r,700));
+    let s;try{s=await api('/api/comando/salida?id='+encodeURIComponent(id));}catch(e){continue;}
+    p=Math.min(92,p+(92-p)*0.25);barra.style.width=p+'%';
+    if(s.listo){
+      const txt=(s.salida||[]).join(' ');const mal=s.error||/No player was found|Unknown item|Expected|Invalid|Incorrect argument|No hay respaldos|No existe|Error al restaurar/.test(txt);
+      barra.style.width='100%';await new Promise(r=>setTimeout(r,250));
+      if(mal){caja.innerHTML='<div class="rmal">&#10006; No se pudo</div><div class="suave" style="font-size:11px">'+esc((s.error||txt).slice(0,90))+'</div>';return false;}
+      caja.innerHTML='<div class="rok">&#10004; '+esc(textoOk)+'</div><div class="suave" style="font-size:11px">ahora</div>';return true;
+    }
+  }
+  caja.innerHTML='<div class="rok">&#10004; Enviado</div><div class="suave" style="font-size:11px">sin respuesta del servidor</div>';return true;
+}
 async function darObjeto(n){
   const v=MOD_VER,it=v.items.find(i=>i.n===n);if(!it)return;
-  if(!confirm('Darle a '+modJugSel+': '+(it.nombre||it.id)+' x'+it.cantidad+'?'))return;
-  try{const r=await api('/api/mod/dar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jugador:modJugSel,fuente:v.fuente,archivo:v.archivo,indice:n})});aviso(r.mensaje,'ok');}
-  catch(e){aviso(e.message,'error');}
+  if(!confirm('Darle a '+modJugSel+': '+(it.nombre||it.nombre_es||it.id)+' x'+it.cantidad+'?'))return;
+  const caja=$('rest'+n);
+  try{const r=await api('/api/mod/dar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jugador:modJugSel,fuente:v.fuente,archivo:v.archivo,indice:n})});
+    const ok=await progresoComando(r.id,caja,'Recuperado');
+    if(ok){it.recuperado=new Date(Date.now()-5*3600e3).toISOString().slice(0,19).replace('T',' ');const t=$('ritem'+n);if(t)t.classList.add('hecho');
+      const fila=MOD_RESP.find(c=>c.fuente===v.fuente&&c.archivo===v.archivo);if(fila){fila.recuperado=fila.recuperado||{objetos:0};fila.recuperado.objetos=(fila.recuperado.objetos||0)+1;}
+      aviso(r.mensaje,'ok');}
+  }catch(e){caja.innerHTML='<div class="rmal">&#10006; '+esc(e.message)+'</div>';aviso(e.message,'error');}
 }
 async function restaurarMod(archivo,fuente,fecha){
   if(!confirm('Restaurar TODO el inventario de '+modJugSel+' al respaldo del '+fechaClara(fecha)+' (hora Bogotá)?\n\nSu inventario ACTUAL se reemplaza por completo. Debe estar conectado.'))return;
   try{
     const r=await api('/api/mod/restaurar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jugador:modJugSel,archivo:archivo,fuente:fuente||'panel'})});
     aviso(r.mensaje,r.ok?'ok':'error');
+    if(r.ok&&r.id){const caja=document.getElementById('rrest_'+archivo);if(caja){const ok=await progresoComando(r.id,caja,'Restaurado todo');
+      if(ok){const fila=MOD_RESP.find(c=>c.archivo===archivo);if(fila){fila.recuperado=fila.recuperado||{objetos:0};fila.recuperado.todo='ahora';}}}}
     if((fuente||'panel')==='panel'){pintarRestEstado(r.estado||{activo:true});vigilarRest();}
   }catch(e){aviso(e.message,'error');}
 }

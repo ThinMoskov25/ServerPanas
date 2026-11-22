@@ -507,7 +507,7 @@ class Capturador:
             with open(os.path.join(d, x), 'r', encoding='utf-8') as f:
                 c = json.load(f)
             salida.append({'id': c['id'], 'fecha': c['fecha'], 'motivo': c.get('motivo', ''),
-                           'items': sum(i['cantidad'] for i in c['items'])})
+                           'items': sum(i['cantidad'] for i in c['items'] if es_del_inventario(i))})
         return salida
 
     def leer_copia(self, jugador, ident):
@@ -851,7 +851,10 @@ class GestorMod:
             c = CAPTURADOR.leer_copia(jugador, archivo)
             motivo, lista = c.get('motivo', ''), c['items']
         nombres = _nombres_items()
-        return motivo, [dict(it, n=i, nombre_es=nombres.get(it['id'], '')) for i, it in enumerate(lista)]
+        hechos = (_recuperados().get(jugador, {}).get('%s|%s' % (fuente, archivo)) or {}).get('items') or {}
+        return motivo, [dict(it, n=i, nombre_es=nombres.get(it['id'], ''), inv=es_del_inventario(it),
+                             recuperado=(hechos.get(str(i)) or {}).get('cuando'))
+                        for i, it in enumerate(lista)]
 
     def dar_objeto(self, jugador, fuente, archivo, indice):
         """Da al jugador UN objeto del respaldo (con sus encantamientos y datos)."""
@@ -864,7 +867,9 @@ class GestorMod:
             raise ValueError('%s debe estar conectado para recibir el objeto.' % jugador)
         cmd = 'give %s %s%s %d' % (jugador, it['id'], it.get('tag') or '', max(1, min(64, int(it['cantidad']))))
         r = comando_en_fondo(cmd)
-        r['mensaje'] = 'Enviado a %s: %s x%d' % (jugador, it.get('nombre') or it['id'], it['cantidad'])
+        nombre = it.get('nombre') or it.get('nombre_es') or it['id']
+        _vigilar_y_marcar(r['id'], jugador, fuente, archivo, int(indice), nombre)
+        r['mensaje'] = 'Enviado a %s: %s x%d' % (jugador, nombre, it['cantidad'])
         return r
 
     def respaldos(self, jugador):
@@ -883,13 +888,18 @@ class GestorMod:
             for a, (motivo, its) in zip(archivos, leidos):
                 b = a[:-4]
                 fecha = '%s %s' % (b[:10], b[11:19].replace('-', ':'))
-                lista.append({'archivo': b, 'fecha': fecha, 'items': sum(i['cantidad'] for i in its),
+                lista.append({'archivo': b, 'fecha': fecha, 'items': sum(i['cantidad'] for i in its if es_del_inventario(i)),
                               'motivo': motivo or 'mod', 'fuente': 'mod'})
         except (ValueError, exaroton.ErrorApi):
             pass
         if not lista:
             return {'ok': False, 'mensaje': 'Sin respaldos para %s.' % jugador, 'lista': []}
         lista.sort(key=lambda x: x['fecha'], reverse=True)
+        rec = _recuperados().get(jugador, {})
+        for c in lista:
+            r = rec.get('%s|%s' % (c['fuente'], c['archivo']))
+            if r:
+                c['recuperado'] = {'objetos': len(r.get('items') or {}), 'todo': r.get('todo')}
         return {'ok': True, 'lista': lista}
 
     def restaurar(self, jugador, archivo, fuente='panel'):
@@ -901,6 +911,7 @@ class GestorMod:
             if jugador not in ((EXA.estado(forzar=True).get('players') or {}).get('list') or []):
                 return {'ok': False, 'mensaje': '%s debe estar conectado para restaurarle el inventario.' % jugador}
             r = comando_en_fondo('invrestore %s %s' % (jugador, archivo))
+            _vigilar_y_marcar(r['id'], jugador, 'mod', archivo)
             return {'ok': True, 'mensaje': 'Restaurando el respaldo del mod (%s)...' % archivo, 'id': r['id'],
                     'estado': {'activo': False}}
         if not re.match(r'^\d{8}-\d{6}$', archivo or ''):
@@ -985,6 +996,7 @@ class GestorMod:
                 raise RuntimeError(detalle)
             self.resultado = 'ok'
             self.mensaje = 'Inventario de %s restaurado desde la copia del %s.' % (jugador, copia['fecha'])
+            _marcar_recuperado(jugador, 'panel', archivo)
         except Exception as ex:
             self.resultado = 'error'
             self.mensaje = str(ex)
@@ -1330,6 +1342,70 @@ def _nombres_items():
         except (OSError, ValueError):
             pass
     return _NOMBRES_ITEMS
+
+
+# Registro de lo que ya se recupero/restauro, para marcarlo con un check en el panel.
+# Vive en el servidor de exaroton (Render borra su disco al reiniciar).
+ARCH_RECUPERADOS = 'serverpanas-panel/recuperados.json'
+_RECUP = {'datos': None}
+_RECUP_CANDADO = threading.Lock()
+
+
+def _recuperados():
+    if _RECUP['datos'] is None:
+        try:
+            _RECUP['datos'] = json.loads(EXA.leer_archivo(ARCH_RECUPERADOS).decode('utf-8'))
+        except (exaroton.ErrorApi, ValueError):
+            _RECUP['datos'] = {}
+    return _RECUP['datos']
+
+
+def _marcar_recuperado(jugador, fuente, archivo, indice=None, nombre=''):
+    with _RECUP_CANDADO:
+        d = _recuperados()
+        r = d.setdefault(jugador, {}).setdefault('%s|%s' % (fuente, archivo), {'items': {}, 'todo': None})
+        cuando = ahora_bogota().strftime('%Y-%m-%d %H:%M:%S')
+        if indice is None:
+            r['todo'] = cuando
+        else:
+            r['items'][str(indice)] = {'nombre': nombre, 'cuando': cuando}
+        try:
+            try:
+                EXA.crear_directorio('serverpanas-panel')
+            except exaroton.ErrorApi:
+                pass
+            EXA.escribir_archivo(ARCH_RECUPERADOS, json.dumps(d, ensure_ascii=False).encode('utf-8'))
+        except exaroton.ErrorApi:
+            registrar_error('recuperados: %s' % traceback.format_exc())
+
+
+FALLOS_GIVE = ('No player was found', 'Unknown item', 'Expected', 'Invalid', 'Incorrect argument', 'No entity was found',
+               'No hay respaldos', 'No existe', 'Error al restaurar', 'no esta conectado')
+
+
+def _vigilar_y_marcar(ident, jugador, fuente, archivo, indice=None, nombre=''):
+    """Espera la respuesta del servidor; si no hubo error, lo apunta como recuperado."""
+    def _hilo():
+        for _ in range(60):
+            s = SALIDAS.get(ident)
+            if not s or s.get('listo'):
+                break
+            time.sleep(0.5)
+        s = SALIDAS.get(ident) or {}
+        texto = ' '.join(s.get('salida') or [])
+        ok = not s.get('error') and not any(f in texto for f in FALLOS_GIVE)
+        s['ok'] = ok
+        if ok:
+            _marcar_recuperado(jugador, fuente, archivo, indice, nombre)
+    threading.Thread(target=_hilo, daemon=True).start()
+
+
+def es_del_inventario(it):
+    """Solo el inventario del jugador: equipo, barra rapida e inventario, sin lo que
+    va dentro de mochilas/cajas ni el cofre de Ender o los amuletos."""
+    u = it.get('ubicacion') or ''
+    return not it.get('dentro_de') and (u in ('Inventario', 'Casco', 'Pechera', 'Grebas', 'Botas', 'Mano secundaria')
+                                        or u.startswith('Barra rapida'))
 
 
 def jugadores_lista():
