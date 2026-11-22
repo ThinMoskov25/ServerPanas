@@ -100,10 +100,17 @@
 		}
 		{
 			description: [
-				"&6PASO 4.&r"
-				"Alimenta la cria con carne hasta que crezca por etapas."
+				"&6PASO 4.&r Tu dragon ya es tuyo: se vincula con el jugador"
+				"mas cercano al salir del huevo."
 				""
-				"&aDesbloquea:&r montarlo."
+				"&eComida:&r tira carne al suelo (el cordero le encanta) o"
+				"dale &6Comida de dragon&r (hueso + carne): crece mucho mas rapido."
+				""
+				"&eRevisarlo:&r clic derecho sobre el para ver su edad, si es"
+				"macho o hembra y cuanta hambre tiene."
+				""
+				"&eEtapas:&r 1 y 2 crias, 3 joven (ya se puede montar),"
+				"4 adulto y 5 el mas grande y poderoso."
 			]
 			icon: "minecraft:cooked_beef"
 			id: "2E18D08F6E9CBFD0"
@@ -119,22 +126,26 @@
 		}
 		{
 			description: [
-				"&6PASO 5 (FINAL).&r"
-				"Con &eStage 2+&r ponle &esilla de dragon&r y collar para"
-				"montarlo; de adulto podra volar. Entrena de dia y con"
-				"armadura. Otros: hipogrifo, gorgona (petrifica), troll."
+				"&6PASO 5.&r Montar y volar (desde la &eetapa 3&r):"
 				""
-				"&6Ya tienes tu dragon.&r"
+				"- &eSubir:&r agachate (&fShift&r) + clic derecho sobre el dragon."
+				"- &eDespegar y volar:&r pulsa &fsaltar&r (espacio) estando encima."
+				"- &eBajar:&r manten &fShift&r mientras vuela."
+				"- &eFuego o hielo:&r tiene su propia tecla; buscala en"
+				"  &fOpciones > Controles&r (seccion Ice and Fire)."
+				""
+				"&7Armadura de dragon: como la armadura normal pero con bloques"
+				"&7(hierro, oro o diamante) en vez de lingotes."
 			]
 			icon: "iceandfire:dragon_meal"
 			id: "45FD1E45EAC416DE"
-			subtitle: "A volar"
+			subtitle: "Shift + clic derecho"
 			tasks: [{
 				id: "7855D032323A65B3"
 				title: "Entendido"
 				type: "checkmark"
 			}]
-			title: "&c5. Silla y vuelo"
+			title: "&c5. Montar y volar"
 			x: 10.0d
 			y: 0.0d
 		}
@@ -206,13 +217,44 @@
 			id: "7E5B4A6F8C9DAEB5"
 			subtitle: "Bajo la lluvia"
 			tasks: [{
-				id: "8F6C5B7A9DAEBFC6"
+				id: "3C9B0E3FDD50A72A"
 				title: "Entendido"
 				type: "checkmark"
 			}]
 			title: "&d3c. Huevo de rayo"
 			x: 7.0d
 			y: 2.0d
+		}
+		{
+			dependencies: ["45FD1E45EAC416DE"]
+			description: [
+				"&6PASO 6.&r Para que tu dragon no se vaya ni se pierda:"
+				""
+				"&eBaston de dragon&r (calavera de dragon encima de un palo):"
+				"usalo sobre el dragon para que &ese quede quieto&r o vuelva a"
+				"deambular. Dejalo quieto cada vez que te bajes."
+				""
+				"&eCuerno de dragon&r (4 huesos de dragon + 1 palo): usalo sobre"
+				"el dragon para &eguardarlo&r dentro y soplalo para &esacarlo&r donde"
+				"quieras. La forma mas segura de llevarlo contigo."
+				""
+				"&eFlauta de hueso de dragon&r (hierro + hueso de dragon): hace"
+				"bajar a tu dragon cuando esta volando."
+				""
+				"&7Consejo: apunta sus coordenadas y pon una waystone al lado."
+				"&7Los dragones domados no rompen bloques en este servidor."
+			]
+			icon: "iceandfire:dragon_horn"
+			id: "1B9C2D3E4F5A6B70"
+			subtitle: "Baston, cuerno y flauta"
+			tasks: [{
+				id: "2C0D3E4F5A6B7C81"
+				title: "Entendido"
+				type: "checkmark"
+			}]
+			title: "&c6. Que no se pierda"
+			x: 12.0d
+			y: 0.0d
 		}
 	]
 	title: "&c6. Ice and Fire"
