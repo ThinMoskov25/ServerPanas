@@ -15,6 +15,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -22,6 +24,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.item.ItemTossEvent;
+import net.minecraftforge.event.entity.living.LivingDropsEvent;
+import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
+import net.minecraftforge.event.entity.player.PlayerContainerEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -32,15 +38,18 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Modo reconstruccion (solo servidor, el cliente no necesita nada).
+ * Modo reconstruccion (solo servidor, el cliente no necesita nada, sin mensajes).
  *
- * El jugador sigue en supervivencia con su inventario normal, pero:
- *  - Mientras mira un bloque que no tiene, el servidor le pone una copia en el
- *    espacio reservado (ultimo de la mochila). Asi el clic de la rueda de
- *    supervivencia lo encuentra y lo lleva al espacio de la barra rapida en el
- *    que esta el jugador.
- *  - Los bloques que coloca no se gastan.
- *  - Al desactivarlo se retiran las copias que dio el modo.
+ * El jugador sigue en supervivencia con su inventario normal:
+ *  - Mientras mira un bloque, el servidor deja una copia en el espacio reservado
+ *    (ultimo de la mochila) para que el clic de la rueda de supervivencia la encuentre.
+ *  - Al usar la rueda, la copia va a la casilla de la barra rapida en la que esta
+ *    el jugador: esa es la "casilla de construccion". Lo que hubiera ahi se guarda
+ *    y se devuelve al apagar el modo. Cada uso de la rueda cambia el bloque de esa
+ *    misma casilla: nunca se acumulan copias.
+ *  - La copia (marcada con una etiqueta) no se gasta al colocarla, no se puede
+ *    tirar, no se puede guardar en cofres y desaparece si otro la recoge.
+ *  - Al apagar el modo se borran todas las copias y se devuelve lo guardado.
  *
  * Comando de operador / consola (lo usa el panel):
  *   /reconstruir <jugador> si | no
@@ -48,22 +57,22 @@ import java.util.UUID;
  */
 public final class Reconstruir {
     static final String CLAVE = "serverpanas_reconstruir";
-    static final String CLAVE_DADOS = "serverpanas_reconstruir_dados";
-    /** Espacio reservado: ultimo de la mochila (fila de abajo, a la derecha). */
+    static final String CLAVE_CASILLA = "serverpanas_reconstruir_casilla";
+    static final String CLAVE_GUARDADO = "serverpanas_reconstruir_guardado";
+    static final String CLAVE_DADOS = "serverpanas_reconstruir_dados"; // version anterior
+    static final String MARCA = "serverpanas_rc";
+    /** Espacio reservado: ultimo de la mochila. */
     static final int RESERVADO = 35;
 
-    /** Estado en memoria de cada jugador con el modo activo. */
     private static final class Estado {
-        ItemStack copia = ItemStack.EMPTY; // lo que el modo puso en el espacio reservado
-        int selAnterior = -1;              // espacio de la barra rapida del tick anterior
-        int ranuraUso = -1;                // ranura del bloque que se intento colocar
-        ItemStack antesDeUsar = ItemStack.EMPTY;
-        boolean avisoLleno = false;
+        ItemStack enReservado = ItemStack.EMPTY; // copia sin marca que el modo dejo en RESERVADO
+        int selAnterior = -1;
+        boolean usando = false;                  // se intento colocar la copia este tick
     }
 
     private final Map<UUID, Estado> estados = new HashMap<>();
 
-    // ---------------------------------------------------------------- datos guardados
+    // ---------------------------------------------------------------- utilidades
 
     private static CompoundTag persistido(Player p) {
         CompoundTag data = p.getPersistentData();
@@ -73,6 +82,27 @@ public final class Reconstruir {
 
     static boolean activo(Player p) {
         return persistido(p).getBoolean(CLAVE);
+    }
+
+    static boolean esCopia(ItemStack s) {
+        return !s.isEmpty() && s.hasTag() && s.getTag().getBoolean(MARCA);
+    }
+
+    private static ItemStack marcar(ItemStack s) {
+        ItemStack c = s.copyWithCount(1);
+        c.getOrCreateTag().putBoolean(MARCA, true);
+        return c;
+    }
+
+    private static int casilla(Player p) {
+        CompoundTag t = persistido(p);
+        return t.contains(CLAVE_CASILLA) ? t.getInt(CLAVE_CASILLA) : -1;
+    }
+
+    /** Devuelve un objeto al jugador sin perderlo: hueco libre o, si no hay, a sus pies. */
+    private static void devolver(ServerPlayer p, ItemStack s) {
+        if (s.isEmpty()) return;
+        if (!p.getInventory().add(s) && !s.isEmpty()) p.drop(s, false);
     }
 
     // ---------------------------------------------------------------- comando
@@ -96,22 +126,48 @@ public final class Reconstruir {
 
     private int cambiar(CommandContext<CommandSourceStack> c, boolean si) throws CommandSyntaxException {
         ServerPlayer p = EntityArgument.getPlayer(c, "jugador");
-        CompoundTag t = persistido(p);
         if (si) {
-            t.putBoolean(CLAVE, true);
+            persistido(p).putBoolean(CLAVE, true);
         } else {
-            retirarCopias(p);
-            t.remove(CLAVE);
-            estados.remove(p.getUUID());
+            apagar(p);
         }
         c.getSource().sendSuccess(() -> Component.literal("Modo reconstruccion " + (si ? "activado" : "desactivado")
                 + " para " + p.getGameProfile().getName()), false);
         return 1;
     }
 
-    /** Quita del inventario las copias que entrego el modo (hasta la cantidad registrada). */
-    private void retirarCopias(ServerPlayer p) {
+    /** Apaga el modo: borra copias, vacia el reservado y devuelve lo guardado. */
+    private void apagar(ServerPlayer p) {
+        Inventory inv = p.getInventory();
+        Estado st = estados.remove(p.getUUID());
+        if (st != null && !st.enReservado.isEmpty()
+                && ItemStack.isSameItemSameTags(inv.getItem(RESERVADO), st.enReservado)) {
+            inv.setItem(RESERVADO, ItemStack.EMPTY);
+        }
+        for (int i = 0; i < inv.getContainerSize(); i++) {
+            if (esCopia(inv.getItem(i))) inv.setItem(i, ItemStack.EMPTY);
+        }
+        if (esCopia(p.containerMenu.getCarried())) p.containerMenu.setCarried(ItemStack.EMPTY);
+        retirarDadosAntiguos(p);
+
         CompoundTag t = persistido(p);
+        int cas = casilla(p);
+        if (t.contains(CLAVE_GUARDADO)) {
+            ItemStack guardado = ItemStack.of(t.getCompound(CLAVE_GUARDADO));
+            if (cas >= 0 && cas < 9 && inv.getItem(cas).isEmpty()) inv.setItem(cas, guardado);
+            else devolver(p, guardado);
+        }
+        t.remove(CLAVE);
+        t.remove(CLAVE_CASILLA);
+        t.remove(CLAVE_GUARDADO);
+        inv.setChanged();
+        p.containerMenu.broadcastChanges();
+    }
+
+    /** Limpia las copias sin marca que entrego la version anterior del modo. */
+    private static void retirarDadosAntiguos(ServerPlayer p) {
+        CompoundTag t = persistido(p);
+        if (!t.contains(CLAVE_DADOS)) return;
         CompoundTag dados = t.getCompound(CLAVE_DADOS);
         Inventory inv = p.getInventory();
         for (String id : dados.getAllKeys()) {
@@ -128,29 +184,84 @@ public final class Reconstruir {
             }
         }
         t.remove(CLAVE_DADOS);
-        inv.setChanged();
-    }
-
-    private static void anotarDado(Player p, ItemStack s) {
-        CompoundTag t = persistido(p);
-        CompoundTag dados = t.getCompound(CLAVE_DADOS);
-        ResourceLocation id = ForgeRegistries.ITEMS.getKey(s.getItem());
-        if (id == null) return;
-        dados.putInt(id.toString(), dados.getInt(id.toString()) + s.getCount());
-        t.put(CLAVE_DADOS, dados);
     }
 
     // ---------------------------------------------------------------- eventos
 
-    /** Recuerda el bloque que se va a colocar para devolverlo despues. */
     @SubscribeEvent
     public void alUsarEnBloque(PlayerInteractEvent.RightClickBlock e) {
         if (!(e.getEntity() instanceof ServerPlayer p) || !activo(p)) return;
-        ItemStack s = e.getItemStack();
-        if (!(s.getItem() instanceof BlockItem)) return;
-        Estado st = estados.computeIfAbsent(p.getUUID(), k -> new Estado());
-        st.ranuraUso = e.getHand() == InteractionHand.MAIN_HAND ? p.getInventory().selected : 40;
-        st.antesDeUsar = s.copy();
+        if (e.getHand() == InteractionHand.MAIN_HAND && esCopia(e.getItemStack())) {
+            estados.computeIfAbsent(p.getUUID(), k -> new Estado()).usando = true;
+        }
+    }
+
+    /** Las copias no se tiran: la copia vuelve a su casilla y no aparece en el suelo. */
+    @SubscribeEvent
+    public void alTirar(ItemTossEvent e) {
+        if (!(e.getPlayer() instanceof ServerPlayer p)) return;
+        ItemStack s = e.getEntity().getItem();
+        Estado st = estados.get(p.getUUID());
+        boolean copiaReservada = st != null && !st.enReservado.isEmpty() && !s.hasTag() && s.getCount() == 1
+                && s.is(st.enReservado.getItem())
+                && !ItemStack.isSameItemSameTags(p.getInventory().getItem(RESERVADO), st.enReservado);
+        if (!esCopia(s) && !copiaReservada) return;
+        e.setCanceled(true); // el objeto no llega al suelo
+        if (copiaReservada) st.enReservado = ItemStack.EMPTY;
+        if (esCopia(s)) {
+            int cas = casilla(p);
+            if (activo(p) && cas >= 0 && cas < 9 && p.getInventory().getItem(cas).isEmpty()) {
+                p.getInventory().setItem(cas, marcar(s));
+            }
+        }
+    }
+
+    /** Nadie puede recoger una copia del suelo: se borra. */
+    @SubscribeEvent
+    public void alRecoger(EntityItemPickupEvent e) {
+        if (esCopia(e.getItem().getItem())) {
+            e.setCanceled(true);
+            e.getItem().discard();
+        }
+    }
+
+    /** Las copias no se guardan en cofres ni otros contenedores. */
+    @SubscribeEvent
+    public void alCerrarContenedor(PlayerContainerEvent.Close e) {
+        AbstractContainerMenu menu = e.getContainer();
+        for (Slot slot : menu.slots) {
+            if (slot.container instanceof Inventory) continue;
+            if (esCopia(slot.getItem())) slot.set(ItemStack.EMPTY);
+        }
+    }
+
+    /** Al morir, las copias no caen al suelo. */
+    @SubscribeEvent
+    public void alSoltarAlMorir(LivingDropsEvent e) {
+        if (!(e.getEntity() instanceof ServerPlayer p)) return;
+        Estado st = estados.get(p.getUUID());
+        final Item reservada = (st == null || st.enReservado.isEmpty()) ? null : st.enReservado.getItem();
+        boolean[] quitada = {reservada == null};
+        e.getDrops().removeIf(it -> {
+            ItemStack s = it.getItem();
+            if (esCopia(s)) return true;
+            if (!quitada[0] && !s.hasTag() && s.getCount() == 1 && s.is(reservada)) {
+                quitada[0] = true;
+                return true;
+            }
+            return false;
+        });
+        if (st != null) st.enReservado = ItemStack.EMPTY;
+    }
+
+    /** Ninguna copia fuera del inventario propio: ni cofres, ni mesa de crafteo, ni hornos, ni tiendas. */
+    private static void limpiarContenedores(ServerPlayer p) {
+        for (AbstractContainerMenu menu : new AbstractContainerMenu[]{p.inventoryMenu, p.containerMenu}) {
+            for (Slot slot : menu.slots) {
+                if (slot.container instanceof Inventory) continue;
+                if (esCopia(slot.getItem())) slot.set(ItemStack.EMPTY);
+            }
+        }
     }
 
     @SubscribeEvent
@@ -161,49 +272,93 @@ public final class Reconstruir {
     @SubscribeEvent
     public void alTick(TickEvent.PlayerTickEvent e) {
         if (e.phase != TickEvent.Phase.END || !(e.player instanceof ServerPlayer p)) return;
-        if (!activo(p)) return;
-        Estado st = estados.computeIfAbsent(p.getUUID(), k -> new Estado());
         Inventory inv = p.getInventory();
+        if (!activo(p)) return;
+        limpiarContenedores(p);
+        Estado st = estados.computeIfAbsent(p.getUUID(), k -> new Estado());
+        int cas = casilla(p);
 
-        devolverBloqueColocado(inv, st);
-        corregirRueda(p, inv, st);
+        // 1) Colocar la copia no la gasta.
+        if (st.usando) {
+            st.usando = false;
+            if (cas >= 0 && cas < 9 && inv.getItem(cas).isEmpty()) {
+                CompoundTag t = persistido(p);
+                if (t.contains("serverpanas_reconstruir_bloque")) {
+                    ItemStack b = ItemStack.of(t.getCompound("serverpanas_reconstruir_bloque"));
+                    if (!b.isEmpty()) inv.setItem(cas, marcar(b));
+                }
+            }
+        }
+
+        // 2) Se uso la rueda: la copia salio del reservado.
+        if (!st.enReservado.isEmpty() && !ItemStack.isSameItemSameTags(inv.getItem(RESERVADO), st.enReservado)) {
+            usarRueda(p, inv, st);
+            cas = casilla(p);
+        }
+
+        // 3) Solo puede haber una copia y solo en la casilla de construccion.
+        for (int i = 0; i < inv.getContainerSize(); i++) {
+            if (i != cas && esCopia(inv.getItem(i))) inv.setItem(i, ItemStack.EMPTY);
+        }
+
+        // 4) Preparar el bloque que mira para la proxima vez que use la rueda.
         prepararBloqueMirado(p, inv, st);
-
         st.selAnterior = inv.selected;
     }
 
-    /** Colocar no gasta: si el bloque usado bajo de cantidad, se repone. */
-    private void devolverBloqueColocado(Inventory inv, Estado st) {
-        if (st.ranuraUso < 0) return;
-        ItemStack ahora = inv.getItem(st.ranuraUso);
-        ItemStack antes = st.antesDeUsar;
-        if (ahora.isEmpty() || (ItemStack.isSameItemSameTags(ahora, antes) && ahora.getCount() < antes.getCount())) {
-            inv.setItem(st.ranuraUso, antes);
-        }
-        st.ranuraUso = -1;
-        st.antesDeUsar = ItemStack.EMPTY;
-    }
-
-    /**
-     * La rueda de supervivencia lleva el bloque a un espacio VACIO de la barra
-     * si lo hay. Aqui se mueve al espacio en el que estaba el jugador.
-     */
-    private void corregirRueda(ServerPlayer p, Inventory inv, Estado st) {
-        if (st.copia.isEmpty()) return;
-        if (ItemStack.isSameItemSameTags(inv.getItem(RESERVADO), st.copia)) return;
+    private void usarRueda(ServerPlayer p, Inventory inv, Estado st) {
+        ItemStack bloque = st.enReservado;
+        st.enReservado = ItemStack.EMPTY;
         int sel = inv.selected;
-        int ant = st.selAnterior;
-        if (ant >= 0 && ant != sel && ItemStack.isSameItemSameTags(inv.getItem(sel), st.copia)) {
-            ItemStack enAnt = inv.getItem(ant);
-            inv.setItem(ant, inv.getItem(sel));
-            inv.setItem(sel, enAnt);
-            inv.selected = ant;
-            p.connection.send(new ClientboundSetCarriedItemPacket(ant));
+        if (!ItemStack.isSameItemSameTags(inv.getItem(sel), bloque)) {
+            // No fue la rueda: el jugador movio la copia a mano. Se borra donde este.
+            for (int i = 0; i < 36; i++) {
+                ItemStack s = inv.getItem(i);
+                if (!s.hasTag() && s.is(bloque.getItem()) && s.getCount() == 1 && i != RESERVADO) {
+                    inv.setItem(i, ItemStack.EMPTY);
+                    break;
+                }
+            }
+            ItemStack cursor = p.containerMenu.getCarried();
+            if (!cursor.hasTag() && cursor.is(bloque.getItem())) p.containerMenu.setCarried(ItemStack.EMPTY);
+            return;
         }
-        st.copia = ItemStack.EMPTY;
+        // La rueda de supervivencia intercambio el reservado con la casilla "sel"
+        // (prefiere una casilla vacia). La casilla de construccion es la que tenia el jugador.
+        int destino = (st.selAnterior >= 0 && st.selAnterior < 9) ? st.selAnterior : sel;
+        ItemStack desplazado;
+        if (destino != sel) {
+            inv.setItem(sel, inv.getItem(RESERVADO)); // lo que habia en "sel" vuelve a su sitio
+            desplazado = inv.getItem(destino);
+            inv.selected = destino;
+            p.connection.send(new ClientboundSetCarriedItemPacket(destino));
+        } else {
+            desplazado = inv.getItem(RESERVADO);
+        }
+        inv.setItem(RESERVADO, ItemStack.EMPTY);
+
+        CompoundTag t = persistido(p);
+        int anterior = casilla(p);
+        if (anterior != destino && anterior >= 0 && anterior < 9) {
+            // Cambio de casilla de construccion: la anterior recupera lo que tenia.
+            ItemStack enAnterior = inv.getItem(anterior);
+            if (esCopia(enAnterior)) inv.setItem(anterior, ItemStack.EMPTY);
+            if (t.contains(CLAVE_GUARDADO)) {
+                ItemStack g = ItemStack.of(t.getCompound(CLAVE_GUARDADO));
+                t.remove(CLAVE_GUARDADO);
+                if (inv.getItem(anterior).isEmpty()) inv.setItem(anterior, g); else devolver(p, g);
+            }
+        }
+        if (!desplazado.isEmpty() && !esCopia(desplazado)) {
+            if (t.contains(CLAVE_GUARDADO)) devolver(p, desplazado);
+            else t.put(CLAVE_GUARDADO, desplazado.save(new CompoundTag()));
+        }
+        ItemStack copia = marcar(bloque);
+        inv.setItem(destino, copia);
+        t.putInt(CLAVE_CASILLA, destino);
+        t.put("serverpanas_reconstruir_bloque", bloque.copyWithCount(1).save(new CompoundTag()));
     }
 
-    /** Deja en el espacio reservado una copia del bloque que el jugador mira. */
     private void prepararBloqueMirado(ServerPlayer p, Inventory inv, Estado st) {
         HitResult hit = p.pick(p.getBlockReach(), 1.0F, false);
         if (!(hit instanceof BlockHitResult bh) || hit.getType() != HitResult.Type.BLOCK) return;
@@ -217,40 +372,22 @@ public final class Reconstruir {
             return;
         }
         if (bloque.isEmpty() || !(bloque.getItem() instanceof BlockItem)) return;
-        bloque.setCount(1);
+        bloque = bloque.copyWithCount(1);
 
-        // Ya lo tiene: la rueda funciona sola.
+        if (!st.enReservado.isEmpty() && ItemStack.isSameItemSameTags(st.enReservado, bloque)) return;
+        // Si ya tiene ese bloque de verdad, la rueda normal lo encuentra.
         if (inv.findSlotMatchingItem(bloque) >= 0) return;
 
-        ItemStack enReservado = inv.getItem(RESERVADO);
-        boolean esCopia = !st.copia.isEmpty() && ItemStack.isSameItemSameTags(enReservado, st.copia);
-        if (!enReservado.isEmpty() && !esCopia) {
-            // Hay algo del jugador: moverlo a otro espacio libre; si no hay, no tocar nada.
+        ItemStack enRes = inv.getItem(RESERVADO);
+        boolean esNuestra = !st.enReservado.isEmpty() && ItemStack.isSameItemSameTags(enRes, st.enReservado);
+        if (!enRes.isEmpty() && !esNuestra) {
+            // Algo del jugador ocupa el reservado: moverlo a otro hueco o no hacer nada.
             int libre = -1;
             for (int i = 9; i < 36; i++) if (i != RESERVADO && inv.getItem(i).isEmpty()) { libre = i; break; }
-            if (libre < 0) for (int i = 0; i < 9; i++) if (inv.getItem(i).isEmpty()) { libre = i; break; }
-            if (libre < 0) {
-                return;
-
-            }
-            inv.setItem(libre, enReservado);
-        } else if (esCopia) {
-            // La copia anterior no se uso: se retira (no cuenta como entregada).
-            restarDado(p, st.copia);
+            if (libre < 0) return;
+            inv.setItem(libre, enRes);
         }
-        st.avisoLleno = false;
         inv.setItem(RESERVADO, bloque.copy());
-        st.copia = bloque.copy();
-        anotarDado(p, bloque);
-    }
-
-    private static void restarDado(Player p, ItemStack s) {
-        CompoundTag t = persistido(p);
-        CompoundTag dados = t.getCompound(CLAVE_DADOS);
-        ResourceLocation id = ForgeRegistries.ITEMS.getKey(s.getItem());
-        if (id == null) return;
-        int n = dados.getInt(id.toString()) - s.getCount();
-        if (n > 0) dados.putInt(id.toString(), n); else dados.remove(id.toString());
-        t.put(CLAVE_DADOS, dados);
+        st.enReservado = bloque;
     }
 }
