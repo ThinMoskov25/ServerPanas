@@ -37,6 +37,8 @@ public class InvBackupMod {
 
         // Registrar los manejadores de eventos de juego (muerte, salida) y
         // el registro de comandos. Funciona en servidor dedicado e integrado.
-        MinecraftForge.EVENT_BUS.register(new BackupEvents());
+        Reconstruir reconstruir = new Reconstruir();
+        MinecraftForge.EVENT_BUS.register(new BackupEvents(reconstruir));
+        MinecraftForge.EVENT_BUS.register(reconstruir);
     }
 }

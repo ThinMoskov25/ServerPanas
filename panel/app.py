@@ -1520,6 +1520,7 @@ def jugador_ficha(nombre):
         'inventario': _items_de(nbt.get(raiz, ['Inventory']), nombres),
         'ender': _items_de(nbt.get(raiz, ['EnderItems']), nombres),
         'blanca': nombre.lower() in l['blanca'], 'ban': nombre.lower() in l['ban'], 'op': nombre.lower() in l['op'],
+        'reconstruir': bool(g('ForgeData', 'PlayerPersisted', 'serverpanas_reconstruir')),
         'stats': _estadisticas(uid),
     }
 
@@ -1626,6 +1627,7 @@ ACCIONES_JUGADOR = {
     'blanca_si': 'whitelist add {j}', 'blanca_no': 'whitelist remove {j}',
     'ban_si': 'ban {j}', 'ban_no': 'pardon {j}',
     'op_si': 'op {j}', 'op_no': 'deop {j}',
+    'reconstruir_si': 'reconstruir {j} si', 'reconstruir_no': 'reconstruir {j} no',
 }
 
 

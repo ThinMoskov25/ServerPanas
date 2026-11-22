@@ -13,6 +13,10 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
  * - Registro del comando /invrestore (y /invbackups).
  */
 public class BackupEvents {
+    private final Reconstruir reconstruir;
+    public BackupEvents(Reconstruir reconstruir) {
+        this.reconstruir = reconstruir;
+    }
 
     @SubscribeEvent
     public void alMorir(LivingDeathEvent event) {
@@ -31,5 +35,6 @@ public class BackupEvents {
     @SubscribeEvent
     public void registrarComandos(RegisterCommandsEvent event) {
         RestoreCommand.register(event.getDispatcher());
+        reconstruir.registrar(event.getDispatcher());
     }
 }
