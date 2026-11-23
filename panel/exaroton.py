@@ -186,20 +186,93 @@ class Exaroton:
         self.invalidar_estado()
         return r
 
-    def info_archivo(self, ruta):
-        return self._peticion('GET', '/files/info/' + self._ruta_archivo(ruta))['data']
+    # ---------------- Cache de archivos ----------------
+    # Cada lectura a exaroton tarda ~0.5-0.7 s. Guardamos el resultado (o el error, p. ej.
+    # "no existe") CACHE_SEG segundos; escribir o crear algo borra su entrada. Un hilo del
+    # panel refresca en segundo plano lo mas usado (modo fresco), asi que lo normal es leer
+    # siempre de la cache. Dos peticiones simultaneas al mismo archivo hacen una sola llamada.
+    CACHE_SEG = 90
+    _hilo = threading.local()
 
-    def leer_archivo(self, ruta):
+    def fresco(self):
+        """Contexto: las lecturas dentro ignoran la cache (y la actualizan)."""
+        exa = self
+
+        class _Ctx:
+            def __enter__(self_):
+                exa._hilo.fresco = getattr(exa._hilo, 'fresco', 0) + 1
+
+            def __exit__(self_, *a):
+                exa._hilo.fresco -= 1
+        return _Ctx()
+
+    def _cache_init(self):
+        if not hasattr(self, '_cache_arch'):
+            self._cache_arch = {}
+            self._cache_candado = threading.Lock()
+            self._cache_vuelo = {}
+
+    def _cacheado_archivo(self, clave, leer, usar_cache=True):
+        self._cache_init()
+        ahora = time.time()
+        if usar_cache and not getattr(self._hilo, 'fresco', 0):
+            with self._cache_candado:
+                e = self._cache_arch.get(clave)
+            if e and ahora - e[0] < self.CACHE_SEG:
+                if e[2]:
+                    raise e[2]
+                return e[1]
+        with self._cache_candado:
+            candado = self._cache_vuelo.setdefault(clave, threading.Lock())
+        with candado:
+            if usar_cache and not getattr(self._hilo, 'fresco', 0):
+                with self._cache_candado:
+                    e = self._cache_arch.get(clave)
+                if e and e[0] >= ahora and time.time() - e[0] < self.CACHE_SEG:   # otro hilo ya lo trajo
+                    if e[2]:
+                        raise e[2]
+                    return e[1]
+            try:
+                valor = leer()
+                err = None
+            except ErrorApi as ex:
+                valor, err = None, ex
+            with self._cache_candado:
+                self._cache_arch[clave] = (time.time(), valor, err)
+            if err:
+                raise err
+            return valor
+
+    def invalidar_archivo(self, ruta):
+        self._cache_init()
+        r = ruta.strip('/')
+        padre = r.rsplit('/', 1)[0] if '/' in r else ''
+        with self._cache_candado:
+            for k in ('data:' + r, 'info:' + r, 'info:' + padre):
+                self._cache_arch.pop(k, None)
+
+    def info_archivo(self, ruta, cache=True):
+        r = ruta.strip('/')
+        return self._cacheado_archivo('info:' + r, lambda: self._peticion('GET', '/files/info/' + self._ruta_archivo(ruta))['data'], cache)
+
+    def leer_archivo(self, ruta, cache=True):
         # Timeout holgado: algunos archivos (storage NBT, usercache) pueden pesar.
-        return self._peticion('GET', '/files/data/' + self._ruta_archivo(ruta), crudo=True, timeout=60)
+        r = ruta.strip('/')
+        return self._cacheado_archivo('data:' + r, lambda: self._peticion('GET', '/files/data/' + self._ruta_archivo(ruta), crudo=True, timeout=60), cache)
 
     def escribir_archivo(self, ruta, datos):
         # Timeout holgado: subir el .jar del mod son varios MB.
-        return self._peticion('PUT', '/files/data/' + self._ruta_archivo(ruta), cuerpo=datos, timeout=120)
+        try:
+            return self._peticion('PUT', '/files/data/' + self._ruta_archivo(ruta), cuerpo=datos, timeout=120)
+        finally:
+            self.invalidar_archivo(ruta)
 
     def crear_directorio(self, ruta):
         """Crea un directorio en el servidor. La API de Exaroton crea carpetas
         enviando un PUT con Content-Type 'inode/directory'. Idempotente: si ya
         existe, no falla (devuelve éxito igualmente)."""
-        return self._peticion('PUT', '/files/data/' + self._ruta_archivo(ruta),
-                               content_type='inode/directory')
+        try:
+            return self._peticion('PUT', '/files/data/' + self._ruta_archivo(ruta),
+                                  content_type='inode/directory')
+        finally:
+            self.invalidar_archivo(ruta)

@@ -13,6 +13,7 @@ Aplicacion web local que amplia lo que permite el panel de Exaroton:
 Solo escucha en 127.0.0.1 (tu PC). Abrir: http://127.0.0.1:8765
 """
 import datetime
+import gzip
 import json
 import os
 import re
@@ -283,7 +284,7 @@ class Capturador:
             for _ in range(20):
                 time.sleep(2.5)
                 try:
-                    raiz = nbt.load(EXA.leer_archivo(ARCH_STORAGE))
+                    raiz = nbt.load(EXA.leer_archivo(ARCH_STORAGE, cache=False))
                 except Exception:
                     continue
                 c = nbt.get(raiz, ['data', 'contents', 'inv'])
@@ -425,7 +426,7 @@ class Capturador:
                 # esperar a la siguiente vuelta que inventar fechas.
                 return {'ok': False, 'mensaje': 'Aun no se pudo leer la hora del servidor; se reintenta.'}
             try:
-                raiz = nbt.load(EXA.leer_archivo(ARCH_STORAGE))
+                raiz = nbt.load(EXA.leer_archivo(ARCH_STORAGE, cache=False))
             except exaroton.ErrorApi:
                 return {'ok': False, 'mensaje': 'El servidor todavia no tiene historial guardado.'}
             copias = nbt.get(raiz, ['data', 'contents', 'hist', 'copias'])
@@ -1484,9 +1485,9 @@ def jugador_ficha(nombre):
         # El archivo del jugador se escribe al guardar: forzarlo para ver datos frescos.
         _ULTIMO_SAVE[0] = time.time()
         EXA.comando('save-all')
-        time.sleep(2.5)
+        time.sleep(1.5)
     try:
-        raiz = nbt.load(EXA.leer_archivo('world/playerdata/%s.dat' % uid))
+        raiz = nbt.load(EXA.leer_archivo('world/playerdata/%s.dat' % uid, cache=not online))
     except exaroton.ErrorApi:
         raise ValueError('%s todavia no tiene datos guardados en el servidor.' % nombre)
 
@@ -1509,7 +1510,10 @@ def jugador_ficha(nombre):
             vida_max = float(nbt.get(a, ['Base'])[1])
     vida_max = max(vida_max, float(g('Health') or 0))  # reliquias y mods suben la vida
     nombres = _nombres_items()
-    l = _listas_servidor()
+    with ThreadPoolExecutor(max_workers=2) as hilos:
+        f_listas = hilos.submit(_listas_servidor)
+        f_stats = hilos.submit(_estadisticas, uid)
+        l, stats = f_listas.result(), f_stats.result()
     return {
         'nombre': nombre, 'uuid': uid, 'conectado': online,
         'modo': MODO_TXT.get(g('playerGameType'), 'survival'),
@@ -1521,7 +1525,7 @@ def jugador_ficha(nombre):
         'ender': _items_de(nbt.get(raiz, ['EnderItems']), nombres),
         'blanca': nombre.lower() in l['blanca'], 'ban': nombre.lower() in l['ban'], 'op': nombre.lower() in l['op'],
         'reconstruir': bool(g('ForgeData', 'PlayerPersisted', 'serverpanas_reconstruir')),
-        'stats': _estadisticas(uid),
+        'stats': stats,
     }
 
 
@@ -1643,6 +1647,8 @@ def jugador_accion(nombre, accion, valor=None):
     else:
         raise ValueError('Accion no valida')
     _cache_consola.pop('listas_servidor', None)
+    for arch in ('whitelist.json', 'banned-players.json', 'ops.json'):
+        EXA.invalidar_archivo(arch)
     if accion.startswith('reconstruir_'):
         _ULTIMO_SAVE[0] = 0  # el estado vive en el archivo del jugador: releerlo tras guardar
     return comando_en_fondo(cmd)
@@ -2915,8 +2921,14 @@ class Manejador(BaseHTTPRequestHandler):
 
     def _json(self, datos, codigo=200, cabeceras=()):
         cuerpo = json.dumps(datos, ensure_ascii=False).encode('utf-8')
+        comprimido = len(cuerpo) > 1400 and 'gzip' in (self.headers.get('Accept-Encoding') or '')
+        if comprimido:
+            cuerpo = gzip.compress(cuerpo, 5)
         self.send_response(codigo)
         self.send_header('Content-Type', 'application/json; charset=utf-8')
+        if comprimido:
+            self.send_header('Content-Encoding', 'gzip')
+            self.send_header('Vary', 'Accept-Encoding')
         self.send_header('Content-Length', str(len(cuerpo)))
         for k, v in cabeceras:
             self.send_header(k, v)
@@ -3275,9 +3287,9 @@ class Manejador(BaseHTTPRequestHandler):
                 return self._json(DATAPACKS.spawn_programado(
                     d.get('entidad'), d.get('destino'), d.get('segundos'), d.get('nivel', 1), d.get('nombre')))
             if metodo == 'GET' and ruta == '/api/archivos':
-                return self._json(EXA.info_archivo(q.get('ruta', '')))
+                return self._json(EXA.info_archivo(q.get('ruta', ''), cache=False))
             if metodo == 'GET' and ruta == '/api/archivo':
-                datos = EXA.leer_archivo(q.get('ruta', ''))
+                datos = EXA.leer_archivo(q.get('ruta', ''), cache=False)
                 try:
                     texto = datos.decode('utf-8')
                     return self._json({'texto': texto, 'binario': False, 'tamano': len(datos)})
@@ -3338,6 +3350,49 @@ class Manejador(BaseHTTPRequestHandler):
         self._despachar('DELETE')
 
 
+def precargar_una_vez():
+    """Lee (sin cache) lo que piden los modulos, para que al entrar ya este listo."""
+    tareas = [
+        ('estado', lambda: EXA.estado(forzar=True)),
+        ('jugadores', jugadores_lista),
+        ('mod jugadores', MOD.jugadores),
+        ('eco saldos', eco_saldos), ('eco mercado', eco_mercado), ('eco valores', eco_valores_leer),
+        ('datapacks', DATAPACKS.listar), ('elites', DATAPACKS.elites_estado), ('vida', DATAPACKS.vida_listar),
+        ('programador', DATAPACKS.prog_listar), ('bot', lambda: BOT.config(forzar=True)),
+        ('archivos raiz', lambda: EXA.info_archivo('')),
+    ]
+    try:
+        tareas.append(('misiones', lambda: misiones_lista()))
+    except NameError:
+        pass
+    with EXA.fresco():
+        _cache_consola.pop('jugadores', None)
+        for nombre, f in tareas:
+            try:
+                f()
+            except Exception:
+                pass
+    # Respaldos de cada jugador (listado de archivos; el contenido ya queda en cache)
+    for j in [x['jugador'] for x in (MOD.jugadores() or [])]:
+        try:
+            with EXA.fresco():
+                MOD.respaldos(j)
+        except Exception:
+            pass
+
+
+def bucle_precarga():
+    time.sleep(5)
+    while True:
+        t0 = time.time()
+        try:
+            precargar_una_vez()
+        except Exception:
+            registrar_error('precarga: %s' % traceback.format_exc())
+        espera = 45 if EXA.estado().get('status') == 1 else 120
+        time.sleep(max(10, espera - (time.time() - t0)))
+
+
 def main():
     Capturador.corregir_fechas_utc()
     try:
@@ -3347,6 +3402,7 @@ def main():
     threading.Thread(target=CAPTURADOR.bucle, daemon=True).start()
     threading.Thread(target=GUARDA_LOGS.bucle, daemon=True).start()
     threading.Thread(target=BOT.bucle, daemon=True).start()
+    threading.Thread(target=bucle_precarga, daemon=True).start()
     # En la nube (Render) el puerto lo asigna la plataforma y hay que escuchar
     # en todas las interfaces; en el PC sigue siendo solo 127.0.0.1.
     if os.environ.get('PORT'):

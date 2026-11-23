@@ -325,7 +325,7 @@ class Bot:
         return mapa.get(uuid.lower(), uuid.lower())
 
     def progreso(self, nombre, uuid):
-        crudo = self.EXA.leer_archivo('%s/%s.snbt' % (DIR_PROGRESO, self._equipo_de(uuid)))
+        crudo = self.EXA.leer_archivo('%s/%s.snbt' % (DIR_PROGRESO, self._equipo_de(uuid)), cache=False)
         d = parse_ftb(crudo.decode('utf-8'))
         completadas = {k.upper() for k in (d.get('completed') or {})}
         sin_guion = uuid.replace('-', '').lower()
