@@ -1,141 +1,141 @@
-MIS TECLAS - SERVER PANAS (mod Key Binding Patch) - todas de 1 o 2 teclas
+MIS TECLAS - SERVER PANAS  (todas de 1 o 2 teclas, sin conflictos)
 
-IMPORTANTES (una tecla):
-  W A S D moverse · Espacio saltar/volar · Ctrl izq agacharse · Shift izq correr · E inventario
-  R aliento del dragón · G golpe del dragón · Flecha abajo bajar volando · F7 cámara del dragón
-  V hablar (chat de voz) · B mochila · M mapa · º libro de misiones · I rueda de hechizos · O lanzar hechizo · Alt izq barra de hechizos
+UNA TECLA:
+  W A S D moverse · Espacio saltar/volar · Ctrl izq agacharse · E inventario
+  Shift izq: correr · cargar animales y bloques (Carry On) · ver detalles (Jade)
+  Dragón: R aliento · G golpe · Flecha abajo bajar volando · F7 cámara
+  Hechizos: I rueda · O lanzar · C barra de hechizos (mantener)
+  V hablar · B mochila · M mapa · º libro de misiones · Z zoom · . gafas de visión nocturna · [ imán · 0 flamenco
 
 COMBINACIONES: mantén la primera tecla y pulsa la segunda.
-Las de JEI solo funcionan con el inventario abierto: por eso pueden compartir combinación con una acción del juego sin chocar.
+(JEI) = solo funciona con el inventario abierto; por eso puede compartir combinación sin chocar.
 
-=== Mantener BloqMayus ===
-  BloqMayus + AvPag          Mochila: toggle upgrade 1
-  BloqMayus + BloqNum        Mochila: toggle upgrade 3
-  BloqMayus + Fin            Placebo: toggleWings
-  BloqMayus + Flecha arriba  Mochila: toggle upgrade 2
-  BloqMayus + Inicio         Placebo: toggleTrails
-  BloqMayus + Insert         Tumba: knowledge of death
-  BloqMayus + Num 0          Cataclysm: helmet ability
-  BloqMayus + Num 1          Carry On: cargar bloque/animal
-  BloqMayus + Num 1          JEI: toggleCheatMode   (solo con el inventario abierto)
-  BloqMayus + Num 2          Jade: ver detalles
-  BloqMayus + Num 2          JEI: nextCategory   (solo con el inventario abierto)
-  BloqMayus + Num 3          Chat de voz: susurrar
-  BloqMayus + Num 3          JEI: focusSearch   (solo con el inventario abierto)
-  BloqMayus + Num 4          Pulsar para hablar (otro)
-  BloqMayus + Num 4          JEI: copy recipe id   (solo con el inventario abierto)
-  BloqMayus + Num 5          Apotheosis: minería en área
-  BloqMayus + Num 5          JEI: previousCategory   (solo con el inventario abierto)
-  BloqMayus + Num 6          Quark: bloquear agachado
-  BloqMayus + Num 6          JEI: toggleOverlay   (solo con el inventario abierto)
-  BloqMayus + Num 7          Cataclysm: ability
-  BloqMayus + Num 7          JEI: toggleEditMode   (solo con el inventario abierto)
-  BloqMayus + Num 8          Cataclysm: boots ability
-  BloqMayus + Num 9          Cataclysm: chestplate ability
-  BloqMayus + Num add        Quark: modo cámara
-  BloqMayus + Num decimal    Cámara suave
-  BloqMayus + Num divide     Chat de voz: group
-  BloqMayus + Num enter      Chat de voz: settings
-  BloqMayus + Num multiply   Chat de voz: adjust volumes
-  BloqMayus + Num subtract   Quark: cambiar barra
-  BloqMayus + RePag          Mochila: toggle upgrade 0
-  BloqMayus + Supr           Mochila: sort
-  BloqMayus + f10            Tumba: compendium
-  BloqMayus + f12            Tumba: config
-  BloqMayus + f4             Chat de voz: toggle recording
-  BloqMayus + f6             Chat de voz: silenciar micrófono
-  BloqMayus + f8             Relics: habilidades
-  BloqMayus + f9             Reliquary: moneda de la fortuna
+=== MANTENER ALT IZQUIERDO  (hechizos rápidos y menús) ===
+  Alt + Num 0              Iron's: hechizo rápido 10
+  Alt + Num 0              JEI: focusSearch  (JEI)
+  Alt + Num 1              Iron's: hechizo rápido 1
+  Alt + Num 1              JEI: toggleBookmarkOverlay  (JEI)
+  Alt + Num 2              Iron's: hechizo rápido 2
+  Alt + Num 2              JEI: previousPage  (JEI)
+  Alt + Num 3              Iron's: hechizo rápido 3
+  Alt + Num 3              JEI: nextPage  (JEI)
+  Alt + Num 4              Iron's: hechizo rápido 4
+  Alt + Num 4              JEI: cheatItemStack2  (JEI)
+  Alt + Num 5              Iron's: hechizo rápido 5
+  Alt + Num 5              JEI: pauseRecipeCycling  (JEI)
+  Alt + Num 6              Iron's: hechizo rápido 6
+  Alt + Num 6              JEI: showBookmarkTooltipFeatures  (JEI)
+  Alt + Num 7              Iron's: hechizo rápido 7
+  Alt + Num 7              JEI: shareToChat  (JEI)
+  Alt + Num 8              Iron's: hechizo rápido 8
+  Alt + Num 8              JEI: toggleCheatMode  (JEI)
+  Alt + Num 9              Iron's: hechizo rápido 9
+  Alt + Num 9              JEI: nextCategory  (JEI)
+  Alt + AvPag              Quark: bloquear agachado
+  Alt + BloqNum            Chat de voz: susurrar
+  Alt + F10                Jade: show recipes
+  Alt + F12                Jade: show uses
+  Alt + F6                 Equipos (FTB Teams)
+  Alt + F8                 Chat de voz: ajustes
+  Alt + F9                 Chat de voz: volúmenes
+  Alt + Fin                Tumba: conocimiento de la muerte
+  Alt + Flecha arriba      Quark: caminar solo
+  Alt + Inicio             Tumba: compendio
+  Alt + Insert             Jade: show overlay
+  Alt + Num add            Iron's: hechizo rápido 12
+  Alt + Num add            JEI: previousCategory  (JEI)
+  Alt + Num decimal        Iron's: hechizo rápido 11
+  Alt + Num decimal        JEI: copy recipe id  (JEI)
+  Alt + Num divide         Iron's: hechizo rápido 15
+  Alt + Num enter          Relics: habilidades
+  Alt + Num multiply       Iron's: hechizo rápido 14
+  Alt + Num multiply       JEI: toggleEditMode  (JEI)
+  Alt + Num subtract       Iron's: hechizo rápido 13
+  Alt + Num subtract       JEI: toggleOverlay  (JEI)
+  Alt + RePag              Apotheosis: minería en área
+  Alt + Supr               Mochila: ordenar
 
-=== Mantener AltDer ===
-  AltDer + AvPag             Mapa: map zoom in
-  AltDer + BloqNum           Mapa: new waypoint
-  AltDer + Fin               Mapa: display all sets
-  AltDer + Flecha arriba     Mapa: map zoom out
-  AltDer + Inicio            Mapa: alternative list players
-  AltDer + Insert            Iron's: hechizo rápido 15
-  AltDer + Num 0             Iron's: hechizo rápido 2
-  AltDer + Num 1             Cinturón: cycle left
-  AltDer + Num 2             Cinturón: cycle right
-  AltDer + Num 3             ftbteams open gui
-  AltDer + Num 4             Quark: sort container
-  AltDer + Num 5             Quark: sort player
-  AltDer + Num 6             Quark: transfer extract
-  AltDer + Num 7             Quark: transfer insert
-  AltDer + Num 8             Quark: autorun
-  AltDer + Num 9             Iron's: hechizo rápido 1
-  AltDer + Num add           Iron's: hechizo rápido 4
-  AltDer + Num decimal       Iron's: hechizo rápido 3
-  AltDer + Num divide        Iron's: hechizo rápido 7
-  AltDer + Num enter         Iron's: hechizo rápido 8
-  AltDer + Num multiply      Iron's: hechizo rápido 6
-  AltDer + Num subtract      Iron's: hechizo rápido 5
-  AltDer + RePag             Mapa: instant waypoint
-  AltDer + Supr              Mapa: enlarge map
-  AltDer + f10               Iron's: hechizo rápido 13
-  AltDer + f12               Iron's: hechizo rápido 14
-  AltDer + f4                Iron's: hechizo rápido 9
-  AltDer + f6                Iron's: hechizo rápido 10
-  AltDer + f8                Iron's: hechizo rápido 11
-  AltDer + f9                Iron's: hechizo rápido 12
+=== MANTENER BLOQ MAYÚS  (acciones) ===
+  BloqMayus + Num 0        Quark: ordenar cofre
+  BloqMayus + Num 1        Chat de voz: grupos
+  BloqMayus + Num 2        Chat de voz: silenciar micrófono
+  BloqMayus + Num 3        Chat de voz: grabar
+  BloqMayus + Num 4        Mochila: mejora 1
+  BloqMayus + Num 5        Mochila: mejora 2
+  BloqMayus + Num 6        Mochila: mejora 3
+  BloqMayus + Num 7        Mochila: mejora 4
+  BloqMayus + Num 8        Cinturón: herramienta anterior
+  BloqMayus + Num 9        Cinturón: herramienta siguiente
+  BloqMayus + F12          Guardar barra de objetos
+  BloqMayus + F4           Cataclysm: habilidad del peto
+  BloqMayus + F6           Cataclysm: habilidad del casco
+  BloqMayus + F8           Reliquary: moneda de la fortuna
+  BloqMayus + F9           Cámara suave
+  BloqMayus + Insert       Jade: toggle liquid
+  BloqMayus + Num add      Quark: sacar del cofre
+  BloqMayus + Num decimal  Quark: ordenar inventario
+  BloqMayus + Num divide   Cataclysm: habilidad
+  BloqMayus + Num enter    Cataclysm: habilidad de las botas
+  BloqMayus + Num multiply Quark: cambiar barra
+  BloqMayus + Num subtract Quark: meter en cofre
 
-=== Mantener CtrlDer ===
-  CtrlDer + AvPag            Emote: point
-  CtrlDer + BloqNum          Emote: shrug
-  CtrlDer + Fin              Emote: facepalm
-  CtrlDer + Flecha arriba    Emote: salute
-  CtrlDer + Inicio           Emote: clap
-  CtrlDer + Insert           Emote: cheer
-  CtrlDer + Num 0            Mapa: toggle map waypoints
-  CtrlDer + Num 1            Mapa: confirmar rápido
-  CtrlDer + Num 2            Mapa: reverse entity radar
-  CtrlDer + Num 3            Mapa: switch waypoint set
-  CtrlDer + Num 4            Mapa: toggle dimension
-  CtrlDer + Num 5            Mapa: toggle entity radar
-  CtrlDer + Num 6            Mapa: toggle grid
-  CtrlDer + Num 7            Mapa: toggle light overlay
-  CtrlDer + Num 8            Mapa: toggle manual cave mode
-  CtrlDer + Num 9            Mapa: toggle map
-  CtrlDer + Num add          Mapa: toggle slime
-  CtrlDer + Num decimal      Mapa: toggle pac chunk claims
-  CtrlDer + Num divide       Mapa: zoom in
-  CtrlDer + Num enter        Mapa: zoom out
-  CtrlDer + Num multiply     Mapa: toggle waypoints
-  CtrlDer + Num subtract     Mapa: toggle tracked players
-  CtrlDer + RePag            Emote: no
-  CtrlDer + Supr             Emote: headbang
-  CtrlDer + f10              Jade: show uses
-  CtrlDer + f12              Jade: toggle liquid
-  CtrlDer + f4               Jade: config
-  CtrlDer + f6               Jade: narrate
-  CtrlDer + f8               Jade: show overlay
-  CtrlDer + f9               Jade: show recipes
+=== MANTENER ALT DERECHO  (poco usadas) ===
+  AltDer + Num 0           Mapa: switch waypoint set
+  AltDer + Num 1           Mapa: alternative list players
+  AltDer + Num 2           Mapa: display all sets
+  AltDer + Num 3           Mapa: enlarge map
+  AltDer + Num 4           Mapa: instant waypoint
+  AltDer + Num 5           Mapa: map zoom in
+  AltDer + Num 6           Mapa: map zoom out
+  AltDer + Num 7           Mapa: new waypoint
+  AltDer + Num 8           Mapa: quick confirm
+  AltDer + Num 9           Mapa: reverse entity radar
+  AltDer + AvPag           Jade: config
+  AltDer + BloqNum         modernfix config
+  AltDer + F10             Mapa: toggle waypoints
+  AltDer + F12             Mapa: zoom in
+  AltDer + F4              Mapa: toggle map waypoints
+  AltDer + F6              Mapa: toggle pac chunk claims
+  AltDer + F8              Mapa: toggle slime
+  AltDer + F9              Mapa: toggle tracked players
+  AltDer + Fin             info structure gel building tool undo
+  AltDer + Flecha arriba   Jade: narrate
+  AltDer + Inicio          info structure gel building tool redo
+  AltDer + Insert          Mapa: zoom out
+  AltDer + Num add         Mapa: toggle entity radar
+  AltDer + Num decimal     Mapa: toggle dimension
+  AltDer + Num divide      Mapa: toggle manual cave mode
+  AltDer + Num enter       Mapa: toggle map
+  AltDer + Num multiply    Mapa: toggle light overlay
+  AltDer + Num subtract    Mapa: toggle grid
+  AltDer + RePag           entityculling toggle
+  AltDer + Supr            apotheosis world tiers arent real
 
-=== Mantener ShiftDer ===
-  ShiftDer + Clic izq        JEI: maxTransferRecipeBookmark   (solo con el inventario abierto)
-  ShiftDer + Fin             JEI: showBookmarkTooltipFeatures   (solo con el inventario abierto)
-  ShiftDer + Inicio          JEI: pauseRecipeCycling   (solo con el inventario abierto)
-  ShiftDer + Insert          JEI: cheatItemStack2   (solo con el inventario abierto)
-  ShiftDer + Num 0           Emote Patreon: zombie
-  ShiftDer + Num 1           Emote: think
-  ShiftDer + Num 2           Emote: wave
-  ShiftDer + Num 3           Emote: weep
-  ShiftDer + Num 4           Emote: yes
-  ShiftDer + Num 5           Emote Patreon: dab
-  ShiftDer + Num 6           Emote Patreon: dance
-  ShiftDer + Num 7           Emote Patreon: exorcist
-  ShiftDer + Num 8           Emote Patreon: jet
-  ShiftDer + Num 9           Emote Patreon: tpose
-  ShiftDer + Num add         Quark: narrator readout
-  ShiftDer + Num decimal     Quark: narrator full readout
-  ShiftDer + Num divide      apotheosis world tiers arent real
-  ShiftDer + Num enter       entityculling toggle
-  ShiftDer + Num multiply    info structure gel building tool undo
-  ShiftDer + Num subtract    info structure gel building tool redo
-  ShiftDer + Supr            JEI: shareToChat   (solo con el inventario abierto)
-  ShiftDer + f10             JEI: previousPage   (solo con el inventario abierto)
-  ShiftDer + f12             JEI: nextPage   (solo con el inventario abierto)
-  ShiftDer + f4              modernfix config
-  ShiftDer + f6              spectatorOutlines
-  ShiftDer + f8              structure gel open building tool gui
-  ShiftDer + f9              JEI: toggleBookmarkOverlay   (solo con el inventario abierto)
+=== MANTENER CTRL DERECHO  (poco usadas) ===
+  CtrlDer + Num 0          Emote: no
+  CtrlDer + Num 1          Pulsar para hablar (otro)
+  CtrlDer + Num 2          spectatorOutlines
+  CtrlDer + Num 3          structure gel open building tool gui
+  CtrlDer + Num 4          Placebo: toggleTrails
+  CtrlDer + Num 5          Placebo: toggleWings
+  CtrlDer + Num 6          Emote: cheer
+  CtrlDer + Num 7          Emote: clap
+  CtrlDer + Num 8          Emote: facepalm
+  CtrlDer + Num 9          Emote: headbang
+  CtrlDer + F10            Emote Patreon: dab
+  CtrlDer + F12            Emote Patreon: dance
+  CtrlDer + F4             Emote: yes
+  CtrlDer + F6             Quark: modo cámara
+  CtrlDer + F8             Quark: narrator full readout
+  CtrlDer + F9             Quark: narrator readout
+  CtrlDer + Fin            Emote Patreon: tpose
+  CtrlDer + Inicio         Emote Patreon: jet
+  CtrlDer + Insert         Emote Patreon: exorcist
+  CtrlDer + Num add        Emote: salute
+  CtrlDer + Num decimal    Emote: point
+  CtrlDer + Num divide     Emote: wave
+  CtrlDer + Num enter      Emote: weep
+  CtrlDer + Num multiply   Emote: think
+  CtrlDer + Num subtract   Emote: shrug
+  CtrlDer + RePag          Tumba: config
+  CtrlDer + Supr           Emote Patreon: zombie
