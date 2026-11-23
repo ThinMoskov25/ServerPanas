@@ -301,7 +301,18 @@ public final class Reconstruir {
             if (i != cas && esCopia(inv.getItem(i))) inv.setItem(i, ItemStack.EMPTY);
         }
 
-        // 4) Preparar el bloque que mira para la proxima vez que use la rueda.
+        // 4) Con un cofre u otro contenedor abierto no se deja la copia en el inventario:
+        //    asi no se puede guardar ni transferir (Quark, Shift+clic, arrastrar...).
+        if (p.containerMenu != p.inventoryMenu) {
+            if (!st.enReservado.isEmpty() && ItemStack.isSameItemSameTags(inv.getItem(RESERVADO), st.enReservado)) {
+                inv.setItem(RESERVADO, ItemStack.EMPTY);
+            }
+            st.enReservado = ItemStack.EMPTY;
+            st.selAnterior = inv.selected;
+            return;
+        }
+
+        // 5) Preparar el bloque que mira para la proxima vez que use la rueda.
         prepararBloqueMirado(p, inv, st);
         st.selAnterior = inv.selected;
     }
@@ -320,7 +331,24 @@ public final class Reconstruir {
                 }
             }
             ItemStack cursor = p.containerMenu.getCarried();
-            if (!cursor.hasTag() && cursor.is(bloque.getItem())) p.containerMenu.setCarried(ItemStack.EMPTY);
+            if (!cursor.hasTag() && cursor.is(bloque.getItem())) {
+                p.containerMenu.setCarried(ItemStack.EMPTY);
+                return;
+            }
+            // Si la copia acabo en un cofre, la mesa de crafteo u otro contenedor, se quita
+            // de alli una unidad (es la copia; si no, se duplicaria en cada transferencia).
+            for (AbstractContainerMenu menu : new AbstractContainerMenu[]{p.containerMenu, p.inventoryMenu}) {
+                for (Slot slot : menu.slots) {
+                    if (slot.container instanceof Inventory) continue;
+                    ItemStack s = slot.getItem();
+                    if (!s.isEmpty() && !s.hasTag() && s.is(bloque.getItem())) {
+                        s.shrink(1);
+                        slot.setChanged();
+                        menu.broadcastChanges();
+                        return;
+                    }
+                }
+            }
             return;
         }
         // La rueda de supervivencia intercambio el reservado con la casilla "sel"
