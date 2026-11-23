@@ -10,7 +10,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.OwnableEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -53,11 +55,27 @@ public class QuestEvents {
         if (muerto.level().isClientSide()) {
             return;
         }
-        // Solo cuenta si el que mata es un jugador del servidor.
-        if (event.getSource().getEntity() instanceof ServerPlayer asesino) {
+        ServerPlayer asesino = jugadorResponsable(event.getSource().getEntity());
+        if (asesino == null) {
+            // Muertes por fuego (Aspecto igneo), caidas, lava...: el juego da el credito
+            // al ultimo jugador que lo golpeo, igual que en las estadisticas.
+            asesino = jugadorResponsable(muerto.getKillCredit());
+        }
+        if (asesino != null) {
             ResourceLocation idEntidad = BuiltInRegistries.ENTITY_TYPE.getKey(muerto.getType());
             avanzar(asesino, QuestType.KILL, idEntidad.toString(), 1);
         }
+    }
+
+    /** El jugador detras de una entidad: el mismo jugador o el dueno de su mascota/dragon. */
+    private static ServerPlayer jugadorResponsable(Entity e) {
+        if (e instanceof ServerPlayer p) {
+            return p;
+        }
+        if (e instanceof OwnableEntity mascota && mascota.getOwner() instanceof ServerPlayer dueno) {
+            return dueno;
+        }
+        return null;
     }
 
     private void avanzar(ServerPlayer player, QuestType tipo, String objetivo, int cantidad) {
