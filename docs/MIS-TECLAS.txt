@@ -1,126 +1,53 @@
-MIS TECLAS - SERVER PANAS (con el mod Key Binding Patch)
+MIS TECLAS - SERVER PANAS
+Para aplicarlas: cierra Minecraft y ejecuta herramientas\cliente\aplicar-teclas.ps1
+(clic derecho > Ejecutar con PowerShell). Guarda una copia de options.txt antes.
+Ten el Bloq Num ENCENDIDO para usar el teclado numerico.
 
-Mantén pulsada la tecla (o teclas) de la izquierda y pulsa la del teclado numérico.
-Ctrl izquierdo = agacharse y Shift izquierdo = correr (no se usan en combinaciones).
+=== LAS DE SIEMPRE ===
+  W A S D          Moverse            Espacio        Saltar
+  Ctrl izquierdo   Agacharse          Shift izq.     Correr
+  Q                Inventario         E              Tirar objeto
+  F                Mano secundaria    T              Chat
+  Rueda (clic)     Copiar bloque / ordenar inventario
+  Z                Zoom               L              Logros
+  1 - 9            Barra rapida
 
-=== Mantener BloqMayus ===
-  BloqMayus + Num 0                  Chat de voz: susurrar
-  BloqMayus + Num 1                  Carry On: cargar bloque/animal
-  BloqMayus + Num 2                  Jade: ver detalles
-  BloqMayus + Num 3                  JEI: showBookmarkTooltipFeatures
-  BloqMayus + Num 4                  JEI: pauseRecipeCycling
-  BloqMayus + Num 5                  JEI: cheatItemStack2
-  BloqMayus + Num 6                  Apotheosis: minería en área
-  BloqMayus + Num 7                  apotheosis world tiers arent real
-  BloqMayus + Num 8                  Quark: bloquear agachado
-  BloqMayus + Num 9                  Pulsar para hablar (otro)
-  BloqMayus + Num add                Relics: lista de habilidades
-  BloqMayus + Num decimal            Reliquary: moneda de la fortuna
-  BloqMayus + Num divide             Tumba: compendio
-  BloqMayus + Num enter              Tumba: config
-  BloqMayus + Num multiply           Mapa: instant waypoint
-  BloqMayus + Num subtract           Mapa: new waypoint
+=== MANO IZQUIERDA (una sola tecla) ===
+  C                Carry On: cargar cofres, animales y aldeanos
+                   (manos vacias, manten C y clic derecho; igual para soltar)
+  BloqMayus        Chat de voz: pulsar para hablar
+  V                Chat de voz: menu        N   Chat de voz: apagar
+  B                Mochila                  J   Amuletos (Curios)
+  G / R            Dragon: embestida / fuego
+  Flecha abajo     Dragon: bajar            F7  Dragon: cambiar camara
+  I / O            Hechizos: rueda / lanzar Alt izq.  Hechizos: cambiar
+  `  (junto al 1)  Misiones FTB
+  M / U / Y        Mapa / waypoints / ajustes minimapa
 
-=== Mantener AltDer ===
-  AltDer + Num 0                     Iron's: hechizo rápido 1
-  AltDer + Num 1                     Tumba: conocimiento de la muerte
-  AltDer + Num 2                     Placebo: estelas
-  AltDer + Num 3                     Placebo: alas
-  AltDer + Num 4                     Jade: config
-  AltDer + Num 5                     Jade: narrate
-  AltDer + Num 6                     Jade: show overlay
-  AltDer + Num 7                     Jade: show recipes
-  AltDer + Num 8                     Jade: show uses
-  AltDer + Num 9                     Jade: toggle liquid
-  AltDer + Num add                   Iron's: hechizo rápido 3
-  AltDer + Num decimal               Iron's: hechizo rápido 2
-  AltDer + Num divide                Iron's: hechizo rápido 6
-  AltDer + Num enter                 Iron's: hechizo rápido 7
-  AltDer + Num multiply              Iron's: hechizo rápido 5
-  AltDer + Num subtract              Iron's: hechizo rápido 4
+=== TECLADO NUMERICO (una sola tecla) ===
+  Num 0            Mapa: waypoint instantaneo
+  Num 1 / 2 / 3    Hechizo rapido 1 / 2 / 3
+  Num 4 / Num 6    Cinturon de herramientas: anterior / siguiente
+  Num 5            Correr automatico (Quark)
+  Num 7            Mineria en area (Apotheosis)
+  Num 8            Ver detalles del bloque (Jade)
+  Num 9            Habilidades de reliquias (Relics)
+  Num +  /  Num -  Minimapa: alejar / acercar
+  Num *            Mapa: nuevo waypoint
+  Num /            Equipos FTB
+  Num .            Moneda de la fortuna (Reliquary)
+  Num Enter        Tumba: conocimiento de la muerte
 
-=== Mantener CtrlDer ===
-  CtrlDer + Num 0                    Mapa: display all sets
-  CtrlDer + Num 1                    Iron's: hechizo rápido 8
-  CtrlDer + Num 2                    Iron's: hechizo rápido 9
-  CtrlDer + Num 3                    Iron's: hechizo rápido 10
-  CtrlDer + Num 4                    Iron's: hechizo rápido 11
-  CtrlDer + Num 5                    Iron's: hechizo rápido 12
-  CtrlDer + Num 6                    Iron's: hechizo rápido 13
-  CtrlDer + Num 7                    Iron's: hechizo rápido 14
-  CtrlDer + Num 8                    Iron's: hechizo rápido 15
-  CtrlDer + Num 9                    Mapa: alternative list players
-  CtrlDer + Num add                  Mapa: map zoom out
-  CtrlDer + Num decimal              Mapa: map zoom in
-  CtrlDer + Num divide               Mapa: toggle dimension
-  CtrlDer + Num enter                Mapa: toggle entity radar
-  CtrlDer + Num multiply             Mapa: switch waypoint set
-  CtrlDer + Num subtract             Mapa: reverse entity radar
+=== CTRL DERECHO + TECLADO NUMERICO ===
+  CtrlDer + Num 0        Chat de voz: susurrar
+  CtrlDer + Num 1 ... 9  Hechizo rapido 4 ... 12
+  CtrlDer + Num + - *    Hechizo rapido 13 / 14 / 15
+  CtrlDer + Num /        Bloquear agachado (Quark)
+  CtrlDer + Num .        Mochila: ordenar
+  CtrlDer + Num Enter    Tumba: compendio
 
-=== Mantener BloqMayus + AltDer ===
-  BloqMayus + AltDer + Num 0         Mapa: zoom in
-  BloqMayus + AltDer + Num 1         Mapa: toggle grid
-  BloqMayus + AltDer + Num 2         Mapa: toggle light overlay
-  BloqMayus + AltDer + Num 3         Mapa: toggle manual cave mode
-  BloqMayus + AltDer + Num 4         Mapa: toggle map
-  BloqMayus + AltDer + Num 5         Mapa: toggle map waypoints
-  BloqMayus + AltDer + Num 6         Mapa: toggle pac chunk claims
-  BloqMayus + AltDer + Num 7         Mapa: toggle slime
-  BloqMayus + AltDer + Num 8         Mapa: toggle tracked players
-  BloqMayus + AltDer + Num 9         Mapa: toggle waypoints
-  BloqMayus + AltDer + Num add       Mochila: sort
-  BloqMayus + AltDer + Num decimal   Mapa: zoom out
-  BloqMayus + AltDer + Num divide    Mochila: toggle upgrade 2
-  BloqMayus + AltDer + Num enter     Mochila: toggle upgrade 3
-  BloqMayus + AltDer + Num multiply  Mochila: toggle upgrade 1
-  BloqMayus + AltDer + Num subtract  Mochila: toggle upgrade 0
-
-=== Mantener BloqMayus + CtrlDer ===
-  BloqMayus + CtrlDer + Num 0        Quark: transfer insert
-  BloqMayus + CtrlDer + Num 1        Cinturón: cycle left
-  BloqMayus + CtrlDer + Num 2        Cinturón: cycle right
-  BloqMayus + CtrlDer + Num 3        Chat de voz: adjust volumes
-  BloqMayus + CtrlDer + Num 4        Chat de voz: settings
-  BloqMayus + CtrlDer + Num 5        Chat de voz: toggle recording
-  BloqMayus + CtrlDer + Num 6        ftbteams open gui
-  BloqMayus + CtrlDer + Num 7        Quark: sort container
-  BloqMayus + CtrlDer + Num 8        Quark: sort player
-  BloqMayus + CtrlDer + Num 9        Quark: transfer extract
-  BloqMayus + CtrlDer + Num add      Emote: cheer
-  BloqMayus + CtrlDer + Num decimal  Quark: autorun
-  BloqMayus + CtrlDer + Num divide   Emote: headbang
-  BloqMayus + CtrlDer + Num enter    Emote: no
-  BloqMayus + CtrlDer + Num multiply Emote: facepalm
-  BloqMayus + CtrlDer + Num subtract Emote: clap
-
-=== Mantener AltDer + CtrlDer ===
-  AltDer + CtrlDer + Num 0           Emote Patreon: exorcist
-  AltDer + CtrlDer + Num 1           Emote: point
-  AltDer + CtrlDer + Num 2           Emote: salute
-  AltDer + CtrlDer + Num 3           Emote: shrug
-  AltDer + CtrlDer + Num 4           Emote: think
-  AltDer + CtrlDer + Num 5           Emote: wave
-  AltDer + CtrlDer + Num 6           Emote: weep
-  AltDer + CtrlDer + Num 7           Emote: yes
-  AltDer + CtrlDer + Num 8           Emote Patreon: dab
-  AltDer + CtrlDer + Num 9           Emote Patreon: dance
-  AltDer + CtrlDer + Num add         Emote Patreon: tpose
-  AltDer + CtrlDer + Num decimal     Emote Patreon: jet
-  AltDer + CtrlDer + Num divide      Quark: narrator readout
-  AltDer + CtrlDer + Num enter       JEI: copy recipe id
-  AltDer + CtrlDer + Num multiply    Quark: narrator full readout
-  AltDer + CtrlDer + Num subtract    Emote Patreon: zombie
-
-=== Mantener BloqMayus + AltDer + CtrlDer ===
-  BloqMayus + AltDer + CtrlDer + Num 0 structure gel open building tool gui
-  BloqMayus + AltDer + CtrlDer + Num 1 JEI: nextPage
-  BloqMayus + AltDer + CtrlDer + Num 2 JEI: previousPage
-  BloqMayus + AltDer + CtrlDer + Num 3 JEI: shareToChat
-  BloqMayus + AltDer + CtrlDer + Num 4 JEI: toggleBookmarkOverlay
-  BloqMayus + AltDer + CtrlDer + Num 5 JEI: toggleCheatMode
-  BloqMayus + AltDer + CtrlDer + Num 6 JEI: toggleEditMode
-  BloqMayus + AltDer + CtrlDer + Num 7 entityculling toggle
-  BloqMayus + AltDer + CtrlDer + Num 8 modernfix config
-  BloqMayus + AltDer + CtrlDer + Num 9 spectatorOutlines
-  BloqMayus + AltDer + CtrlDer + Num add info structure gel building tool undo
-  BloqMayus + AltDer + CtrlDer + Num decimal info structure gel building tool redo
+=== SIN TECLA (casi no se usan) ===
+Emotes de Quark (tienen botones en el chat), opciones de Jade, JEI, ModernFix,
+Placebo, Structure Gel, interruptores del minimapa (estan en su menu, tecla Y),
+mejoras de la mochila y ajustes del chat de voz (menu con V).
+Si alguna te hace falta: Opciones > Controles > Asignacion de teclas.
