@@ -202,7 +202,7 @@ Los anuncios de logros no se pueden ocultar.
 - Precio = `buy:{id:"minecraft:emerald",Count:32b}`.
 - Para quitar un nombre personalizado: `data merge entity <uuid> {CustomName:'null'}`. `data remove` **no** funciona.
 - Para que no pierda la profesión, mantén `Xp` ≥ 1. Nivel novato = `VillagerData.level:1`.
-- Estado actual: un bibliotecario novato con **Reparación** a 32 esmeraldas y otro con **Irrompibilidad III** a 24 esmeraldas.
+- Estado actual: un bibliotecario novato con **Reparación** a 32 esmeraldas y otro con **Irrompibilidad III** a 40 esmeraldas.
 
 ## 11. Teclas del cliente (Key Binding Patch)
 
