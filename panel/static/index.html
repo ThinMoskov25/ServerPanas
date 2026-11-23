@@ -1844,11 +1844,13 @@ function pintarFicha(){
     +'<div class="jg-info"><b>&#128205; Posición actual</b><div class="mono" style="font-size:13px">'+(d.pos?'X '+d.pos[0]+' · Y '+d.pos[1]+' · Z '+d.pos[2]:'?')+'</div><div class="suave" style="font-size:12.5px">'+esc(dimTxt(d.dim))+'</div>'
     +(d.conectado&&otros?'<div class="fila" style="margin-top:8px"><select id="jgTpOtro">'+otros+'</select><button class="btn sm az" onclick="teletransportar(JG_ACTUAL,{tipo:\'jugador\',nombre:$(\'jgTpOtro\').value})">Llevar con él</button><button class="btn sm" onclick="teletransportar($(\'jgTpOtro\').value,{tipo:\'jugador\',nombre:JG_ACTUAL})">Traerlo aquí</button></div>':'')+'</div>'
     +infoUbic('&#128719; Ubicación de reaparición',d.spawn,d.nombre,d.conectado)+infoUbic('&#9760; Última ubicación de muerte',d.muerte,d.nombre,d.conectado)+'</div></div>'
+    +'<div class="card" style="margin-top:14px" id="jgMascotas"><h2>&#128062; Mascotas</h2><p class="suave">Cargando mascotas...</p></div>'
     +'<div class="card" style="margin-top:14px"><h2>Estadísticas</h2>'+(S?'<div class="jg-stats">'+stat(S.tiempo_jugado_h+' h','Tiempo jugado')+stat(S.muertes,'Muertes')+stat(S.mobs_matados,'Criaturas matadas')
     +stat(S.jugadores_matados,'Jugadores matados')+stat(S.bloques_minados,'Bloques minados')+stat(S.objetos_fabricados,'Objetos fabricados')+stat(S.km_a_pie+' km','Recorrido a pie')
     +stat(S.km_montado_o_volando+' km','Montado o volando')+stat(S.saltos,'Saltos')+stat(S.dano_hecho+' &#10084;','Daño hecho')+stat(S.dano_recibido+' &#10084;','Daño recibido')+stat(S.veces_dormido,'Veces dormido')+'</div>'
     :'<p class="suave">Sin estadísticas todavía.</p>')+'</div>';
   pintarSeleccion();if(JG_SEL&&JG_SEL.ender){$('jgEnder').checked=true;pintarEnder();}
+  if(JG_MASC&&JG_MASC.jugador===d.nombre)pintarMascotas();cargarMascotas(d.nombre,false);
 }
 function elegirItem(slot,ender){JG_SEL={slot,ender:!!ender};pintarFicha();if($('jgEnder')&&ender){$('jgEnder').checked=true;pintarEnder();}}
 function pintarSeleccion(){
@@ -1876,6 +1878,47 @@ async function accionJugador(accion,el,valor){
     aviso('Enviado: /'+r.enviado,'ok');setTimeout(()=>{if(JG_ACTUAL===n&&!$('jgVistaFicha').hidden)abrirFicha(n);},4000);}
   catch(e){aviso(e.message,'error');if(el&&el.type==='checkbox')el.checked=!el.checked;}
 }
+// ============ MASCOTAS (ficha del jugador) ============
+let JG_MASC=null;
+async function cargarMascotas(n,fresco){
+  try{const r=await api('/api/jugador/mascotas?jugador='+encodeURIComponent(n)+(fresco?'&fresco=1':''));if(JG_ACTUAL!==n)return;r.jugador=n;JG_MASC=r;pintarMascotas();}
+  catch(e){const c=$('jgMascotas');if(c&&JG_ACTUAL===n)c.innerHTML='<h2>&#128062; Mascotas</h2><p class="suave">'+esc(e.message)+'</p>';}
+}
+function haceTxt(ms){if(!ms)return '?';const s=Math.max(0,(Date.now()-ms)/1000);if(s<90)return 'hace un momento';if(s<3600)return 'hace '+Math.round(s/60)+' min';if(s<86400)return 'hace '+Math.round(s/3600)+' h';return 'hace '+Math.round(s/86400)+' días';}
+function pintarMascotas(){
+  const c=$('jgMascotas');if(!c||!JG_MASC)return;const L=JG_MASC.mascotas||[],con=JG_DATOS&&JG_DATOS.conectado;
+  let h='<div class="card-head"><h2>&#128062; Mascotas ('+L.length+')</h2><div class="fila">'
+    +(con&&L.length?'<button class="btn sm az" onclick="accionMascota(\'traer_todas\',\'\',this)">Traer todas</button>':'')
+    +'<button class="btn sm" onclick="this.disabled=true;cargarMascotas(JG_ACTUAL,true)">&#8635; Actualizar</button></div></div>';
+  if(!L.length){c.innerHTML=h+'<p class="suave">'+(JG_MASC.sin_registro?'El servidor todavía no ha registrado mascotas. ':'No tiene mascotas registradas. ')+'Aparecen cuando la zona donde están se carga o cuando se domestican.</p>';return;}
+  h+='<div style="overflow-x:auto"><table><thead><tr><th>Mascota</th><th>Vida</th><th>Estado</th><th>Posición</th><th>Acciones</th></tr></thead><tbody>';
+  for(const m of L){
+    const pct=m.vida_max?Math.min(100,Math.round(100*m.vida/m.vida_max)):0,u=esc(m.uuid),quieta=m.orden?m.orden==='Quieto':m.sentado;
+    const est=[m.cargada?'<span class="chip verde">Cargada</span>':'<span class="chip gris">Lejos · '+haceTxt(m.visto)+'</span>'];
+    if(m.orden)est.push('<span class="chip azul">'+esc(m.orden)+'</span>');else if(m.sentado)est.push('<span class="chip azul">Quieta</span>');
+    if(m.bebe)est.push('<span class="chip">Cría</span>');if(m.etapa!=null)est.push('<span class="chip">Etapa '+m.etapa+'</span>');if(m.montada)est.push('<span class="chip">Montada</span>');
+    h+='<tr><td><b>'+esc(m.nombre||m.tipo_nombre)+'</b>'+(m.nombre?'<div class="suave" style="font-size:12.5px">'+esc(m.tipo_nombre)+'</div>':'')+'<div class="suave mono" style="font-size:11px">'+esc(m.tipo)+'</div></td>'
+      +'<td style="min-width:120px"><div class="mono" style="font-size:13px">'+m.vida+' / '+m.vida_max+'</div><div class="jg-barra"><div style="width:'+pct+'%"></div></div></td>'
+      +'<td>'+est.join(' ')+'</td>'
+      +'<td><div class="mono" style="font-size:13px">X '+Math.round(m.x)+' · Y '+Math.round(m.y)+' · Z '+Math.round(m.z)+'</div><div class="suave" style="font-size:12.5px">'+esc(dimTxt(m.dim))+'</div></td>'
+      +'<td><div class="fila" style="flex-wrap:wrap;gap:4px">'
+      +(con?'<button class="btn sm az" onclick="accionMascota(\'traer\',\''+u+'\',this)">Traer</button><button class="btn sm" onclick="accionMascota(\'ir\',\''+u+'\',this)">Ir con ella</button>':'')
+      +'<button class="btn sm p" onclick="accionMascota(\'curar\',\''+u+'\',this)">Curar</button>'
+      +(quieta?'<button class="btn sm" onclick="accionMascota(\'sentar_no\',\''+u+'\',this)">Soltar</button>':'<button class="btn sm" onclick="accionMascota(\'sentar_si\',\''+u+'\',this)">Dejar quieta</button>')
+      +'<button class="btn sm" onclick="renombrarMascota(\''+u+'\',this)">Renombrar</button>'
+      +'<button class="btn sm" title="Copiar el UUID para usarlo en la consola" onclick="navigator.clipboard.writeText(\''+u+'\');aviso(\'UUID copiado\',\'ok\')">UUID</button>'
+      +'</div></td></tr>';
+  }
+  c.innerHTML=h+'</tbody></table></div>';
+}
+async function accionMascota(accion,uuid,el,valor){
+  const n=JG_ACTUAL;if(el)el.disabled=true;
+  try{const r=await api('/api/jugador/mascota',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jugador:n,mascota:uuid,accion,valor})});
+    aviso('Enviado: /'+r.enviado,'ok');setTimeout(()=>{if(JG_ACTUAL===n)cargarMascotas(n,true);},6000);}
+  catch(e){aviso(e.message,'error');}
+  finally{if(el)el.disabled=false;}
+}
+function renombrarMascota(uuid,el){const t=prompt('Nuevo nombre de la mascota (máx. 32 letras):');if(t&&t.trim())accionMascota('nombre',uuid,el,t.trim());}
 // ============ DATAPACKS ============
 document.querySelectorAll('#dpSubtabs .subtab').forEach(b=>b.onclick=()=>{
   document.querySelectorAll('#dpSubtabs .subtab').forEach(x=>x.classList.toggle('activo',x===b));
@@ -2250,6 +2293,13 @@ const ASISTENTE=[
   {t:'Expulsar',c:'kick {j} {texto}',f:{j:'jugador',texto:'texto'},peligro:'Expulsar'},
   {t:'Banear',c:'ban {j} {texto}',f:{j:'jugador',texto:'texto'},peligro:'Banear'},
   {t:'Quitar baneo',c:'pardon {j}',f:{j:'jugador'}},
+  {t:'Mascotas: ver la lista (en la consola)',c:'mascotas lista {j}',f:{j:'jugador'}},
+  {t:'Mascotas: traer todas al jugador',c:'mascotas traer {j} todas',f:{j:'jugador'}},
+  {t:'Mascotas: traer una (UUID)',c:'mascotas traer {j} {texto}',f:{j:'jugador',texto:'texto'}},
+  {t:'Mascotas: llevar al jugador junto a una (UUID)',c:'mascotas ir {j} {texto}',f:{j:'jugador',texto:'texto'}},
+  {t:'Mascotas: curar (UUID)',c:'mascotas curar {texto}',f:{texto:'texto'}},
+  {t:'Mascotas: dejar quieta (UUID)',c:'mascotas sentar {texto} si',f:{texto:'texto'}},
+  {t:'Mascotas: soltar (UUID)',c:'mascotas sentar {texto} no',f:{texto:'texto'}},
 ];
 function opciones(o){return Object.entries(o).map(([k,v])=>'<option value="'+k+'">'+esc(v)+'</option>').join('');}
 function pintarAsistente(conservar){
@@ -2275,7 +2325,7 @@ function asistenteAConsola(){$('cmd').value=comandoAsistente();$('cmd').focus();
 function ejecutarAsistente(){const a=ASISTENTE[+$('asisTipo').value||0],c=comandoAsistente();if(a.peligro&&!confirm(a.peligro+'? Se ejecutará: /'+c))return;enviarCmd(c);}
 
 // Consola: sugerencias de comandos y jugadores, e historial
-const CMD_BASE=['tp','give','effect give','effect clear','gamemode','xp add','clear','kill','kick','ban','pardon','say','tell','time set','weather','difficulty','gamerule','summon','locate structure','execute','list','save-all','forge tps','reload','ftbquests reload','tienda reload'];
+const CMD_BASE=['mascotas','tp','give','effect give','effect clear','gamemode','xp add','clear','kill','kick','ban','pardon','say','tell','time set','weather','difficulty','gamerule','summon','locate structure','execute','list','save-all','forge tps','reload','ftbquests reload','tienda reload'];
 let HISTORIAL=[],POS_HIST=-1,SUG=[],SUG_I=-1;
 try{HISTORIAL=JSON.parse(localStorage.getItem('sp_historial')||'[]');}catch(e){}
 function guardarHistorial(c){if(HISTORIAL[0]!==c)HISTORIAL.unshift(c);HISTORIAL=HISTORIAL.slice(0,50);POS_HIST=-1;try{localStorage.setItem('sp_historial',JSON.stringify(HISTORIAL));}catch(e){}}

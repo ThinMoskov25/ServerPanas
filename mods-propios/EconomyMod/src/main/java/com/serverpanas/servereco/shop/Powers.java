@@ -2,6 +2,8 @@ package com.serverpanas.servereco.shop;
 
 import com.serverpanas.servereco.data.BalanceData;
 import com.serverpanas.servereco.economy.EcoConfig;
+import com.serverpanas.servereco.mascotas.PetLoader;
+import com.serverpanas.servereco.mascotas.PetRegistry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.ClickEvent;
@@ -47,6 +49,7 @@ public final class Powers {
                         MobEffect efecto, int nivel) {
     }
 
+    public static final String MASCOTA = "mascota";
     public static final Map<String, Poder> PODERES = new LinkedHashMap<>();
     private static final int DIEZ_MIN = 20 * 60 * 10;
 
@@ -57,6 +60,8 @@ public final class Powers {
                 "Trae a un compañero a tu lado (si acepta).", true, null, 0));
         agregar(new Poder("tp_cama", "Volver a mi cama", Items.RED_BED,
                 "Vuelves a tu cama o ancla; si no tienes, al spawn.", false, null, 0));
+        agregar(new Poder(MASCOTA, "Llamar a mi mascota", Items.LEAD,
+                "Trae a tu lado a una de tus mascotas, esté donde esté.", false, null, 0));
         agregar(new Poder("curar", "Curación completa", Items.GOLDEN_APPLE,
                 "Vida y hambre al máximo, y apaga el fuego.", false, null, 0));
         agregar(new Poder("vision_nocturna", "Visión nocturna (10 min)", Items.GOLDEN_CARROT,
@@ -81,7 +86,63 @@ public final class Powers {
     /** Precio actual (0 = desactivado). */
     public static int precio(String id) {
         Integer v = EcoConfig.get().poderes.get(id);
+        if (v == null && MASCOTA.equals(id)) {
+            // Sin precio propio en valores.json: cuesta lo mismo que traer a un compañero.
+            return precio("tp_traer");
+        }
         return v == null ? 0 : Math.max(0, v);
+    }
+
+    // ------------------------------------------------------------------
+    //  Llamar a una mascota (se cobra solo si llega)
+    // ------------------------------------------------------------------
+    public static void llamarMascota(ServerPlayer yo, UUID mascota) {
+        int precio = precio(MASCOTA);
+        if (precio <= 0) {
+            error(yo, "Ese poder no está disponible.");
+            return;
+        }
+        net.minecraft.nbt.CompoundTag info = PetRegistry.get(yo.server).info(mascota);
+        if (info == null || !yo.getUUID().toString().equals(info.getString("dueno"))) {
+            error(yo, "Esa mascota no es tuya.");
+            return;
+        }
+        long ahora = System.currentTimeMillis();
+        Long fin = ESPERA.get(yo.getUUID());
+        if (fin != null && fin > ahora) {
+            error(yo, "Espera " + ((fin - ahora) / 1000 + 1) + " s antes de volver a llamarla.");
+            return;
+        }
+        if (!BalanceData.get(yo.server).tiene(yo.getUUID(), precio)) {
+            error(yo, "No tienes créditos suficientes (cuesta " + precio + ").");
+            return;
+        }
+        ESPERA.put(yo.getUUID(), ahora + ESPERA_MS);
+        ok(yo, "Llamando a tu mascota...");
+        UUID id = yo.getUUID();
+        PetLoader.con(yo.server, mascota, e -> {
+            ServerPlayer j = yo.server.getPlayerList().getPlayer(id);
+            if (j == null) return;
+            if (!id.equals(PetRegistry.dueno(e))) {
+                error(j, "Esa mascota ya no es tuya. No se te cobró nada.");
+                return;
+            }
+            BalanceData bal = BalanceData.get(j.server);
+            if (!bal.restar(j, precio)) {
+                error(j, "No tienes créditos suficientes (cuesta " + precio + ").");
+                return;
+            }
+            if (!PetLoader.moverA(e, j)) {
+                bal.sumar(j, precio);
+                error(j, "No se pudo traer a tu mascota. No se te cobró nada.");
+                return;
+            }
+            j.level().playSound(null, j.blockPosition(), SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 0.8f, 1f);
+            ok(j, "Tu mascota ha llegado. Pagaste " + precio + " créditos. Saldo: " + bal.saldo(j));
+        }, () -> {
+            ServerPlayer j = yo.server.getPlayerList().getPlayer(id);
+            if (j != null) error(j, "No encontré a tu mascota (¿murió o la guardaste?). No se te cobró nada.");
+        });
     }
 
     /** Poderes activos, en orden. */

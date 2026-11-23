@@ -142,6 +142,8 @@ cd "...\ServerPanas\mods-propios\EconomyMod"
   - `shop/Powers.java` y `PowersMenu.java`: compra de poderes, p. ej. TP hacia un compañero.
   - `ShopBar.java`: barra "Visita la tienda usando comando /tienda" cada 40 min durante 30 s.
   - Se quitó "AGREGAR CRÉDITO" del menú principal y los precios se multiplicaron x10.
+  - `mascotas/`: registro de mascotas por jugador (`world/data/serverpanas_mascotas.dat`). Una mascota aparece cuando su chunk se carga o cuando se domestica; se borra al morir o al guardarla en un objeto (cuerno de dragón). Comandos de operador: `/mascotas lista|traer|ir|curar|sentar|nombre`. Si la mascota está en un chunk sin cargar, `PetLoader` lo fuerza 10 s como máximo y solo lo libera si lo forzó él, así que no rompe los forceload de PanelJefes.
+  - Poder `mascota` ("Llamar a mi mascota"): si no tiene precio en `valores.json`, cuesta lo mismo que `tp_traer`. Solo se cobra si la mascota llega.
 - **DailyQuestsMod:** `QuestBar.java` muestra la barra cada 40 min durante 1 min, y avisa cuando se regeneran las misiones (nuevo día).
 - **InvBackupMod:**
   - Respaldos en `world/inventory_backups/<uuid>/`.
@@ -236,6 +238,7 @@ Los anuncios de logros no se pueden ocultar.
   python herramientas\panel-pruebas\panel_prueba.py panel <archivo_registro.txt>
   ```
   Bloquea los comandos y las escrituras (los comandos se anotan en el archivo de registro) y sirve en `http://127.0.0.1:8793`. Con `medir_panel.py` se miden los tiempos. Ciérralo al terminar: deja un hilo de precarga corriendo.
+- La ficha del jugador tiene una tarjeta de Mascotas (`/api/jugador/mascotas` y `/api/jugador/mascota`) que lee el registro del mod de la tienda. El asistente de la Consola tiene plantillas `mascotas ...`.
 - Pestañas principales: Consola (incluye XP), Tienda, Jugadores (ficha, reparar ítem al 100 %, recuperar inventario por pestañas con barra de progreso y ✔ Recuperado), Jefes, Bot, Datapacks y Misiones.
 
 ## 13. Checklist antes de decir "listo"

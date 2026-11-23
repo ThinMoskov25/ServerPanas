@@ -1,7 +1,12 @@
 package com.serverpanas.servereco.shop;
 
 import com.serverpanas.servereco.data.BalanceData;
+import com.serverpanas.servereco.mascotas.PetRegistry;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.SpawnEggItem;
+import net.minecraftforge.common.ForgeSpawnEggItem;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
@@ -36,6 +41,7 @@ public class PowersMenu extends ChestMenu {
     private final String poder;
     private final Map<Integer, String> poderPorSlot = new HashMap<>();
     private final Map<Integer, UUID> jugadorPorSlot = new HashMap<>();
+    private final Map<Integer, UUID> mascotaPorSlot = new HashMap<>();
 
     public PowersMenu(int id, Inventory inv, ServerPlayer dueno, Container muestra, String poder) {
         super(MenuType.GENERIC_9x6, id, inv, muestra, 6);
@@ -70,12 +76,40 @@ public class PowersMenu extends ChestMenu {
                 lore.add(saldo >= precio ? "&aClic para comprar" : "&cNo te alcanza el saldo");
                 if (p.conCompanero()) {
                     lore.add("&8Solo se cobra si tu compañero acepta.");
+                } else if (Powers.MASCOTA.equals(p.id())) {
+                    lore.add("&8Solo se cobra si tu mascota llega.");
                 }
                 muestra.setItem(SLOTS_PODERES[k], MenuUtil.boton(p.icono(), "&d&l" + p.nombre(), lore));
                 poderPorSlot.put(SLOTS_PODERES[k], p.id());
             }
             if (lista.isEmpty()) {
                 muestra.setItem(22, MenuUtil.boton(Items.BARRIER, "&cNo hay poderes disponibles", List.of()));
+            }
+        } else if (Powers.MASCOTA.equals(poder)) {
+            int i = 0;
+            for (CompoundTag t : PetRegistry.get(dueno.server).de(dueno.getUUID())) {
+                if (i >= 45) break;
+                EntityType<?> tipo = EntityType.byString(t.getString("tipo")).orElse(null);
+                Item icono = Items.NAME_TAG;
+                String nombreTipo = t.getString("tipo");
+                if (tipo != null) {
+                    nombreTipo = tipo.getDescription().getString();
+                    SpawnEggItem huevo = ForgeSpawnEggItem.fromEntityType(tipo);
+                    if (huevo != null) icono = huevo;
+                }
+                String nombre = t.getString("nombre").isEmpty() ? nombreTipo : t.getString("nombre") + " &7(" + nombreTipo + ")";
+                String dim = t.getString("dim").replace("minecraft:", "");
+                muestra.setItem(i, MenuUtil.boton(icono, "&e&l" + nombre, List.of(
+                        "&7Vida: &c" + Math.round(t.getFloat("vida")) + " / " + Math.round(t.getFloat("vidaMax")),
+                        "&7Última posición: &f" + (int) t.getDouble("x") + " " + (int) t.getDouble("y") + " " + (int) t.getDouble("z") + " &8(" + dim + ")",
+                        "&6Precio: &e" + Powers.precio(poder) + " créditos",
+                        "&aClic para llamarla")));
+                mascotaPorSlot.put(i, UUID.fromString(t.getString("uuid")));
+                i++;
+            }
+            if (i == 0) {
+                muestra.setItem(22, MenuUtil.boton(Items.BARRIER, "&cNo tienes mascotas registradas", List.of(
+                        "&7Aparecen cuando estás cerca de ellas o las domesticas.")));
             }
         } else {
             Powers.Poder p = Powers.PODERES.get(poder);
@@ -124,11 +158,17 @@ public class PowersMenu extends ChestMenu {
             if (p == null) {
                 return;
             }
-            if (p.conCompanero()) {
+            if (p.conCompanero() || Powers.MASCOTA.equals(id)) {
                 Menus.abrirPoderes(dueno, id);
             } else {
                 dueno.closeContainer();
                 Powers.usarInmediato(dueno, p);
+            }
+        } else if (Powers.MASCOTA.equals(poder)) {
+            UUID mascota = mascotaPorSlot.get(slotId);
+            if (mascota != null) {
+                dueno.closeContainer();
+                Powers.llamarMascota(dueno, mascota);
             }
         } else {
             UUID otro = jugadorPorSlot.get(slotId);

@@ -1655,6 +1655,85 @@ def jugador_accion(nombre, accion, valor=None):
 
 
 
+# ---- Mascotas del jugador (registro que guarda el mod de la tienda) ----
+ARCH_MASCOTAS = 'world/data/serverpanas_mascotas.dat'
+UUID_OK = re.compile(r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')
+ORDEN_DRAGON = {0: 'Deambula', 1: 'Quieto', 2: 'Escolta'}
+def _nbt_py(n):
+    tipo, v = n
+    if tipo == 10:
+        return {k: _nbt_py(x) for k, x in v.items()}
+    if tipo == 9:
+        return [_nbt_py(x) for x in v[1]]
+    return v
+def _mascotas_todas():
+    """Todas las mascotas registradas; None si el servidor aun no tiene el registro."""
+    try:
+        raiz = nbt.load(EXA.leer_archivo(ARCH_MASCOTAS))
+    except exaroton.ErrorApi:
+        return None
+    lista = nbt.get(raiz, ['data', 'mascotas'])
+    return _nbt_py(lista) if lista else []
+def jugador_mascotas(nombre, fresco=False):
+    if not NOMBRE_OK.match(nombre or ''):
+        raise ValueError('Jugador no valido')
+    uid = (BOT.uuids().get(nombre) or '').lower()
+    if not uid:
+        raise ValueError('Jugador desconocido.')
+    if fresco:
+        if time.time() - _ULTIMO_SAVE[0] > 10:
+            # El registro se escribe al guardar el mundo
+            _ULTIMO_SAVE[0] = time.time()
+            EXA.comando('save-all')
+            time.sleep(2.5)
+        with EXA.fresco():
+            todas = _mascotas_todas()
+    else:
+        todas = _mascotas_todas()
+    try:
+        nombres = {e['id']: e['nombre'] for e in _cargar_indice_entidades()}
+    except Exception:
+        nombres = {}
+    out = []
+    for m in todas or []:
+        if (m.get('dueno') or '').lower() != uid:
+            continue
+        tipo = m.get('tipo') or '?'
+        out.append({
+            'uuid': m.get('uuid'), 'tipo': tipo,
+            'tipo_nombre': nombres.get(tipo) or tipo.split(':')[-1].replace('_', ' ').capitalize(),
+            'nombre': m.get('nombre') or '', 'dim': m.get('dim'),
+            'x': m.get('x'), 'y': m.get('y'), 'z': m.get('z'),
+            'vida': round(float(m.get('vida') or 0), 1), 'vida_max': round(float(m.get('vidaMax') or 0), 1),
+            'bebe': bool(m.get('bebe')), 'sentado': bool(m.get('sentado')), 'montada': bool(m.get('montada')),
+            'etapa': m.get('etapa'), 'orden': ORDEN_DRAGON.get(m.get('orden')) if 'orden' in m else None,
+            'cargada': bool(m.get('cargada')), 'visto': m.get('visto'),
+        })
+    out.sort(key=lambda x: (not x['cargada'], x['tipo_nombre'], x['nombre']))
+    return {'mascotas': out, 'sin_registro': todas is None}
+MASCOTA_CMDS = {
+    'traer': 'mascotas traer {j} {m}', 'ir': 'mascotas ir {j} {m}', 'curar': 'mascotas curar {m}',
+    'sentar_si': 'mascotas sentar {m} si', 'sentar_no': 'mascotas sentar {m} no',
+}
+def jugador_mascota_accion(nombre, mascota, accion, valor=None):
+    if not NOMBRE_OK.match(nombre or ''):
+        raise ValueError('Jugador no valido')
+    if accion == 'traer_todas':
+        cmd = 'mascotas traer %s todas' % nombre
+    else:
+        if not UUID_OK.match(mascota or ''):
+            raise ValueError('Mascota no valida')
+        if accion == 'nombre':
+            texto = re.sub(r'[\x00-\x1f\x7f\u00a7]', '', str(valor or '')).strip()[:32]
+            if not texto:
+                raise ValueError('Escribe un nombre')
+            cmd = 'mascotas nombre %s %s' % (mascota, texto)
+        elif accion in MASCOTA_CMDS:
+            cmd = MASCOTA_CMDS[accion].format(j=nombre, m=mascota)
+        else:
+            raise ValueError('Accion no valida')
+    EXA.invalidar_archivo(ARCH_MASCOTAS)
+    return comando_en_fondo(cmd)
 def consola_waystones(jugador=None):
     """Todas las waystones; con jugador, marca las que el tiene descubiertas."""
     lista = _cacheado('waystones', 30, _leer_waystones)
@@ -3125,6 +3204,12 @@ class Manejador(BaseHTTPRequestHandler):
                 if acc.startswith('op_') != (ruta == '/api/jugador/op'):
                     raise ValueError('Usa la ruta correcta para esta accion.')
                 return self._json(jugador_accion((d.get('jugador') or '').strip(), acc, d.get('valor')))
+            if metodo == 'GET' and ruta == '/api/jugador/mascotas':
+                return self._json(jugador_mascotas(self._jugador(q), q.get('fresco') == '1'))
+            if metodo == 'POST' and ruta == '/api/jugador/mascota':
+                d = self._cuerpo_json()
+                return self._json(jugador_mascota_accion((d.get('jugador') or '').strip(), d.get('mascota'),
+                                                         d.get('accion') or '', d.get('valor')))
             if metodo == 'GET' and ruta == '/api/consola/jugadores':
                 return self._json(consola_jugadores())
             if metodo == 'GET' and ruta == '/api/consola/waystones':
@@ -3360,6 +3445,7 @@ def precargar_una_vez():
         ('datapacks', DATAPACKS.listar), ('elites', DATAPACKS.elites_estado), ('vida', DATAPACKS.vida_listar),
         ('programador', DATAPACKS.prog_listar), ('bot', lambda: BOT.config(forzar=True)),
         ('archivos raiz', lambda: EXA.info_archivo('')),
+        ('mascotas', _mascotas_todas),
     ]
     try:
         tareas.append(('misiones', lambda: misiones_lista()))

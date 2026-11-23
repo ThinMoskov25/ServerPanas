@@ -86,7 +86,7 @@ public final class Menus {
         Container cont = PowersMenu.nuevoContenedor();
         p.openMenu(new MenuProvider() {
             @Override public Component getDisplayName() {
-                return Component.literal(poder == null ? "Poderes" : "Elige un compañero")
+                return Component.literal(poder == null ? "Poderes" : Powers.MASCOTA.equals(poder) ? "Elige una mascota" : "Elige un compañero")
                         .withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.BOLD);
             }
             @Override public AbstractContainerMenu createMenu(int id, Inventory inv, Player pl) {
